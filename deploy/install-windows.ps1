@@ -1,12 +1,15 @@
 # Richtet SG9 unter Windows als echten Windows-Dienst ein (startet beim Hochfahren, ohne Anmeldung).
 # Ausführen in einer PowerShell "Als Administrator":
 #   powershell -ExecutionPolicy Bypass -File install-windows.ps1 -Exe .\sg9-windows-amd64.exe
-# Entfernen:
+# Entfernen (Daten bleiben):
 #   powershell -ExecutionPolicy Bypass -File install-windows.ps1 -Uninstall
+# Entfernen inklusive aller Daten:
+#   powershell -ExecutionPolicy Bypass -File install-windows.ps1 -Uninstall -Purge
 param(
   [string]$Exe,
   [string]$Target = "$env:ProgramFiles\SG9",
-  [switch]$Uninstall
+  [switch]$Uninstall,
+  [switch]$Purge
 )
 $ErrorActionPreference = "Stop"
 
@@ -15,7 +18,15 @@ if ($Uninstall) {
   # ältere Versionen liefen als geplante Aufgabe
   Unregister-ScheduledTask -TaskName "SG9 Server" -Confirm:$false -ErrorAction SilentlyContinue
   Remove-NetFirewallRule -DisplayName "SG9*" -ErrorAction SilentlyContinue
-  Write-Host "SG9-Dienst entfernt. Deine Daten in $Target\sg9-data bleiben erhalten."
+  Start-Sleep 2
+  if ($Purge) {
+    Remove-Item -Recurse -Force $Target -ErrorAction SilentlyContinue
+    Write-Host "SG9 vollständig entfernt, inklusive aller Daten."
+  } else {
+    Remove-Item -Force "$Target\sg9.exe" -ErrorAction SilentlyContinue
+    Write-Host "SG9 entfernt. Deine Daten in $Target\sg9-data bleiben erhalten."
+    Write-Host "Ganz löschen: install-windows.ps1 -Uninstall -Purge"
+  }
   return
 }
 if (-not $Exe) { throw "Bitte mit -Exe den Pfad zur sg9-…-windows-amd64.exe angeben." }

@@ -1,7 +1,7 @@
 # Baut SG9 für Windows, Linux und macOS in den Ordner dist\ (PowerShell, Go muss installiert sein).
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
-$Version = if ($env:VERSION) { $env:VERSION } else { "2.4.0" }
+$Version = if ($env:VERSION) { $env:VERSION } else { "2.4.1" }
 New-Item -ItemType Directory -Force dist | Out-Null
 Remove-Item dist\* -Force -ErrorAction SilentlyContinue
 

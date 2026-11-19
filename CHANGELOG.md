@@ -1,5 +1,11 @@
 # Änderungen
 
+## 2.4.1
+
+- Installationsskripte für Linux (`install-linux.sh`) und macOS (`install-macos.sh`): installieren, aktualisieren, entfernen (`--uninstall`, `--purge`).
+- Windows-Skript: `-Purge` löscht auch alle Daten.
+- Installationsanleitung für alle Systeme auf Deutsch (`INSTALL.md`) und Englisch (`INSTALL.en.md`), in jedem Download enthalten.
+
 ## 2.4.0
 
 - **Sprachen:** Deutsch, English, Français, Italiano. Umschalter neben Hell/Dunkel, Freigabe-Seiten folgen der Sprache des Besuchers. Auch Fehlermeldungen, Protokoll und Benachrichtigungen sind übersetzt.

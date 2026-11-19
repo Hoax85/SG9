@@ -11,6 +11,9 @@ Läuft auf **Windows**, **Linux** (auch Raspberry Pi) und **macOS** (Intel und A
 
 ## Schnellstart
 
+Installation als Dienst, Aktualisieren und Deinstallieren für Windows, Linux, macOS, Docker und Unraid:
+**[INSTALL.md](INSTALL.md)**
+
 ```bash
 ./sg9          # Linux / macOS
 sg9.exe        # Windows
@@ -167,10 +170,11 @@ kopieren, dann unter Docker → „Container hinzufügen“ die Vorlage „SG9�
 
 ## Als Dienst einrichten
 
-Vorlagen im Ordner `deploy/`, die Schritte stehen jeweils oben in der Datei:
+Für jedes System gibt es ein Skript, das installiert, aktualisiert und wieder entfernt.
+Alle Schritte stehen in **[INSTALL.md](INSTALL.md)**.
 
-- **Linux:** `sg9.service` (systemd)
-- **macOS:** `ch.gerweck.sg9.plist` (launchd)
+- **Linux:** `sudo ./install-linux.sh` (systemd, Benutzer `sg9`, nach `/opt/sg9`), entfernen mit `--uninstall`
+- **macOS:** `sudo ./install-macos.sh` (launchd, nach `/usr/local/sg9`), entfernen mit `--uninstall`
 - **Windows:** `install-windows.ps1` kopiert SG9 nach `C:\Program Files\SG9`, richtet es als echten
   Windows-Dienst ein (sichtbar in `services.msc`, startet mit Windows, auch ohne Anmeldung, startet nach
   Absturz neu) und gibt das Programm in der Firewall frei, egal welche Ports eingestellt sind.
@@ -272,7 +276,7 @@ eintragen. `go test ./internal/ui` prüft, dass jede Zeile vollständig ist.
 
 ## Lizenz
 
-© Gerweck Group GmbH. SG9 steht unter der **GNU Affero General Public License v3.0** (siehe `LICENSE`):
+© 2026 Peter und die Mitwirkenden von SG9. SG9 steht unter der **GNU Affero General Public License v3.0** (siehe `LICENSE`):
 Jeder darf SG9 nutzen, ändern und weitergeben. Wer eine veränderte Version anderen anbietet,
 auch nur als Dienst übers Netz, muss den geänderten Quellcode ebenfalls offenlegen.
 Die mitgelieferten Bibliotheken stehen unter BSD-, MIT- bzw. ISC-Lizenzen (siehe `vendor/`).

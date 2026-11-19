@@ -12,6 +12,9 @@ The interface speaks English, German, French and Italian.
 
 ## Quick start
 
+Installing as a service, updating and uninstalling on Windows, Linux, macOS, Docker and Unraid:
+**[INSTALL.en.md](INSTALL.en.md)**
+
 ```bash
 ./sg9          # Linux / macOS
 sg9.exe        # Windows
@@ -74,8 +77,10 @@ runs as user 99:100 and has a built-in health check. An Unraid template is in `d
 
 - **Windows:** `install-windows.ps1` (as administrator) installs SG9 as a real Windows service and
   opens the firewall for it. Or directly: `sg9.exe -install-service`, remove with `-uninstall-service`.
-- **Linux:** `deploy/sg9.service` (systemd)
-- **macOS:** `deploy/ch.gerweck.sg9.plist` (launchd)
+- **Linux:** `sudo ./install-linux.sh` (systemd), remove with `--uninstall`
+- **macOS:** `sudo ./install-macos.sh` (launchd), remove with `--uninstall`
+
+Full instructions: **[INSTALL.en.md](INSTALL.en.md)**
 
 Forgot the admin password? Run `sg9 -reset-admin` and choose a new one on the next visit.
 
@@ -100,4 +105,4 @@ to `Languages` in `internal/ui/i18n.go`.
 
 ## License
 
-© Gerweck Group GmbH. SG9 is licensed under the **GNU Affero General Public License v3.0** (see `LICENSE`).
+© 2026 Peter and the SG9 contributors. SG9 is licensed under the **GNU Affero General Public License v3.0** (see `LICENSE`).

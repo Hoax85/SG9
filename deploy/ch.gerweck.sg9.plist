@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  launchd-Dienst für SG9 (macOS)
+  Installation:
+    sudo mkdir -p /usr/local/sg9
+    sudo cp sg9-darwin-arm64 /usr/local/sg9/sg9 && sudo chmod 755 /usr/local/sg9/sg9
+    sudo xattr -d com.apple.quarantine /usr/local/sg9/sg9 2>/dev/null
+    sudo cp ch.gerweck.sg9.plist /Library/LaunchDaemons/
+    sudo launchctl bootstrap system /Library/LaunchDaemons/ch.gerweck.sg9.plist
+  Danach http://localhost:8021 öffnen und das Passwort festlegen.
+  Log: /usr/local/sg9/sg9-data/sg9.log
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>ch.gerweck.sg9</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/sg9/sg9</string>
+    <string>-data</string><string>/usr/local/sg9/sg9-data</string>
+    <string>-quiet</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>StandardErrorPath</key><string>/usr/local/sg9/sg9-stderr.log</string>
+</dict>
+</plist>

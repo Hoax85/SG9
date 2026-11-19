@@ -1,0 +1,27 @@
+# systemd-Dienst für SG9 (Linux)
+# Installation:
+#   sudo useradd -r -s /usr/sbin/nologin sg9
+#   sudo install -d -o sg9 -g sg9 /opt/sg9 /srv/ftp
+#   sudo install -m 755 sg9-linux-amd64 /opt/sg9/sg9
+#   sudo cp sg9.service /etc/systemd/system/ && sudo systemctl daemon-reload
+#   sudo systemctl enable --now sg9
+#   danach http://localhost:8021 öffnen und das Passwort festlegen
+[Unit]
+Description=SG9 Datei-Server (FTP, SFTP, WebDAV, Web)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=sg9
+Group=sg9
+ExecStart=/opt/sg9/sg9 -data /opt/sg9/sg9-data
+Restart=on-failure
+RestartSec=3
+# Ports unter 1024 (21, 22, 443) ohne root erlauben:
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

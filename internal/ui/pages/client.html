@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dateien – SG9</title>
+<link rel="icon" href="/assets/mark.svg">
+<link rel="stylesheet" href="/assets/sg9.css">
+<script src="/assets/theme.js"></script>
+<style>
+.top { display: flex; align-items: center; gap: 14px; padding: 14px 28px; border-bottom: 1px solid var(--line); background: var(--surface); flex-wrap: wrap; }
+.top .who { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: var(--t-s); color: var(--ink-2); }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 22px 28px 60px; }
+.views { display: flex; gap: 4px; margin-bottom: 16px; }
+.views button { border: 0; background: none; padding: 7px 12px; border-radius: 8px; cursor: pointer; color: var(--ink-2); font-weight: 550; font-size: var(--t-s); }
+.views button[aria-pressed="true"] { background: var(--raised); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.bar-top { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.bar-top .crumbs { flex: 1; min-width: 200px; }
+.files td.c, .files th.c { width: 36px; padding-right: 0; }
+.files td.a { white-space: nowrap; text-align: right; }
+.files tr .act { opacity: 0; transition: opacity .1s; }
+.files tr:hover .act, .files tr:focus-within .act { opacity: 1; }
+@media (hover: none) { .files tr .act { opacity: 1; } }
+.files .more { display: none; }
+@media (max-width: 720px) { .files tr .act { display: none; } .files .more { display: inline-flex; } .bar-top .sel-bar { flex-basis: 100%; } }
+.welcome { padding: 14px 18px; margin-bottom: 16px; white-space: pre-wrap; border-left: 3px solid var(--petrol); }
+.quota { display: flex; align-items: center; gap: 10px; font-size: var(--t-xs); color: var(--ink-2); }
+.quota .bar { width: 120px; min-width: 0; }
+.drop-overlay { position: fixed; inset: 0; background: color-mix(in srgb, var(--petrol) 14%, transparent); border: 3px dashed var(--petrol); z-index: 40; display: grid; place-items: center; pointer-events: none; }
+.drop-overlay b { background: var(--raised); padding: 14px 22px; border-radius: 12px; font-size: var(--t-l); box-shadow: var(--shadow); }
+.preview img { max-width: 100%; max-height: 70vh; display: block; margin: 0 auto; border-radius: 8px; }
+.dav { padding: 16px 18px; margin-top: 18px; display: grid; gap: 6px; font-size: var(--t-s); }
+.dav .mono { user-select: all; }
+.sel-bar { display: flex; gap: 8px; align-items: center; font-size: var(--t-s); }
+@media (max-width: 720px) { .top, .wrap { padding-left: 16px; padding-right: 16px; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<input type="file" id="picker" multiple hidden>
+<script>
+"use strict";
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmtBytes = n => { n = Number(n) || 0; const u = ["B", "KB", "MB", "GB", "TB"]; let i = 0; while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; } return (i ? n.toFixed(n < 10 ? 1 : 0) : n) + " " + u[i]; };
+const fmtDate = t => new Date(t).toLocaleString("de-CH", { dateStyle: "medium", timeStyle: "short" });
+const joinP = (a, b) => (a === "/" ? "" : a) + "/" + b;
+const IMG = /\.(png|jpe?g|gif|webp|svg|bmp|avif)$/i;
+
+async function api(method, url, body) {
+  const r = await fetch(url, { method, headers: { "X-SG9": "1", "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body), credentials: "same-origin" });
+  if (r.status === 401 && url !== "/api/login") { showLogin(); throw new Error("Bitte erneut anmelden"); }
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || r.statusText);
+  return data;
+}
+function toast(msg, bad) {
+  let box = $("#toasts"); if (!box) { box = document.createElement("div"); box.id = "toasts"; box.setAttribute("role", "status"); document.body.appendChild(box); }
+  const t = document.createElement("div"); t.className = "toast" + (bad ? " bad" : ""); t.innerHTML = (bad ? "" : '<span class="led on"></span>') + "<span></span>"; t.lastChild.textContent = msg;
+  box.appendChild(t); setTimeout(() => t.remove(), bad ? 6000 : 2600);
+}
+async function copy(text, label = "Link kopiert") { try { await navigator.clipboard.writeText(text); toast(label); } catch { prompt("Kopieren:", text); } }
+const I = {
+  folder: '<path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/>',
+  file: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
+};
+const icon = (k, cls) => `<svg class="ico ${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
+
+const st = { me: null, path: "/", data: null, sel: new Set(), view: "files" };
+
+function showLogin() {
+  $("#root").innerHTML = `<div class="gate"><form id="lf">
+    <div class="plate"><span class="mark"><img src="/assets/mark.svg" alt="" width="34" height="34"><span><b>Dateien</b><small>Mit deinem SG9-Konto anmelden</small></span></span>
+      <label class="field">Benutzer<input name="u" autocomplete="username" autofocus required></label>
+      <label class="field">Passwort<input name="p" type="password" autocomplete="current-password" required></label>
+      <div class="err" id="lerr" role="alert"></div><button class="btn primary">Anmelden</button></div>
+    <div class="under"><span></span><span data-theme-switch data-compact></span></div></form></div>`;
+  $$("[data-theme-switch]").forEach(SG9Theme.render);
+  $("#lf").onsubmit = async e => {
+    e.preventDefault();
+    try { await api("POST", "/api/login", { username: e.target.u.value, password: e.target.p.value }); boot(); }
+    catch (err) { $("#lerr").textContent = err.message; }
+  };
+}
+
+async function boot() {
+  try { st.me = await api("GET", "/api/me"); } catch { return; }
+  document.title = "Dateien – " + st.me.server;
+  $("#root").innerHTML = `<header class="top"><span class="mark"><img src="/assets/mark.svg" alt="" width="34" height="34"><span><b>${esc(st.me.server)}</b><small>Dateien</small></span></span>
+      <div class="who"><span id="quota"></span><span>Angemeldet als <b style="color:var(--ink)">${esc(st.me.user)}</b></span><span data-theme-switch data-compact></span><button class="btn quiet small" id="logout">Abmelden</button></div></header>
+    <div class="wrap">${st.me.welcome ? `<div class="panel welcome">${esc(st.me.welcome)}</div>` : ""}
+      <div class="views">${st.me.shares ? `<button data-v="files" aria-pressed="true">Dateien</button><button data-v="links" aria-pressed="false">Meine Links</button>` : ""}</div>
+      <div id="view"></div>
+      ${st.me.webdav ? `<div class="panel dav"><b>Als Laufwerk verbinden</b><span class="muted">Im Explorer oder Finder „Netzlaufwerk verbinden“ bzw. „Mit Server verbinden“ wählen und diese Adresse eingeben:</span><span class="mono">${esc(st.me.davURL)}</span></div>` : ""}</div>`;
+  $$("[data-theme-switch]").forEach(SG9Theme.render);
+  $("#logout").onclick = async () => { await api("POST", "/api/logout").catch(() => {}); showLogin(); };
+  $$(".views button").forEach(b => b.onclick = () => { st.view = b.dataset.v; $$(".views button").forEach(x => x.setAttribute("aria-pressed", x === b)); render(); });
+  renderQuota();
+  st.path = decodeURIComponent(location.hash.slice(1)) || "/";
+  render();
+}
+function renderQuota() {
+  const m = st.me; const q = $("#quota"); if (!q) return;
+  let html = "";
+  if (m.quotaLimit) { const p = Math.min(100, m.quotaUsed / m.quotaLimit * 100); html += `<span class="quota" title="Speicherplatz">${fmtBytes(m.quotaUsed)} von ${fmtBytes(m.quotaLimit)}<span class="bar"><i style="width:${p}%;${p > 90 ? "background:var(--red)" : ""}"></i></span></span>`; }
+  if (m.ratio) html += `<span class="quota" title="Ratio 1:${m.ratio}">Download-Guthaben ${fmtBytes(m.ratioLeft)}</span>`;
+  q.innerHTML = html;
+}
+async function refreshMe() { try { st.me = await api("GET", "/api/me"); renderQuota(); } catch {} }
+function render() { st.view === "links" ? viewLinks() : viewFiles(); }
+window.onhashchange = () => { const p = decodeURIComponent(location.hash.slice(1)) || "/"; if (p !== st.path && st.view === "files") { st.path = p; viewFiles(); } };
+
+async function viewFiles() {
+  try { st.data = await api("GET", "/api/ls?path=" + encodeURIComponent(st.path)); }
+  catch (err) { toast(err.message, true); if (st.path !== "/") { st.path = "/"; return viewFiles(); } return; }
+  st.path = st.data.path; st.sel.clear();
+  if (decodeURIComponent(location.hash.slice(1)) !== st.path) history.replaceState(null, "", "#" + encodeURIComponent(st.path));
+  const p = st.data.perms, parts = st.path.split("/").filter(Boolean);
+  $("#view").innerHTML = `<div class="panel"><div class="bar-top">
+      <nav class="crumbs" aria-label="Pfad"><button data-go="/">Start</button>${parts.map((x, i) => `<span class="sep">/</span><button data-go="${esc("/" + parts.slice(0, i + 1).join("/"))}">${esc(x)}</button>`).join("")}</nav>
+      <div class="sel-bar" id="selbar"></div>
+      ${p.mkdir ? `<button class="btn" id="mk">Neuer Ordner</button>` : ""}
+      ${p.write ? `<button class="btn primary" id="up">Hochladen</button>` : ""}</div>
+    <div id="uploads" class="uploads" style="padding:0 14px"></div>
+    <table class="files"><thead><tr><th class="c"><input type="checkbox" id="all" aria-label="Alle auswählen"></th><th>Name</th><th class="s">Grösse</th><th class="d">Geändert</th><th></th></tr></thead><tbody>
+    ${st.data.entries.length ? st.data.entries.map((e, i) => `<tr data-i="${i}"><td class="c"><input type="checkbox" data-sel="${i}" aria-label="${esc(e.name)} auswählen"></td>
+      <td class="n"><button class="name" data-open="${i}">${e.dir ? icon("folder", "dir") : icon(IMG.test(e.name) ? "image" : "file")}<span>${esc(e.name)}</span></button></td>
+      <td class="s">${e.dir ? "" : fmtBytes(e.size)}</td><td class="d">${fmtDate(e.modified)}</td>
+      <td class="a"><span class="act">${!e.dir ? `<a class="btn small quiet" href="/api/dl?path=${encodeURIComponent(joinP(st.path, e.name))}">Laden</a>` : `<a class="btn small quiet" href="/api/zip?path=${encodeURIComponent(joinP(st.path, e.name))}">ZIP</a>`}
+        ${st.me.shares ? `<button class="btn small quiet" data-share="${i}">Teilen</button>` : ""}${p.rename ? `<button class="btn small quiet" data-ren="${i}">Umbenennen</button>` : ""}</span>
+        <button class="btn small quiet more" data-more="${i}" aria-label="Aktionen für ${esc(e.name)}">⋯</button></td></tr>`).join("")
+      : `<tr><td colspan="5"><div class="empty"><b>Dieser Ordner ist leer</b>${p.write ? "Dateien hierher ziehen oder auf „Hochladen“ klicken." : ""}</div></td></tr>`}
+    </tbody></table></div>`;
+  $$("[data-go]").forEach(b => b.onclick = () => { st.path = b.dataset.go; viewFiles(); });
+  $$("[data-open]").forEach(b => b.onclick = () => openEntry(st.data.entries[+b.dataset.open]));
+  $$("[data-sel]").forEach(c => c.onchange = () => { c.checked ? st.sel.add(+c.dataset.sel) : st.sel.delete(+c.dataset.sel); c.closest("tr").classList.toggle("sel", c.checked); selBar(); });
+  $("#all").onchange = e => { $$("[data-sel]").forEach(c => { c.checked = e.target.checked; c.dispatchEvent(new Event("change")); }); };
+  $$("[data-ren]").forEach(b => b.onclick = () => rename(st.data.entries[+b.dataset.ren]));
+  $$("[data-share]").forEach(b => b.onclick = () => shareDialog(joinP(st.path, st.data.entries[+b.dataset.share].name), st.data.entries[+b.dataset.share].dir));
+  $$("[data-more]").forEach(b => b.onclick = () => actions(st.data.entries[+b.dataset.more]));
+  if ($("#mk")) $("#mk").onclick = mkdir;
+  if ($("#up")) $("#up").onclick = () => $("#picker").click();
+  selBar();
+}
+function selBar() {
+  const n = st.sel.size, p = st.data.perms, bar = $("#selbar"); if (!bar) return;
+  if (!n) { bar.innerHTML = st.me.shares && st.path !== "/" ? `<button class="btn quiet" id="sharehere">Diesen Ordner teilen</button><a class="btn quiet" href="/api/zip?path=${encodeURIComponent(st.path)}">Als ZIP laden</a>` : `<a class="btn quiet" href="/api/zip?path=${encodeURIComponent(st.path)}">Als ZIP laden</a>`;
+    if ($("#sharehere")) $("#sharehere").onclick = () => shareDialog(st.path, true); return; }
+  bar.innerHTML = `<span class="muted">${n} ausgewählt</span>${p.delete || p.rmdir ? `<button class="btn danger" id="delsel">Löschen</button>` : ""}`;
+  if ($("#delsel")) $("#delsel").onclick = async () => {
+    const items = [...st.sel].map(i => st.data.entries[i]);
+    if (!confirm(`${items.length === 1 ? "„" + items[0].name + "“" : items.length + " Einträge"} löschen? Ordner werden samt Inhalt gelöscht.`)) return;
+    try { await api("POST", "/api/rm", { paths: items.map(e => joinP(st.path, e.name)) }); toast(items.length === 1 ? "Gelöscht" : `${items.length} Einträge gelöscht`); refreshMe(); viewFiles(); }
+    catch (err) { toast(err.message, true); viewFiles(); }
+  };
+}
+function openEntry(e) {
+  const p = joinP(st.path, e.name);
+  if (e.dir) { st.path = p; viewFiles(); return; }
+  if (IMG.test(e.name)) {
+    const m = modal(`<header>${esc(e.name)}</header><div class="body preview"><img src="/api/dl?inline=1&path=${encodeURIComponent(p)}" alt="${esc(e.name)}"></div>
+      <footer><span class="faint" style="margin-right:auto;font-size:var(--t-xs)">${fmtBytes(e.size)}</span><button class="btn" data-close>Schliessen</button><a class="btn primary" href="/api/dl?path=${encodeURIComponent(p)}">Herunterladen</a></footer>`, 900);
+    return;
+  }
+  location.href = "/api/dl?path=" + encodeURIComponent(p);
+}
+function actions(e) {
+  const p = joinP(st.path, e.name), perms = st.data.perms;
+  const m = modal(`<header>${esc(e.name)}</header><div class="body" style="display:grid;gap:8px">
+    <a class="btn" href="${e.dir ? "/api/zip" : "/api/dl"}?path=${encodeURIComponent(p)}">${e.dir ? "Als ZIP laden" : "Herunterladen"}</a>
+    ${st.me.shares ? `<button class="btn" data-a="share">Link erstellen</button>` : ""}${perms.rename ? `<button class="btn" data-a="ren">Umbenennen</button>` : ""}
+    ${perms.delete || perms.rmdir ? `<button class="btn danger" data-a="del">Löschen</button>` : ""}</div><footer><button class="btn" data-close>Schliessen</button></footer>`);
+  $$("[data-a]", m).forEach(b => b.onclick = async () => {
+    m.close();
+    if (b.dataset.a === "share") shareDialog(p, e.dir);
+    if (b.dataset.a === "ren") rename(e);
+    if (b.dataset.a === "del" && confirm(`„${e.name}“ löschen?`)) { try { await api("POST", "/api/rm", { paths: [p] }); toast("Gelöscht"); refreshMe(); viewFiles(); } catch (err) { toast(err.message, true); } }
+  });
+}
+function modal(html, width) {
+  const m = document.createElement("div"); m.className = "modal";
+  m.innerHTML = `<div class="box" role="dialog" style="${width ? "width:min(" + width + "px,100%)" : ""}">${html}</div>`;
+  document.body.appendChild(m);
+  const close = () => m.remove();
+  m.onclick = e => { if (e.target === m || e.target.closest("[data-close]")) close(); };
+  m.onkeydown = e => { if (e.key === "Escape") close(); };
+  m.close = close;
+  setTimeout(() => (m.querySelector("input,button.primary,a.primary") || m).focus(), 20);
+  return m;
+}
+function ask(title, label, value, action) {
+  return new Promise(res => {
+    const m = modal(`<form><header>${esc(title)}</header><div class="body"><label class="field">${esc(label)}<input name="v" value="${esc(value)}" required></label></div>
+      <footer><button type="button" class="btn" data-close>Abbrechen</button><button class="btn primary">${esc(action)}</button></footer></form>`);
+    const f = $("form", m); const i = f.v; i.focus(); const dot = value.lastIndexOf("."); i.setSelectionRange(0, dot > 0 ? dot : value.length);
+    f.onsubmit = e => { e.preventDefault(); res(i.value.trim()); m.close(); };
+    m.addEventListener("click", e => { if (e.target === m || e.target.closest("[data-close]")) res(null); });
+  });
+}
+async function mkdir() {
+  const n = await ask("Neuer Ordner", "Name", "", "Ordner anlegen"); if (!n) return;
+  try { await api("POST", "/api/mkdir", { path: joinP(st.path, n) }); toast("Ordner angelegt"); viewFiles(); } catch (err) { toast(err.message, true); }
+}
+async function rename(e) {
+  const n = await ask("Umbenennen", "Neuer Name", e.name, "Umbenennen"); if (!n || n === e.name) return;
+  try { await api("POST", "/api/mv", { from: joinP(st.path, e.name), to: joinP(st.path, n) }); toast("Umbenannt"); viewFiles(); } catch (err) { toast(err.message, true); }
+}
+
+// ---------- Hochladen ----------
+function upload(files) {
+  if (!st.data?.perms.write) { toast("In diesem Ordner darfst du nichts hochladen", true); return; }
+  const box = $("#uploads"), dir = st.path;
+  let pending = files.length;
+  [...files].forEach(file => {
+    const row = document.createElement("div"); row.className = "u";
+    row.innerHTML = `<span class="mono">${esc(file.name)}</span><span class="faint">0 %</span><div class="bar up"><i style="width:0%"></i></div>`;
+    box.appendChild(row); box.style.padding = "12px 14px";
+    const x = new XMLHttpRequest();
+    x.open("PUT", "/api/up?path=" + encodeURIComponent(joinP(dir, file.name)));
+    x.setRequestHeader("X-SG9", "1");
+    x.upload.onprogress = e => { if (e.lengthComputable) { const p = Math.round(e.loaded / e.total * 100); row.children[1].textContent = p + " %"; row.querySelector("i").style.width = p + "%"; } };
+    x.onloadend = () => {
+      let err = x.status >= 300 ? (JSON.parse(x.responseText || "{}").error || "Fehler " + x.status) : null;
+      if (x.status === 0) err = "Verbindung abgebrochen";
+      if (err) { row.children[1].textContent = err; row.children[1].style.color = "var(--red)"; toast(file.name + ": " + err, true); }
+      else { row.remove(); }
+      if (--pending === 0) { if (!box.children.length) box.style.padding = "0 14px"; refreshMe(); if (st.path === dir && st.view === "files") viewFiles(); if (!err) toast(files.length === 1 ? "Hochgeladen" : `${files.length} Dateien hochgeladen`); }
+    };
+    x.send(file);
+  });
+}
+$("#picker").onchange = e => { if (e.target.files.length) upload(e.target.files); e.target.value = ""; };
+let dragDepth = 0, overlay;
+window.addEventListener("dragenter", e => { if (st.view !== "files" || !st.data?.perms.write || !e.dataTransfer.types.includes("Files")) return; e.preventDefault(); if (dragDepth++ === 0) { overlay = document.createElement("div"); overlay.className = "drop-overlay"; overlay.innerHTML = `<b>Loslassen zum Hochladen nach ${esc(st.path)}</b>`; document.body.appendChild(overlay); } });
+window.addEventListener("dragleave", () => { if (dragDepth && --dragDepth === 0 && overlay) overlay.remove(); });
+window.addEventListener("dragover", e => { if (dragDepth) e.preventDefault(); });
+window.addEventListener("drop", e => { if (!dragDepth) return; e.preventDefault(); dragDepth = 0; overlay?.remove(); if (e.dataTransfer.files.length) upload(e.dataTransfer.files); });
+
+// ---------- Links ----------
+function shareDialog(path, isDir) {
+  const m = modal(`<form><header>Link erstellen</header><div class="body" style="display:grid;gap:14px">
+    <div class="muted" style="font-size:var(--t-s)">Für <span class="mono" style="color:var(--ink)">${esc(path)}</span></div>
+    ${isDir ? `<label class="field">Art<select name="kind"><option value="dl">Zum Herunterladen</option><option value="up">Briefkasten: andere können hier nur hochladen</option></select></label>` : ""}
+    <div class="grid-form" style="grid-template-columns:1fr 1fr">
+      <label class="field">Passwort<input name="password" type="text" autocomplete="off" placeholder="ohne"></label>
+      <label class="field">Gültig bis<input name="expiresAt" type="date"></label>
+      <label class="field" id="maxdl">Höchstens Downloads<input name="maxDownloads" type="number" min="0" placeholder="unbegrenzt"></label>
+      <label class="field">Notiz für dich<input name="comment"></label></div></div>
+    <footer><button type="button" class="btn" data-close>Abbrechen</button><button class="btn primary">Link erstellen</button></footer></form>`);
+  const f = $("form", m);
+  if (f.kind) f.kind.onchange = () => $("#maxdl", m).classList.toggle("hidden", f.kind.value === "up");
+  f.onsubmit = async e => {
+    e.preventDefault();
+    try {
+      const s = await api("POST", "/api/shares", { path, upload: f.kind?.value === "up", password: f.password.value, expiresAt: f.expiresAt.value, maxDownloads: Number(f.maxDownloads.value) || 0, comment: f.comment.value });
+      m.close();
+      const r = modal(`<header>Link ist bereit</header><div class="body" style="display:grid;gap:10px"><div class="row"><input class="input grow mono" value="${esc(s.url)}" readonly><button class="btn primary" id="cp">Kopieren</button></div>
+        <span class="hint">${s.upload ? "Wer den Link hat, kann Dateien hochladen, sieht aber nicht, was schon da ist." : "Wer den Link hat, kann herunterladen."}${s.password ? " Das Passwort gibst du separat weiter." : ""}</span></div>
+        <footer><button class="btn" data-close>Fertig</button></footer>`);
+      $("#cp", r).onclick = () => copy(s.url); $("input", r).select();
+    } catch (err) { toast(err.message, true); }
+  };
+}
+async function viewLinks() {
+  const list = await api("GET", "/api/shares").catch(e => { toast(e.message, true); return []; });
+  $("#view").innerHTML = `<div class="panel" style="overflow:auto"><table class="data"><thead><tr><th>Inhalt</th><th>Art</th><th>Downloads</th><th>Gültig bis</th><th></th></tr></thead><tbody>
+    ${list.length ? list.map(s => `<tr><td><div class="mono">${esc(s.path)}</div>${s.comment ? `<div class="hint">${esc(s.comment)}</div>` : ""}</td>
+      <td>${s.upload ? "Briefkasten" : "Download"} ${s.password ? '<span class="pill">Passwort</span>' : ""} ${s.expired ? '<span class="pill bad">abgelaufen</span>' : s.disabled ? '<span class="pill">pausiert</span>' : ""}</td>
+      <td>${s.upload ? "–" : s.downloads + (s.maxDownloads ? " von " + s.maxDownloads : "")}</td><td>${s.expiresAt ? new Date(s.expiresAt + "T00:00").toLocaleDateString("de-CH") : "unbegrenzt"}</td>
+      <td style="text-align:right;white-space:nowrap"><button class="btn small" data-copy="${esc(s.url)}">Link kopieren</button> <button class="btn small danger" data-del="${s.id}">Löschen</button></td></tr>`).join("")
+    : `<tr><td colspan="5"><div class="empty"><b>Noch keine Links</b>Bei einer Datei oder einem Ordner auf „Teilen“ klicken.</div></td></tr>`}</tbody></table></div>`;
+  $$("[data-copy]").forEach(b => b.onclick = () => copy(b.dataset.copy));
+  $$("[data-del]").forEach(b => b.onclick = async () => { if (!confirm("Link löschen? Er funktioniert dann nicht mehr.")) return; await api("DELETE", "/api/shares/" + b.dataset.del); toast("Link gelöscht"); viewLinks(); });
+}
+
+boot().catch(showLogin);
+</script>
+</body>
+</html>

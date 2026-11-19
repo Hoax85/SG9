@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Geteilte Dateien</title>
+<link rel="icon" href="/assets/mark.svg">
+<link rel="stylesheet" href="/assets/sg9.css">
+<script src="/assets/theme.js"></script>
+<style>
+body { min-height: 100vh; display: flex; flex-direction: column; }
+.shell { width: min(860px, 100%); margin: 0 auto; padding: 40px 24px 32px; flex: 1; }
+.label { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; color: var(--ink-2); font-size: var(--t-s); }
+.label .led { margin-left: 2px; }
+.head { padding: 26px 26px 22px; display: grid; gap: 6px; border-bottom: 1px solid var(--line-soft); }
+.head h1 { margin: 0; font-size: var(--t-xl); font-weight: 700; letter-spacing: -.015em; overflow-wrap: anywhere; display: flex; align-items: center; gap: 12px; }
+.head h1 .ico { width: 30px; height: 30px; }
+.head .facts { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--ink-2); font-size: var(--t-s); }
+.head .note { margin-top: 6px; white-space: pre-wrap; }
+.body { padding: 22px 26px 26px; }
+.single { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.single .size { font-size: var(--t-l); font-weight: 650; }
+.bar-top { display: flex; align-items: center; gap: 10px; padding: 0 0 12px; flex-wrap: wrap; }
+.bar-top .crumbs { flex: 1; }
+.lock { display: grid; gap: 12px; max-width: 340px; }
+.done { display: grid; gap: 4px; margin-top: 14px; font-size: var(--t-s); }
+.done div { display: flex; gap: 8px; align-items: center; }
+footer.page { text-align: center; padding: 18px; font-size: var(--t-xs); color: var(--ink-3); display: flex; justify-content: center; gap: 16px; align-items: center; }
+@media (max-width: 600px) { .shell { padding: 20px 14px; } .head, .body { padding-left: 18px; padding-right: 18px; } }
+</style>
+</head>
+<body>
+<main class="shell" id="root" aria-live="polite"><div class="empty">Lade…</div></main>
+<footer class="page"><span id="srv"></span><span data-theme-switch data-compact></span></footer>
+<input type="file" id="picker" multiple hidden>
+<script>
+"use strict";
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmtBytes = n => { n = Number(n) || 0; const u = ["B", "KB", "MB", "GB", "TB"]; let i = 0; while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; } return (i ? n.toFixed(n < 10 ? 1 : 0) : n) + " " + u[i]; };
+const fmtDate = t => new Date(t).toLocaleString("de-CH", { dateStyle: "medium", timeStyle: "short" });
+const joinP = (a, b) => (a === "/" ? "" : a) + "/" + b;
+const id = location.pathname.split("/")[2];
+const base = "/s/" + encodeURIComponent(id);
+const I = {
+  folder: '<path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/>',
+  file: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  inbox: '<path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5 5h14l2 8v6H3v-6z"/>',
+  check: '<path d="m5 12 5 5 9-10"/>',
+};
+const icon = (k, cls) => `<svg class="ico ${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
+async function api(method, path, body) {
+  const r = await fetch(base + path, { method, headers: { "X-SG9": "1", "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(data.error || r.statusText); e.status = r.status; throw e; }
+  return data;
+}
+let info, cwd = "/";
+
+function stop(title, text) {
+  $("#root").innerHTML = `<div class="panel"><div class="head"><h1>${esc(title)}</h1></div><div class="body muted">${esc(text)}</div></div>`;
+}
+async function load() {
+  try { info = await api("GET", "/info"); }
+  catch (e) { return stop(e.status === 410 ? "Link abgelaufen" : "Link nicht gefunden", e.message + " Frag bei der Person nach, die ihn dir geschickt hat."); }
+  $("#srv").textContent = info.server;
+  document.title = info.name + " – geteilt";
+  const kind = info.upload ? "inbox" : info.dir ? "folder" : "file";
+  const facts = info.upload ? [] : [`Geteilt von ${esc(info.owner)}`];
+  if (info.expiresAt) facts.push("Gültig bis " + new Date(info.expiresAt + "T00:00").toLocaleDateString("de-CH"));
+  if (info.downloadsLeft !== undefined) facts.push(info.downloadsLeft === 1 ? "Noch 1 Download" : `Noch ${info.downloadsLeft} Downloads`);
+  $("#root").innerHTML = `<div class="label"><span class="led on"></span>${info.upload ? "Briefkasten zum Hochladen" : info.dir ? "Geteilter Ordner" : "Geteilte Datei"}</div>
+    <div class="panel"><div class="head"><h1>${icon(kind, kind === "folder" || kind === "inbox" ? "dir" : "")}${esc(info.upload ? "Dateien an " + info.owner + " senden" : info.name)}</h1>
+      <div class="facts">${facts.map(f => `<span>${f}</span>`).join("")}</div>${info.comment ? `<div class="note">${esc(info.comment)}</div>` : ""}</div>
+      <div class="body" id="body"></div></div>`;
+  if (info.locked) return lock();
+  info.upload ? dropbox() : info.dir ? folder() : single();
+}
+function lock() {
+  $("#body").innerHTML = `<form class="lock" id="lf"><label class="field">Dieser Link ist mit einem Passwort geschützt<input name="p" type="password" autocomplete="off" autofocus required></label>
+    <div class="err" style="color:var(--red);font-size:var(--t-s);min-height:18px" id="lerr" role="alert"></div><button class="btn primary">Öffnen</button></form>`;
+  $("#lf").onsubmit = async e => {
+    e.preventDefault();
+    try { await api("POST", "/unlock", { password: e.target.p.value }); load(); }
+    catch (err) { $("#lerr").textContent = err.message; }
+  };
+}
+function single() {
+  $("#body").innerHTML = `<div class="single"><div><div class="size">${fmtBytes(info.size)}</div><div class="faint" style="font-size:var(--t-xs)">${info.modified ? "Stand " + fmtDate(info.modified) : ""}</div></div>
+    <a class="btn primary" href="${base}/dl" style="padding:10px 22px;font-size:var(--t-m)">Herunterladen</a></div>`;
+}
+async function folder() {
+  let r;
+  try { r = await api("GET", "/ls?path=" + encodeURIComponent(cwd)); }
+  catch (e) { $("#body").innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
+  cwd = r.path;
+  const parts = cwd.split("/").filter(Boolean);
+  $("#body").innerHTML = `<div class="bar-top"><nav class="crumbs" aria-label="Pfad"><button data-go="/">${esc(info.name)}</button>${parts.map((x, i) => `<span class="sep">/</span><button data-go="${esc("/" + parts.slice(0, i + 1).join("/"))}">${esc(x)}</button>`).join("")}</nav>
+      <a class="btn" href="${base}/zip?path=${encodeURIComponent(cwd)}">Alles als ZIP</a></div>
+    <table class="files"><thead><tr><th>Name</th><th class="s">Grösse</th><th class="d">Geändert</th></tr></thead><tbody>
+    ${r.entries.length ? r.entries.map(e => `<tr><td class="n">${e.dir ? `<button class="name" data-go="${esc(joinP(cwd, e.name))}">${icon("folder", "dir")}<span>${esc(e.name)}</span></button>`
+        : `<a class="name" href="${base}/dl?path=${encodeURIComponent(joinP(cwd, e.name))}">${icon("file")}<span>${esc(e.name)}</span></a>`}</td>
+      <td class="s">${e.dir ? "" : fmtBytes(e.size)}</td><td class="d">${fmtDate(e.modified)}</td></tr>`).join("") : `<tr><td colspan="3"><div class="empty">Dieser Ordner ist leer.</div></td></tr>`}
+    </tbody></table>`;
+  $$("[data-go]").forEach(b => b.onclick = () => { cwd = b.dataset.go; folder(); });
+}
+function dropbox() {
+  $("#body").innerHTML = `<div class="dropzone" id="dz"><p style="margin:0 0 12px">Dateien hierher ziehen</p><button class="btn primary" id="pick">Dateien auswählen</button>
+    <p class="hint" style="margin:12px 0 0">Bestehende Dateien werden nie überschrieben. Was andere hochgeladen haben, siehst du nicht.</p></div>
+    <div class="uploads" id="ups"></div><div class="done" id="done"></div>`;
+  const dz = $("#dz");
+  $("#pick").onclick = () => $("#picker").click();
+  ["dragenter", "dragover"].forEach(t => dz.addEventListener(t, e => { e.preventDefault(); dz.classList.add("over"); }));
+  ["dragleave", "drop"].forEach(t => dz.addEventListener(t, e => { e.preventDefault(); dz.classList.remove("over"); }));
+  dz.addEventListener("drop", e => send(e.dataTransfer.files));
+  $("#picker").onchange = e => { send(e.target.files); e.target.value = ""; };
+}
+function send(files) {
+  [...files].forEach(file => {
+    const row = document.createElement("div"); row.className = "u";
+    row.innerHTML = `<span class="mono">${esc(file.name)}</span><span class="faint">0 %</span><div class="bar up"><i style="width:0%"></i></div>`;
+    $("#ups").appendChild(row);
+    const x = new XMLHttpRequest();
+    x.open("PUT", base + "/up?name=" + encodeURIComponent(file.name));
+    x.setRequestHeader("X-SG9", "1");
+    x.upload.onprogress = e => { if (e.lengthComputable) { const p = Math.round(e.loaded / e.total * 100); row.children[1].textContent = p + " %"; row.querySelector("i").style.width = p + "%"; } };
+    x.onloadend = () => {
+      const res = JSON.parse(x.responseText || "{}");
+      if (x.status >= 200 && x.status < 300) {
+        row.remove();
+        const d = document.createElement("div"); d.innerHTML = `<span style="color:var(--petrol);display:inline-flex;width:18px">${icon("check")}</span><span>${esc(res.name || file.name)} übertragen</span>`;
+        $("#done").appendChild(d);
+      } else { row.children[1].textContent = res.error || "Fehler " + x.status; row.children[1].style.color = "var(--red)"; }
+    };
+    x.send(file);
+  });
+}
+load();
+</script>
+</body>
+</html>

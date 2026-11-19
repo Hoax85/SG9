@@ -1,0 +1,1062 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SG9 Verwaltung</title>
+<link rel="icon" href="/assets/mark.svg">
+<link rel="stylesheet" href="/assets/sg9.css">
+<script src="/assets/theme.js"></script>
+<style>
+.app { display: grid; grid-template-columns: 232px 1fr; min-height: 100vh; background: linear-gradient(to right, var(--surface) 231px, var(--line) 231px, var(--line) 232px, transparent 232px); }
+aside { background: var(--surface); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; }
+aside .top { padding: 18px 18px 14px; }
+nav { padding: 4px 10px; flex: 1; overflow: auto; }
+nav a { display: flex; align-items: center; gap: 11px; padding: 8px 10px; border-radius: 8px; color: var(--ink-2); text-decoration: none; cursor: pointer; font-size: var(--t-s); font-weight: 550; position: relative; }
+nav a svg { width: 18px; height: 18px; flex: none; }
+nav a:hover { background: var(--line-soft); color: var(--ink); }
+nav a.on { background: var(--raised); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+nav a.on::before { content: ""; position: absolute; left: -10px; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0; background: var(--petrol); }
+nav a .n { margin-left: auto; font-size: var(--t-xs); color: var(--ink-3); font-weight: 500; }
+nav .gap { height: 14px; }
+aside .foot { padding: 12px 18px 16px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; font-size: var(--t-xs); color: var(--ink-3); }
+main { min-width: 0; padding: 22px 32px 48px; }
+.head { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+.head h1 { margin: 0; font-size: var(--t-xl); letter-spacing: -.015em; font-weight: 700; }
+.head p { margin: 2px 0 0; color: var(--ink-2); font-size: var(--t-s); }
+.head .tools { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+.online { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px 6px 10px; border-radius: 999px; background: var(--raised); border: 1px solid var(--line); }
+
+/* Frontplatte */
+.faceplate { background: var(--plate); border: 1px solid var(--plate-edge); border-radius: 16px; padding: 18px; display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 10px; position: relative;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), var(--shadow); }
+.faceplate .ident { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 0 4px 4px; }
+.faceplate .ident b { font-size: var(--t-l); font-weight: 700; letter-spacing: -.01em; display: block; }
+.faceplate .ident .state { display: flex; align-items: center; gap: 8px; font-size: var(--t-s); color: var(--ink-2); }
+.port { background: var(--raised); border: 1px solid var(--plate-edge); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; align-content: start; min-width: 0;
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--plate-edge) 70%, transparent); }
+.port .t { display: flex; align-items: center; gap: 9px; font-weight: 650; font-size: var(--t-m); }
+.port .addr { font-family: var(--mono); font-size: 12.5px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.port .meta { font-size: var(--t-xs); color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.port.off { background: transparent; box-shadow: none; }
+.off-note { grid-column: 1 / -1; font-size: var(--t-xs); color: var(--ink-3); padding: 2px 4px 0; }
+.off-note a { color: var(--ink-2); }
+.port.off .t { color: var(--ink-3); }
+.port .count { font-size: var(--t-xs); color: var(--ink-2); }
+.port .count b { color: var(--ink); font-weight: 650; }
+
+.trace { margin-top: 18px; display: grid; grid-template-columns: 210px 1fr; }
+.trace .now { padding: 18px 20px; border-right: 1px solid var(--line-soft); display: grid; align-content: center; gap: 16px; }
+.trace .now .k { font-size: var(--t-xs); color: var(--ink-3); display: flex; align-items: center; gap: 7px; }
+.trace .now .v { font-size: var(--t-xxl); font-weight: 650; letter-spacing: -.02em; line-height: 1.1; }
+.trace .now .v small { font-size: var(--t-m); color: var(--ink-2); font-weight: 500; margin-left: 3px; }
+.trace .now .down .v { color: var(--petrol); } .trace .now .up .v { color: var(--amber); }
+.swatch { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+.trace .chart { position: relative; height: 230px; padding: 14px 16px 10px 6px; }
+.trace canvas { width: 100%; height: 100%; display: block; }
+
+.ledger { margin-top: 18px; display: grid; grid-template-columns: repeat(3, 1fr); }
+.ledger section { padding: 16px 20px; }
+.ledger section + section { border-left: 1px solid var(--line-soft); }
+.ledger h3 { margin: 0 0 8px; font-size: var(--t-s); color: var(--ink-2); font-weight: 600; }
+.ledger dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: var(--t-s); }
+.ledger dt { color: var(--ink-2); } .ledger dd { margin: 0; text-align: right; font-weight: 600; }
+.ledger dd a { cursor: pointer; text-decoration: none; }
+
+/* Editor */
+.split { display: grid; grid-template-columns: 250px 1fr; gap: 18px; align-items: start; }
+.list { padding: 8px; position: sticky; top: 16px; }
+.list .item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: var(--t-s); }
+.list .item:hover { background: var(--surface); }
+.list .item.on { background: var(--petrol-soft); }
+.list .item .meta { margin-left: auto; font-size: var(--t-xs); color: var(--ink-3); }
+.list .item.disabled .nm { color: var(--ink-3); text-decoration: line-through; }
+.list .search { margin-bottom: 6px; }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); padding: 0 12px; overflow-x: auto; }
+.tabs button { border: 0; background: none; padding: 12px 12px 10px; cursor: pointer; color: var(--ink-2); font-size: var(--t-s); font-weight: 550; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--petrol); }
+.tabpanel { padding: 20px; display: grid; gap: 22px; }
+.tabpanel h3 { margin: 0 0 10px; font-size: var(--t-s); font-weight: 650; }
+.tabpanel section > p.hint { margin: -4px 0 12px; }
+.perms { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.mount { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--surface); display: grid; gap: 10px; }
+.mount .row input { font-family: var(--mono); font-size: 12.5px; }
+.mounts { display: grid; gap: 8px; }
+.edit-actions { display: flex; gap: 8px; justify-content: flex-end; padding: 14px 20px; border-top: 1px solid var(--line-soft); align-items: center; }
+.edit-actions .left { margin-right: auto; display: flex; gap: 8px; }
+.protos { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+
+/* Ereignisse */
+.event { padding: 16px 20px; display: grid; gap: 12px; border-bottom: 1px solid var(--line-soft); }
+.event:last-child { border-bottom: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips label { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: var(--t-xs); cursor: pointer; background: var(--raised); }
+.chips label:has(input:checked) { background: var(--petrol-soft); border-color: var(--petrol); color: var(--petrol); }
+.chips input { display: none; }
+
+/* Protokoll */
+.logbox { font: 12.5px/1.6 var(--mono); height: calc(100vh - 220px); overflow: auto; padding: 10px 0; }
+.logline { padding: 1px 18px; white-space: pre-wrap; word-break: break-word; }
+.logline .t { color: var(--ink-3); }
+.logline .l { display: inline-block; width: 7ch; font-weight: 600; }
+.lv-info .l { color: var(--ink-2); } .lv-warn .l { color: var(--amber); } .lv-error .l { color: var(--red); } .lv-xfer .l { color: var(--petrol); }
+.logline .w { color: var(--ink-3); }
+.toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+.toolbar .input { width: auto; }
+
+.settings { display: grid; gap: 18px; }
+.settings .panel-body { display: grid; gap: 16px; }
+.settings > *, .split > *, main > *, .panel-body > * { min-width: 0; }
+.ports td { vertical-align: middle; }
+@media (max-width: 760px) { .ports td:last-child, .ports th:last-child { display: none; } .ports [data-host] { min-width: 110px !important; } .ports td, .ports th { padding: 8px; } .panel-head { flex-wrap: wrap; } }
+.ports tr:hover td { background: transparent; }
+.svc { display: grid; grid-template-columns: 200px 1fr; gap: 14px 24px; padding: 16px 0; border-bottom: 1px solid var(--line-soft); }
+.svc:last-child { border-bottom: 0; padding-bottom: 4px; }
+.svc:first-child { padding-top: 4px; }
+.svc .lbl b { display: block; font-size: var(--t-m); }
+.sticky-save { flex-wrap: wrap; position: sticky; bottom: 0; background: linear-gradient(transparent, var(--bg) 30%); padding: 18px 0 6px; display: flex; gap: 8px; justify-content: flex-end; }
+
+.picker .dir { padding: 8px 10px; border-radius: 7px; cursor: pointer; font-family: var(--mono); font-size: 13px; display: flex; gap: 8px; align-items: center; }
+.picker .dir:hover { background: var(--surface); }
+.picker .where { font: 12.5px var(--mono); color: var(--ink-2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.copyline { display: flex; gap: 6px; align-items: center; }
+.acme-state { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border-radius: 9px; background: var(--surface); font-size: var(--t-s); }
+.acme-state > span:nth-child(2) { flex: 1; min-width: 200px; }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: var(--t-s); color: var(--ink-2); }
+.steps b { color: var(--ink); font-weight: 600; }
+.picker-box { border: 1px solid var(--line); border-radius: 10px; background: var(--raised); overflow: hidden; font-weight: 400; color: var(--ink); }
+.picker-bar { padding: 6px 8px; border-bottom: 1px solid var(--line-soft); background: var(--surface); }
+.picker-list { max-height: 260px; overflow: auto; padding: 4px; }
+.pick-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 7px; cursor: pointer; min-height: 38px; }
+.pick-row:hover { background: var(--surface); }
+.pick-row[aria-selected="true"] { background: var(--petrol-soft); box-shadow: inset 0 0 0 1px var(--petrol); }
+.pick-ico { width: 18px; height: 18px; display: inline-flex; flex: none; }
+.pick-ico svg { width: 18px; height: 18px; }
+.pick-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.picker-sel { padding: 8px 12px; border-top: 1px solid var(--line-soft); font-size: var(--t-xs); color: var(--ink-2); background: var(--surface); }
+.picker-sel .mono { color: var(--ink); }
+.copyline .mono { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 300px; }
+
+@media (max-width: 980px) {
+  .ledger { grid-template-columns: 1fr; } .ledger section + section { border-left: 0; border-top: 1px solid var(--line-soft); }
+  .trace { grid-template-columns: 1fr; } .trace .now { border-right: 0; border-bottom: 1px solid var(--line-soft); grid-template-columns: 1fr 1fr; }
+  .split { grid-template-columns: 1fr; } .list { position: static; }
+  .svc { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; }
+  .app > * { min-width: 0; }
+  .app { background: none; }
+  aside { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; width: 100%; overflow: hidden; border-right: 0; border-bottom: 1px solid var(--line); }
+  aside .top { padding: 12px 16px; } aside .foot { display: none; }
+  nav { display: flex; overflow-x: auto; flex-basis: 100%; width: 100%; padding: 0 8px 8px; }
+  nav a { white-space: nowrap; } nav .gap { display: none; } nav a .n { display: none; }
+  nav a.on::before { display: none; }
+  main { padding: 18px 16px 40px; }
+  .faceplate { grid-template-columns: 1fr 1fr; }
+  .faceplate .ident { grid-column: 1 / -1; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+"use strict";
+// ---------- Grundlagen ----------
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmtBytes = n => { n = Number(n) || 0; const u = ["B", "KB", "MB", "GB", "TB"]; let i = 0; while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; } return (i ? n.toFixed(n < 10 ? 1 : 0) : n) + " " + u[i]; };
+const splitUnit = s => { const i = s.lastIndexOf(" "); return [s.slice(0, i), s.slice(i + 1)]; };
+const fmtRate = n => fmtBytes(n) + "/s";
+const fmtDur = s => { s = Math.max(0, Math.floor(s)); const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60); return d ? `${d} T ${h} h` : h ? `${h} h ${m} min` : m ? `${m} min` : `${s} s`; };
+const fmtTime = t => new Date(t).toLocaleTimeString("de-CH");
+const fmtDate = t => new Date(t).toLocaleString("de-CH", { dateStyle: "short", timeStyle: "short" });
+const fmtDay = d => d ? new Date(d + "T00:00").toLocaleDateString("de-CH") : "";
+const ago = t => fmtDur((Date.now() - new Date(t)) / 1000);
+const nf = n => Number(n || 0).toLocaleString("de-CH");
+const num = v => Number(v) || 0;
+const lines = a => (a || []).join("\n");
+const unlines = s => s.split(/[\n,;]+/).map(x => x.trim()).filter(Boolean);
+const keylines = s => s.split(/\n+/).map(x => x.trim()).filter(Boolean);
+
+async function api(method, url, body) {
+  const r = await fetch(url, { method, headers: { "X-SG9": "1", "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body), credentials: "same-origin" });
+  if (r.status === 401 && url !== "/api/login") { boot(); throw new Error("Nicht angemeldet"); }
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || r.statusText);
+  return data;
+}
+function toast(msg, bad) {
+  let box = $("#toasts"); if (!box) { box = document.createElement("div"); box.id = "toasts"; box.setAttribute("role", "status"); document.body.appendChild(box); }
+  const t = document.createElement("div"); t.className = "toast" + (bad ? " bad" : "");
+  t.innerHTML = (bad ? "" : '<span class="led on"></span>') + "<span></span>"; t.lastChild.textContent = msg;
+  box.appendChild(t); setTimeout(() => t.remove(), bad ? 6000 : 2600);
+}
+async function copy(text) { try { await navigator.clipboard.writeText(text); toast("Link kopiert"); } catch { prompt("Link kopieren:", text); } }
+
+const I = {
+  status: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="7.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><path d="M16 12h3"/>',
+  sessions: '<path d="M4 7h16M4 12h16M4 17h10"/><circle cx="18.5" cy="17" r="1.5"/>',
+  users: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.4 4.2-6.5 8-6.5s7 2.1 8 6.5"/>',
+  groups: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2 .7 3.2 2.5 3.6 5.2"/>',
+  shares: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  events: '<path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/>',
+  settings: '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+  logs: '<path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 19h4"/>',
+  bans: '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
+  folder: '<path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/>',
+  file: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  up: '<path d="M12 19V5M6 11l6-6 6 6"/>',
+};
+const icon = (k, cls = "") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
+
+const PERMS = [["list", "Auflisten"], ["read", "Lesen"], ["write", "Schreiben"], ["append", "Anhängen"], ["delete", "Löschen"], ["rename", "Umbenennen"], ["mkdir", "Ordner anlegen"], ["rmdir", "Ordner löschen"]];
+const permBoxes = (prefix, p = {}, disabled = false) => `<div class="perms">${PERMS.map(([k, l]) =>
+  `<label class="check"><input type="checkbox" data-perm="${prefix}.${k}" ${p[k] ? "checked" : ""} ${disabled ? "disabled" : ""}>${l}</label>`).join("")}</div>`;
+const readPerms = (root, prefix) => Object.fromEntries(PERMS.map(([k]) => [k, !!root.querySelector(`[data-perm="${prefix}.${k}"]`)?.checked]));
+const PROTOS = [["ftp", "FTP/FTPS"], ["sftp", "SFTP"], ["webdav", "WebDAV"], ["web", "Browser"]];
+const PROTO_LABEL = { ftp: "FTP", ftps: "FTPS", sftp: "SFTP", webdav: "WebDAV", web: "Browser", share: "Link" };
+
+const state = { view: location.hash.slice(1) || "status", timer: null, status: null, logSince: 0, logs: [], logPaused: false, sel: {}, tab: {} };
+
+// ---------- Einrichtung & Anmeldung ----------
+const gate = inner => `<div class="gate"><form id="lf">
+    <div class="plate"><span class="mark"><img src="/assets/mark.svg" alt="" width="34" height="34"><span><b>SG9</b><small>Verwaltung</small></span></span>${inner}</div>
+    <div class="under"><span></span><span data-theme-switch data-compact></span></div></form></div>`;
+
+function showSetup(st) {
+  clearInterval(state.timer);
+  if (!st.canSetup) {
+    $("#root").innerHTML = gate(`<p style="margin:0">SG9 ist noch nicht eingerichtet.</p>
+      <p class="muted" style="margin:0;font-size:var(--t-s)">Öffne die Verwaltung einmal auf dem Rechner, auf dem SG9 läuft, oder von einem Gerät im selben Netz, und lege dort das Passwort fest.</p>`);
+    $$("[data-theme-switch]").forEach(SG9Theme.render);
+    return;
+  }
+  $("#root").innerHTML = gate(`
+      <p style="margin:0;font-size:var(--t-l);font-weight:650">Willkommen</p>
+      <p class="muted" style="margin:-6px 0 0;font-size:var(--t-s)">Leg fest, mit welchem Passwort du die Verwaltung öffnest.</p>
+      <label class="field">Benutzer<input name="u" value="${esc(st.username || "admin")}" autocomplete="username" required></label>
+      <label class="field">Passwort<input name="p" type="password" autocomplete="new-password" minlength="8" autofocus required><span class="hint">Mindestens 8 Zeichen.</span></label>
+      <label class="field">Passwort wiederholen<input name="p2" type="password" autocomplete="new-password" minlength="8" required></label>
+      ${st.local ? `<label class="check" style="white-space:normal;align-items:flex-start"><input type="checkbox" name="nl" checked style="margin-top:3px"><span>Auf diesem Rechner nicht nach dem Passwort fragen<br><span class="hint">Von anderen Geräten braucht es weiterhin das Passwort. Abschalten, wenn auch andere Leute diesen Rechner benutzen.</span></span></label>` : ""}
+      <div class="err" id="lerr" role="alert"></div>
+      <button class="btn primary">Passwort festlegen und loslegen</button>`);
+  $$("[data-theme-switch]").forEach(SG9Theme.render);
+  $("#lf").onsubmit = async e => {
+    e.preventDefault();
+    const f = e.target;
+    if (f.p.value !== f.p2.value) { $("#lerr").textContent = "Die beiden Passwörter sind nicht gleich."; f.p2.focus(); return; }
+    try { await api("POST", "/api/setup", { username: f.u.value, password: f.p.value, localNoLogin: !!f.nl?.checked }); boot(); }
+    catch (err) { $("#lerr").textContent = err.message; }
+  };
+}
+
+function showLogin(st) {
+  clearInterval(state.timer);
+  $("#root").innerHTML = gate(`
+      <label class="field">Benutzer<input name="u" value="${esc(st?.username || "admin")}" autocomplete="username" required></label>
+      <label class="field">Passwort<input name="p" type="password" autocomplete="current-password" autofocus required></label>
+      <div class="err" id="lerr" role="alert"></div>
+      <button class="btn primary">Anmelden</button>
+      <span class="hint">Du bleibst auf diesem Gerät 30 Tage angemeldet. Passwort vergessen? Auf dem Server <span class="mono" style="white-space:nowrap">sg9 -reset-admin</span> ausführen.</span>`);
+  $$("[data-theme-switch]").forEach(SG9Theme.render);
+  $("#lf").onsubmit = async e => {
+    e.preventDefault();
+    try { await api("POST", "/api/login", { username: e.target.u.value, password: e.target.p.value }); boot(); }
+    catch (err) { $("#lerr").textContent = err.message; }
+  };
+}
+
+// ---------- Rahmen ----------
+const NAV = [["status", "Übersicht"], ["sessions", "Sitzungen"], ["gap"], ["users", "Benutzer"], ["groups", "Gruppen"], ["shares", "Freigabe-Links"], ["gap"], ["events", "Ereignisse"], ["settings", "Einstellungen"], ["logs", "Protokoll"], ["bans", "Sperren"]];
+function shell() {
+  $("#root").innerHTML = `<div class="app">
+    <aside><div class="top"><span class="mark"><img src="/assets/mark.svg" alt="" width="34" height="34"><span><b id="sname">SG9</b><small id="sver">Verwaltung</small></span></span></div>
+      <nav>${NAV.map(([k, l]) => k === "gap" ? '<div class="gap"></div>' : `<a data-v="${k}" href="#${k}">${icon(k)}<span>${l}</span><span class="n" id="c-${k}"></span></a>`).join("")}</nav>
+      <div class="foot"><span id="platform"></span><button class="btn quiet small" id="logout">Abmelden</button></div></aside>
+    <main><div class="head"><div><h1 id="title"></h1><p id="subtitle"></p></div>
+      <div class="tools"><span data-theme-switch data-compact></span>
+        <label class="online" title="Offline: neue Verbindungen werden abgewiesen, bestehende bleiben"><span class="led" id="onled"></span>
+          <span class="switch"><input type="checkbox" id="online"><span class="track"></span><span id="onlbl">…</span></span></label></div></div>
+      <div id="main"></div></main></div>`;
+  $$("[data-theme-switch]").forEach(SG9Theme.render);
+  $$("nav a").forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.v); });
+  $("#logout").onclick = async () => { await api("POST", "/api/logout").catch(() => {}); boot(); };
+  $("#online").onchange = async e => {
+    try { await api("POST", "/api/server/online", { online: e.target.checked }); toast(e.target.checked ? "Server ist online" : "Server ist offline"); tick(); }
+    catch (err) { toast(err.message, true); e.target.checked = !e.target.checked; }
+  };
+}
+function setHead(t, sub) { $("#title").textContent = t; $("#subtitle").textContent = sub || ""; document.title = t + " – SG9"; }
+function go(v) { state.view = v; history.replaceState(null, "", "#" + v); render(); }
+window.onhashchange = () => { const v = location.hash.slice(1); if (v && v !== state.view) { state.view = v; render(); } };
+
+async function boot() {
+  let st;
+  try { st = await (await fetch("/api/state", { credentials: "same-origin" })).json(); }
+  catch { $("#root").innerHTML = gate(`<p style="margin:0">SG9 ist nicht erreichbar.</p>`); return; }
+  if (st.needsSetup) return showSetup(st);
+  if (!st.loggedIn) return showLogin(st);
+  state.auto = st.auto;
+  shell(); render();
+  if (st.auto) $("#logout").replaceWith(Object.assign(document.createElement("span"), { textContent: "ohne Anmeldung", title: "Auf diesem Rechner fragt SG9 nicht nach dem Passwort. Abschalten unter Einstellungen → Allgemein." }));
+  clearInterval(state.timer);
+  state.timer = setInterval(tick, 1000);
+  tick();
+}
+async function tick() {
+  if (!$("#sname")) { clearInterval(state.timer); return; }
+  try {
+    const s = state.status = await api("GET", "/api/status");
+    if (!$("#sname")) return;
+    $("#sname").textContent = s.serverName;
+    $("#platform").textContent = "Version " + s.version;
+    $("#c-sessions").textContent = s.sessions || "";
+    $("#c-users").textContent = s.users;
+    $("#c-groups").textContent = s.groups;
+    $("#c-shares").textContent = s.shares || "";
+    $("#c-events").textContent = s.events || "";
+    $("#c-bans").textContent = s.bans || "";
+    $("#online").checked = s.online;
+    $("#onlbl").textContent = s.online ? "Online" : "Offline";
+    $("#onled").className = "led " + (s.online ? "on" : "err");
+    if (state.view === "status") renderStatusLive();
+    if (state.view === "sessions") loadSessions();
+    if (state.view === "logs" && !state.logPaused) loadLogs();
+  } catch {}
+}
+function render() {
+  $$("nav a").forEach(a => a.classList.toggle("on", a.dataset.v === state.view));
+  const views = { status: viewStatus, sessions: viewSessions, users: () => viewAccounts("users"), groups: () => viewAccounts("groups"), shares: viewShares, events: viewEvents, settings: viewSettings, logs: viewLogs, bans: viewBans };
+  (views[state.view] || viewStatus)();
+  $("main").scrollTop = 0; window.scrollTo(0, 0);
+}
+
+// ---------- Übersicht ----------
+function viewStatus() {
+  setHead("Übersicht", "Dienste, Durchsatz und Zähler seit dem Start");
+  $("#main").innerHTML = `<div class="faceplate" id="plate" aria-label="Dienste"></div>
+    <div class="panel trace"><div class="now">
+        <div class="down"><div class="k"><span class="swatch" style="background:var(--petrol)"></span>Download</div><div class="v" id="vdown">–</div></div>
+        <div class="up"><div class="k"><span class="swatch" style="background:var(--amber)"></span>Upload</div><div class="v" id="vup">–</div></div>
+      </div><div class="chart"><canvas id="chart" aria-label="Durchsatz der letzten zwei Minuten"></canvas></div></div>
+    <div class="panel ledger" id="ledger"></div>`;
+  if (state.status) renderStatusLive();
+}
+function renderStatusLive() {
+  const s = state.status; if (!s || !$("#plate")) return;
+  const port = sv => {
+    const listening = sv.listening.length > 0;
+    const st = !sv.enabled ? "off" : listening ? "on" : "err";
+    const addr = sv.listening.map(a => a.replace(/^0\.0\.0\.0|^\[::\]/, "")).join(", ");
+    let meta = !sv.enabled ? "ausgeschaltet" : !listening ? "startet nicht – Port belegt?" : (sv.note || "");
+    if (sv.id === "sftp" && sv.note) meta = "Schlüssel " + sv.note.replace("SHA256:", "").slice(0, 14) + "…";
+    return `<div class="port ${st === "off" ? "off" : ""}" title="${esc(sv.note || "")}"><div class="t"><span class="led ${st === "err" ? "err" : st === "on" ? "on" : ""}"></span>${esc(sv.name)}</div>
+      ${sv.enabled ? `<div class="addr">${esc(addr || "–")}</div>` : ""}<div class="meta">${esc(meta)}</div>
+      ${sv.enabled && listening && sv.sessions >= 0 ? `<div class="count"><b>${sv.sessions}</b> ${sv.sessions === 1 ? "Sitzung" : "Sitzungen"}</div>` : ""}</div>`;
+  };
+  $("#plate").innerHTML = `<div class="ident"><div><b style="display:inline;margin-right:10px">${esc(s.serverName)}</b><span class="faint" style="font-size:var(--t-xs)">${esc(s.platform)} · Version ${esc(s.version)}</span></div>
+    <div class="state"><span class="led ${s.online ? "on" : "err"}"></span>${s.online ? "Online seit " + fmtDur(s.uptimeSec) : "Offline – neue Verbindungen werden abgewiesen"}</div></div>
+    ${s.services.filter(x => x.enabled).map(port).join("")}
+    ${(() => { const off = s.services.filter(x => !x.enabled && x.id !== "ftps"); return off.length ? `<div class="off-note">Ausgeschaltet: ${off.map(x => esc(x.name)).join(", ")} · <a href="#settings" onclick="go('settings');return false">einschalten</a></div>` : ""; })()}`;
+  const last = s.history.at(-1) || { down: 0, up: 0 };
+  const big = n => { const [v, u] = splitUnit(fmtRate(n)); return `${v}<small>${u}</small>`; };
+  $("#vdown").innerHTML = big(last.down); $("#vup").innerHTML = big(last.up);
+  $("#ledger").innerHTML = `
+    <section><h3>Verkehr</h3><dl><dt>Gesendet</dt><dd>${fmtBytes(s.bytesDown)}</dd><dt>Empfangen</dt><dd>${fmtBytes(s.bytesUp)}</dd>
+      <dt>Dateien heruntergeladen</dt><dd>${nf(s.filesDown)}</dd><dt>Dateien hochgeladen</dt><dd>${nf(s.filesUp)}</dd></dl></section>
+    <section><h3>Zugriffe</h3><dl><dt>Verbindungen</dt><dd>${nf(s.connections)}</dd><dt>Anmeldungen</dt><dd>${nf(s.logins)}</dd>
+      <dt>Fehlversuche</dt><dd style="color:${s.failedLogins ? "var(--amber)" : "inherit"}">${nf(s.failedLogins)}</dd><dt>Gesperrte IPs</dt><dd><a onclick="go('bans')">${nf(s.bans)}</a></dd></dl></section>
+    <section><h3>Einrichtung</h3><dl><dt>Benutzer</dt><dd><a onclick="go('users')">${nf(s.users)}</a></dd><dt>Gruppen</dt><dd><a onclick="go('groups')">${nf(s.groups)}</a></dd>
+      <dt>Aktive Freigabe-Links</dt><dd><a onclick="go('shares')">${nf(s.shares)}</a></dd><dt>Ereignisse</dt><dd><a onclick="go('events')">${nf(s.events)}</a></dd></dl></section>`;
+  drawChart(s.history);
+}
+function drawChart(hist) {
+  const c = $("#chart"); if (!c) return;
+  const dpr = window.devicePixelRatio || 1, W = c.clientWidth, H = c.clientHeight;
+  if (!W || !H) return;
+  c.width = W * dpr; c.height = H * dpr;
+  const g = c.getContext("2d"); g.scale(dpr, dpr);
+  const css = getComputedStyle(document.documentElement), col = n => css.getPropertyValue(n).trim();
+  const pts = hist.slice(-120), N = 120;
+  const max = Math.max(4096, ...pts.map(p => Math.max(p.down, p.up)));
+  let scale = 1024; outer: for (let e = 1024; ; e *= 10) for (const s of [1, 2, 5]) { if (s * e >= max) { scale = s * e; break outer; } }
+  const L = 72, R = 6, T = 6, B = 22, w = W - L - R, h = H - T - B;
+  g.font = "11.5px " + col("--sans"); g.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = Math.round(T + h - h * i / 4) + .5;
+    g.strokeStyle = col(i ? "--line-soft" : "--line"); g.beginPath(); g.moveTo(L, y); g.lineTo(W - R, y); g.stroke();
+    g.fillStyle = col("--ink-3"); g.textAlign = "right"; g.fillText(fmtRate(scale * i / 4), L - 10, y + 4);
+  }
+  g.textAlign = "left"; g.fillText("vor 2 Minuten", L, H - 4); g.textAlign = "right"; g.fillText("jetzt", W - R, H - 4);
+  const x = i => L + w * (N - pts.length + i) / (N - 1), y = v => T + h - h * Math.min(v, scale) / scale;
+  const line = (key, color) => {
+    if (!pts.length) return;
+    g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(x(i), y(p[key])) : g.moveTo(x(i), y(p[key])));
+    g.strokeStyle = color; g.lineWidth = 2; g.lineJoin = "round"; g.stroke();
+    g.lineTo(x(pts.length - 1), T + h); g.lineTo(x(0), T + h); g.closePath();
+    g.globalAlpha = .1; g.fillStyle = color; g.fill(); g.globalAlpha = 1;
+  };
+  line("up", col("--amber")); line("down", col("--petrol"));
+}
+window.addEventListener("resize", () => { if (state.view === "status" && state.status) drawChart(state.status.history); });
+window.addEventListener("sg9-theme", () => { if (state.view === "status" && state.status) setTimeout(() => drawChart(state.status.history), 30); });
+
+// ---------- Sitzungen ----------
+function viewSessions() {
+  setHead("Sitzungen", "Alle Verbindungen über alle Dienste, sekündlich aktualisiert");
+  $("#main").innerHTML = `<div class="panel" style="overflow:auto"><table class="data"><thead><tr><th>Dienst</th><th>Benutzer</th><th>IP-Adresse</th><th>Verbunden</th><th>Zuletzt</th><th>Übertragung</th><th></th></tr></thead><tbody id="sbody"><tr><td colspan="7" class="empty">Lade…</td></tr></tbody></table></div>`;
+  loadSessions();
+}
+async function loadSessions() {
+  const list = await api("GET", "/api/sessions").catch(() => null); if (!list || !$("#sbody")) return;
+  $("#sbody").innerHTML = list.length ? list.map(s => {
+    let x = "<span class='faint'>–</span>";
+    if (s.transfer) {
+      const t = s.transfer, pct = t.size > 0 ? Math.min(100, t.bytes / t.size * 100) : 100;
+      const dir = t.direction === "up" ? "hoch" : t.direction === "down" ? "runter" : "Liste";
+      x = `<div style="font-size:var(--t-xs);margin-bottom:4px"><span class="mono">${esc(t.file.split("/").pop())}</span> · ${dir} · ${fmtRate(t.speed)}</div>
+        <div class="bar ${t.direction === "up" ? "up" : ""}" title="${fmtBytes(t.bytes)}${t.size > 0 ? " von " + fmtBytes(t.size) : ""}"><i style="width:${pct}%;${t.size > 0 ? "" : "opacity:.35"}"></i></div>`;
+    }
+    const enc = s.tls ? '<span class="pill ok" title="verschlüsselt">verschlüsselt</span>' : "";
+    return `<tr><td><span class="pill">${PROTO_LABEL[s.protocol] || esc(s.protocol)}</span></td>
+      <td>${s.user ? esc(s.user) : "<span class='faint'>nicht angemeldet</span>"} ${enc}</td>
+      <td class="mono">${esc(s.ip)}</td><td title="${fmtDate(s.connected)}">${ago(s.connected)}</td>
+      <td title="vor ${ago(s.lastActive)}"><span class="mono" style="font-size:12px">${esc(s.lastCommand || "")}</span></td><td style="min-width:200px">${x}</td>
+      <td style="text-align:right"><button class="btn small danger" data-kick="${s.id}">Trennen</button></td></tr>`;
+  }).join("") : `<tr><td colspan="7"><div class="empty"><b>Niemand verbunden</b>Sobald sich jemand per FTP, SFTP, WebDAV, Browser oder Link verbindet, erscheint die Sitzung hier.</div></td></tr>`;
+  $$("[data-kick]").forEach(b => b.onclick = async () => { await api("POST", `/api/sessions/${b.dataset.kick}/kick`).catch(e => toast(e.message, true)); loadSessions(); });
+}
+
+// ---------- Benutzer & Gruppen ----------
+async function viewAccounts(kind) {
+  const isUser = kind === "users";
+  setHead(isUser ? "Benutzer" : "Gruppen", isUser ? "Leere Felder übernimmt der Benutzer von seiner Gruppe." : "Vorlagen für Benutzer. %u im Pfad steht für den Benutzernamen.");
+  const [items, groups] = await Promise.all([api("GET", "/api/" + kind), isUser ? api("GET", "/api/groups") : Promise.resolve([])]).catch(e => { toast(e.message, true); return [[], []]; });
+  $("#main").innerHTML = `<div class="split"><div class="panel list"><div class="row" style="margin-bottom:6px"><input class="input search grow" id="q" placeholder="Suchen" aria-label="Suchen"><button class="btn primary" id="new" title="${isUser ? "Neuer Benutzer" : "Neue Gruppe"}">Neu</button></div><div id="items"></div></div><div id="editor"></div></div>`;
+  const drawList = () => {
+    const q = $("#q").value.toLowerCase();
+    const shown = items.filter(i => i.name.toLowerCase().includes(q));
+    $("#items").innerHTML = shown.length ? shown.map(i => `<div class="item ${state.sel[kind] === i.name ? "on" : ""} ${isUser && !i.enabled ? "disabled" : ""}" data-n="${esc(i.name)}" tabindex="0">
+      ${isUser ? `<span class="led ${i.online ? "on" : ""}" title="${i.online ? "verbunden" : "nicht verbunden"}"></span>` : ""}<span class="nm">${esc(i.name)}</span>
+      <span class="meta">${isUser ? esc(i.group || "–") : i.members + (i.members === 1 ? " Mitglied" : " Mitglieder")}</span></div>`).join("") : `<div class="empty">${q ? "Nichts gefunden" : "Noch leer"}</div>`;
+    $$("#items .item").forEach(el => el.onclick = el.onkeydown = e => { if (e.type === "keydown" && e.key !== "Enter") return; state.sel[kind] = el.dataset.n; drawList(); edit(items.find(i => i.name === el.dataset.n)); });
+  };
+  const edit = item => isUser ? editUser(item, groups, () => viewAccounts(kind)) : editGroup(item, () => viewAccounts(kind));
+  $("#q").oninput = drawList;
+  $("#new").onclick = () => { state.sel[kind] = null; drawList(); edit(null); };
+  const cur = items.find(i => i.name === state.sel[kind]) || items[0];
+  if (cur) state.sel[kind] = cur.name;
+  drawList(); edit(cur || null);
+}
+
+function mountRow(m, i) {
+  const ph = navigator.platform.startsWith("Win") ? "D:\\Fotos oder \\\\NAS\\Freigabe" : "/srv/fotos";
+  return `<div class="mount" data-m="${i}"><div class="row">
+    <input class="input" data-k="vp" value="${esc(m.virtualPath)}" placeholder="Im FTP als /fotos" aria-label="Pfad im FTP" style="flex:1">
+    <input class="input grow" data-k="rp" value="${esc(m.realPath)}" placeholder="${ph}" aria-label="Echter Ordner" style="flex:2.2">
+    <button type="button" class="btn small" data-browse>Durchsuchen</button><button type="button" class="btn small quiet" data-delm title="Entfernen" aria-label="Entfernen">✕</button></div>
+    ${permBoxes("m" + i, m.perms)}</div>`;
+}
+function mountsBlock(mounts) {
+  return `<div class="mounts" id="mbody">${mounts.map((m, i) => mountRow(m, i)).join("")}</div>
+    <div style="margin-top:10px"><button type="button" class="btn small" id="addm">Ordner freigeben</button></div>`;
+}
+function wireMounts(root) {
+  let n = 100;
+  const wireRow = el => { el.querySelector("[data-delm]").onclick = () => el.remove(); el.querySelector("[data-browse]").onclick = () => pickFolder(el.querySelector('[data-k="rp"]')); };
+  $$("#mbody .mount", root).forEach(wireRow);
+  $("#addm", root).onclick = () => {
+    const tmp = document.createElement("div"); tmp.innerHTML = mountRow({ virtualPath: "", realPath: "", perms: { list: true, read: true } }, n++);
+    const el = tmp.firstElementChild; $("#mbody", root).appendChild(el); wireRow(el); el.querySelector("input").focus();
+  };
+}
+const readMounts = root => $$("#mbody .mount", root).map(el => ({
+  virtualPath: el.querySelector('[data-k="vp"]').value.trim(), realPath: el.querySelector('[data-k="rp"]').value.trim(), perms: readPerms(el, "m" + el.dataset.m),
+})).filter(m => m.virtualPath || m.realPath);
+
+function tabsUI(id, tabs, initial) {
+  const cur = state.tab[id] && tabs.some(t => t[0] === state.tab[id]) ? state.tab[id] : (initial || tabs[0][0]);
+  return `<div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button type="button" role="tab" data-tab="${k}" aria-selected="${k === cur}">${l}</button>`).join("")}</div>`;
+}
+function wireTabs(root, id) {
+  const show = k => { state.tab[id] = k; $$("[data-tab]", root).forEach(b => b.setAttribute("aria-selected", b.dataset.tab === k)); $$("[data-pane]", root).forEach(p => p.classList.toggle("hidden", p.dataset.pane !== k)); };
+  $$("[data-tab]", root).forEach(b => b.onclick = () => show(b.dataset.tab));
+  show($('[data-tab][aria-selected="true"]', root).dataset.tab);
+}
+function protoBoxes(sel) {
+  return `<div class="protos">${PROTOS.map(([k, l]) => `<label class="check"><input type="checkbox" data-proto="${k}" ${(sel || []).includes(k) ? "checked" : ""}>${l}</label>`).join("")}</div>`;
+}
+const readProtos = root => $$("[data-proto]", root).filter(i => i.checked).map(i => i.dataset.proto);
+
+function editUser(u, groups, reload) {
+  const isNew = !u;
+  u = u || { name: "", enabled: true, group: groups[0]?.name || "", mounts: [], homePerms: null, counters: {} };
+  const inherit = u.homePerms == null;
+  const groupOf = g => groups.find(x => x.name === g) || {};
+  const shareSel = u.allowShares == null ? "" : u.allowShares ? "yes" : "no";
+  const c = u.counters || {};
+  const tabs = [["konto", "Konto"], ["ordner", "Ordner"], ["limits", "Limits"], ["zugriff", "Zugriff"], ["extras", "Extras"]];
+  if (!isNew) tabs.push(["stat", "Statistik"]);
+  $("#editor").innerHTML = `<form class="panel" id="uf" autocomplete="off">${tabsUI("user", tabs)}
+    <div class="tabpanel" data-pane="konto">
+      <div class="grid-form">
+        <label class="field">Benutzername<input name="name" value="${esc(u.name)}" required pattern="[A-Za-z0-9._@\\-]+" title="Buchstaben, Ziffern, - _ . @"></label>
+        <label class="field">Passwort<input name="password" type="password" autocomplete="new-password" placeholder="${isNew ? "" : (u.hasPassword ? "unverändert" : "nicht gesetzt")}">${u.name.toLowerCase() === "anonymous" ? '<span class="hint">Bei „anonymous“ gilt jedes Passwort.</span>' : ""}</label>
+        <label class="field">Gruppe<select name="group"><option value="">Keine</option>${groups.map(g => `<option ${g.name === u.group ? "selected" : ""}>${esc(g.name)}</option>`).join("")}</select></label>
+        <label class="field">Gültig bis<input name="expiresAt" type="date" value="${esc(u.expiresAt)}"><span class="hint">Leer lassen für unbegrenzt.</span></label>
+        <label class="field span">Kommentar<input name="comment" value="${esc(u.comment)}"></label>
+      </div>
+      <div class="row" style="gap:24px;flex-wrap:wrap"><label class="check"><input type="checkbox" name="enabled" ${u.enabled ? "checked" : ""}>Konto aktiv</label>
+        <label class="check"><input type="checkbox" name="forceTLS" ${u.forceTLS ? "checked" : ""}>Nur verschlüsselte Verbindungen</label></div>
+      <section><h3>Erlaubte Dienste</h3><p class="hint">Nichts angehakt heisst: wie die Gruppe. Hat auch die Gruppe nichts festgelegt, sind alle Dienste erlaubt.</p>${protoBoxes(u.protocols)}</section>
+    </div>
+    <div class="tabpanel" data-pane="ordner">
+      <section><h3>Home-Ordner</h3><p class="hint">Das sieht der Benutzer als „/“. Leer lassen, um den Ordner der Gruppe zu verwenden.</p>
+        <div class="row"><input class="input grow mono" name="home" id="home" value="${esc(u.home)}" placeholder="${esc(groupOf(u.group).home || "von der Gruppe")}"><button type="button" class="btn" data-pick="home">Durchsuchen</button></div>
+        <div style="margin-top:12px"><label class="check"><input type="checkbox" id="inh" ${inherit ? "checked" : ""}>Rechte der Gruppe verwenden</label></div>
+        <div id="hperms" style="margin-top:10px">${permBoxes("home", u.homePerms || groupOf(u.group).homePerms, inherit)}</div></section>
+      <section><h3>Weitere Ordner</h3><p class="hint">Echte Ordner, die zusätzlich unter einem eigenen Pfad erscheinen, auch Netzlaufwerke. Gleichnamige Ordner der Gruppe werden ersetzt.</p>${mountsBlock(u.mounts || [])}</section>
+    </div>
+    <div class="tabpanel" data-pane="limits"><div class="grid-form">
+      <label class="field">Download in KB/s<input name="downloadKBps" type="number" min="0" value="${u.downloadKBps || ""}" placeholder="wie Gruppe"></label>
+      <label class="field">Upload in KB/s<input name="uploadKBps" type="number" min="0" value="${u.uploadKBps || ""}" placeholder="wie Gruppe"></label>
+      <label class="field">Gleichzeitige Verbindungen<input name="maxConnections" type="number" min="0" value="${u.maxConnections || ""}" placeholder="wie Gruppe"></label>
+      <label class="field">Speicherplatz in MB<input name="quotaMB" type="number" min="0" value="${u.quotaMB || ""}" placeholder="wie Gruppe"></label>
+      <label class="field">Ratio 1 : N<input name="ratio" type="number" min="0" value="${u.ratio || ""}" placeholder="wie Gruppe"><span class="hint">Pro hochgeladenem MB darf N MB heruntergeladen werden.</span></label>
+      <label class="field">Startguthaben in MB<input name="ratioCreditMB" type="number" min="0" value="${u.ratioCreditMB || ""}" placeholder="wie Gruppe"></label>
+    </div></div>
+    <div class="tabpanel" data-pane="zugriff">
+      <div class="grid-form">
+        <label class="field">Erlaubte IP-Adressen<textarea name="ipAllow" placeholder="leer = alle&#10;192.168.1.*&#10;10.0.0.0/8">${esc(lines(u.ipAllow))}</textarea></label>
+        <label class="field">Gesperrte IP-Adressen<textarea name="ipDeny">${esc(lines(u.ipDeny))}</textarea></label>
+        <label class="field">Freigabe-Links erstellen<select name="allowShares"><option value="" ${shareSel === "" ? "selected" : ""}>wie Gruppe (${groupOf(u.group).allowShares ? "ja" : "nein"})</option><option value="yes" ${shareSel === "yes" ? "selected" : ""}>Ja</option><option value="no" ${shareSel === "no" ? "selected" : ""}>Nein</option></select></label>
+      </div>
+      <label class="field">SSH-Schlüssel für SFTP<textarea name="sshKeys" style="min-height:96px" placeholder="ssh-ed25519 AAAAC3… peter@laptop">${esc(lines(u.sshKeys))}</textarea><span class="hint">Eine Zeile pro Schlüssel, wie in authorized_keys. Mit Schlüssel geht es auch ohne Passwort.</span></label>
+    </div>
+    <div class="tabpanel" data-pane="extras">
+      <label class="field">Begrüssung nach dem Anmelden<textarea name="welcome" style="font-family:var(--sans);font-size:var(--t-s)" placeholder="Leer = wie Gruppe. %u = Benutzername">${esc(u.welcome)}</textarea></label>
+      <div class="grid-form">
+        <label class="field">Ausgeblendete Dateien<textarea name="hideFiles" placeholder="*.tmp&#10;Thumbs.db&#10;.*">${esc(lines(u.hideFiles))}</textarea><span class="hint">Erscheinen nicht in Listen und sind nicht abrufbar. Zusätzlich zu Gruppe und Server.</span></label>
+        <label class="field">Gesperrte Dateitypen beim Upload<textarea name="denyUpload" placeholder="*.exe&#10;*.bat">${esc(lines(u.denyUpload))}</textarea></label>
+      </div>
+    </div>
+    ${isNew ? "" : `<div class="tabpanel" data-pane="stat">
+      <div class="ledger" style="margin:0;grid-template-columns:1fr 1fr"><section style="padding:0 20px 0 0"><h3>Übertragen</h3><dl>
+        <dt>Hochgeladen</dt><dd>${fmtBytes(c.bytesUp)}</dd><dt>Heruntergeladen</dt><dd>${fmtBytes(c.bytesDown)}</dd>
+        <dt>Dateien hoch / runter</dt><dd>${nf(c.filesUp)} / ${nf(c.filesDown)}</dd>
+        ${u.ratioLeft >= 0 ? `<dt>Download-Guthaben</dt><dd>${fmtBytes(u.ratioLeft)}</dd>` : ""}</dl></section>
+        <section><h3>Anmeldungen</h3><dl><dt>Anzahl</dt><dd>${nf(c.logins)}</dd>
+        <dt>Zuletzt</dt><dd>${c.lastLogin && !c.lastLogin.startsWith("0001") ? fmtDate(c.lastLogin) : "nie"}</dd><dt>Von</dt><dd class="mono">${esc(c.lastIP || "–")}</dd></dl></section></div>
+      <div><button type="button" class="btn" id="resetc">Zähler zurücksetzen</button> <span class="hint">Setzt auch das Ratio-Guthaben auf den Start zurück.</span></div></div>`}
+    <div class="edit-actions"><div class="left">${isNew ? "" : `<button type="button" class="btn danger" id="del">Löschen</button>${u.online ? `<button type="button" class="btn" id="kickall">Verbindungen trennen</button>` : ""}`}</div>
+      <button class="btn primary">${isNew ? "Benutzer anlegen" : "Änderungen speichern"}</button></div></form>`;
+  const f = $("#uf");
+  wireTabs(f, "user"); wireMounts(f);
+  $$("[data-pick]", f).forEach(b => b.onclick = () => pickFolder($("#" + b.dataset.pick, f)));
+  const showInherited = () => { if ($("#inh").checked) $("#hperms").innerHTML = permBoxes("home", groupOf(f.group.value).homePerms, true); };
+  $("#inh").onchange = e => { $$("#hperms input", f).forEach(i => i.disabled = e.target.checked); showInherited(); };
+  f.group.onchange = showInherited;
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const as = f.allowShares.value;
+    const body = {
+      originalName: isNew ? "" : u.name, name: f.name.value.trim(), password: f.password.value, enabled: f.enabled.checked,
+      group: f.group.value, comment: f.comment.value, expiresAt: f.expiresAt.value, forceTLS: f.forceTLS.checked, protocols: readProtos(f),
+      home: f.home.value.trim(), homePerms: $("#inh").checked ? null : readPerms(f, "home"), mounts: readMounts(f),
+      downloadKBps: num(f.downloadKBps.value), uploadKBps: num(f.uploadKBps.value), maxConnections: num(f.maxConnections.value), quotaMB: num(f.quotaMB.value),
+      ratio: num(f.ratio.value), ratioCreditMB: num(f.ratioCreditMB.value),
+      ipAllow: unlines(f.ipAllow.value), ipDeny: unlines(f.ipDeny.value), allowShares: as === "" ? null : as === "yes",
+      sshKeys: keylines(f.sshKeys.value), welcome: f.welcome.value, hideFiles: unlines(f.hideFiles.value), denyUpload: unlines(f.denyUpload.value),
+    };
+    try { await api("PUT", "/api/users", body); toast(isNew ? "Benutzer angelegt" : "Änderungen gespeichert"); state.sel.users = body.name; reload(); }
+    catch (err) { toast(err.message, true); }
+  };
+  if (!isNew) {
+    $("#del").onclick = async () => {
+      if (!confirm(`Benutzer ${u.name} löschen? Seine Dateien bleiben erhalten, seine Freigabe-Links werden gelöscht.`)) return;
+      try { await api("DELETE", "/api/users/" + encodeURIComponent(u.name)); toast("Benutzer gelöscht"); state.sel.users = null; reload(); } catch (err) { toast(err.message, true); }
+    };
+    $("#resetc").onclick = async () => { await api("POST", `/api/users/${encodeURIComponent(u.name)}/reset-counters`); toast("Zähler zurückgesetzt"); reload(); };
+    const k = $("#kickall"); if (k) k.onclick = async () => {
+      const ss = await api("GET", "/api/sessions");
+      for (const s of ss.filter(s => s.user.toLowerCase() === u.name.toLowerCase())) await api("POST", `/api/sessions/${s.id}/kick`);
+      toast("Verbindungen getrennt"); reload();
+    };
+  }
+}
+
+function editGroup(g, reload) {
+  const isNew = !g;
+  g = g || { name: "", home: "", homePerms: { list: true, read: true }, mounts: [] };
+  const tabs = [["gruppe", "Gruppe"], ["ordner", "Ordner"], ["limits", "Limits"], ["zugriff", "Zugriff"], ["extras", "Extras"]];
+  $("#editor").innerHTML = `<form class="panel" id="gf" autocomplete="off">${tabsUI("group", tabs)}
+    <div class="tabpanel" data-pane="gruppe"><div class="grid-form">
+      <label class="field">Name<input name="name" value="${esc(g.name)}" required pattern="[A-Za-z0-9._@\\-]+"></label>
+      <label class="field" style="grid-column:span 2">Kommentar<input name="comment" value="${esc(g.comment)}"></label></div>
+      <div class="row" style="gap:24px;flex-wrap:wrap"><label class="check"><input type="checkbox" name="forceTLS" ${g.forceTLS ? "checked" : ""}>Nur verschlüsselte Verbindungen</label>
+        <label class="check"><input type="checkbox" name="allowShares" ${g.allowShares ? "checked" : ""}>Mitglieder dürfen Freigabe-Links erstellen</label></div>
+      <section><h3>Erlaubte Dienste</h3><p class="hint">Nichts angehakt heisst: alle Dienste.</p>${protoBoxes(g.protocols)}</section></div>
+    <div class="tabpanel" data-pane="ordner">
+      <section><h3>Home-Ordner</h3><p class="hint">%u wird durch den Benutzernamen ersetzt. Fehlende Ordner legt SG9 beim ersten Anmelden an.</p>
+        <div class="row"><input class="input grow mono" name="home" id="ghome" value="${esc(g.home)}" placeholder="/srv/ftp/%u"><button type="button" class="btn" data-pick="ghome">Durchsuchen</button></div>
+        <div style="margin-top:12px">${permBoxes("home", g.homePerms)}</div></section>
+      <section><h3>Weitere Ordner für alle Mitglieder</h3>${mountsBlock(g.mounts || [])}</section></div>
+    <div class="tabpanel" data-pane="limits"><div class="grid-form">
+      <label class="field">Download in KB/s<input name="downloadKBps" type="number" min="0" value="${g.downloadKBps || ""}" placeholder="unbegrenzt"></label>
+      <label class="field">Upload in KB/s<input name="uploadKBps" type="number" min="0" value="${g.uploadKBps || ""}" placeholder="unbegrenzt"></label>
+      <label class="field">Verbindungen pro Benutzer<input name="maxConnections" type="number" min="0" value="${g.maxConnections || ""}" placeholder="unbegrenzt"></label>
+      <label class="field">Speicherplatz in MB<input name="quotaMB" type="number" min="0" value="${g.quotaMB || ""}" placeholder="unbegrenzt"></label>
+      <label class="field">Ratio 1 : N<input name="ratio" type="number" min="0" value="${g.ratio || ""}" placeholder="aus"><span class="hint">Pro hochgeladenem MB darf N MB heruntergeladen werden.</span></label>
+      <label class="field">Startguthaben in MB<input name="ratioCreditMB" type="number" min="0" value="${g.ratioCreditMB || ""}" placeholder="0"></label></div></div>
+    <div class="tabpanel" data-pane="zugriff"><div class="grid-form">
+      <label class="field">Erlaubte IP-Adressen<textarea name="ipAllow" placeholder="leer = alle">${esc(lines(g.ipAllow))}</textarea></label>
+      <label class="field">Gesperrte IP-Adressen<textarea name="ipDeny">${esc(lines(g.ipDeny))}</textarea></label></div></div>
+    <div class="tabpanel" data-pane="extras">
+      <label class="field">Begrüssung nach dem Anmelden<textarea name="welcome" style="font-family:var(--sans);font-size:var(--t-s)" placeholder="%u = Benutzername">${esc(g.welcome)}</textarea></label>
+      <div class="grid-form">
+        <label class="field">Ausgeblendete Dateien<textarea name="hideFiles" placeholder="*.tmp&#10;Thumbs.db">${esc(lines(g.hideFiles))}</textarea></label>
+        <label class="field">Gesperrte Dateitypen beim Upload<textarea name="denyUpload" placeholder="*.exe">${esc(lines(g.denyUpload))}</textarea></label></div></div>
+    <div class="edit-actions"><div class="left">${isNew ? "" : `<button type="button" class="btn danger" id="del">Löschen</button>`}</div><button class="btn primary">${isNew ? "Gruppe anlegen" : "Änderungen speichern"}</button></div></form>`;
+  const f = $("#gf");
+  wireTabs(f, "group"); wireMounts(f);
+  $$("[data-pick]", f).forEach(b => b.onclick = () => pickFolder($("#" + b.dataset.pick, f)));
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const body = { originalName: isNew ? "" : g.name, name: f.name.value.trim(), comment: f.comment.value, forceTLS: f.forceTLS.checked, allowShares: f.allowShares.checked,
+      protocols: readProtos(f), home: f.home.value.trim(), homePerms: readPerms(f, "home"), mounts: readMounts(f),
+      downloadKBps: num(f.downloadKBps.value), uploadKBps: num(f.uploadKBps.value), maxConnections: num(f.maxConnections.value), quotaMB: num(f.quotaMB.value),
+      ratio: num(f.ratio.value), ratioCreditMB: num(f.ratioCreditMB.value), ipAllow: unlines(f.ipAllow.value), ipDeny: unlines(f.ipDeny.value),
+      welcome: f.welcome.value, hideFiles: unlines(f.hideFiles.value), denyUpload: unlines(f.denyUpload.value) };
+    try { await api("PUT", "/api/groups", body); toast(isNew ? "Gruppe angelegt" : "Änderungen gespeichert"); state.sel.groups = body.name; reload(); }
+    catch (err) { toast(err.message, true); }
+  };
+  if (!isNew) $("#del").onclick = async () => {
+    if (!confirm(`Gruppe ${g.name} löschen?`)) return;
+    try { await api("DELETE", "/api/groups/" + encodeURIComponent(g.name)); toast("Gruppe gelöscht"); state.sel.groups = null; reload(); } catch (err) { toast(err.message, true); }
+  };
+}
+
+// ---------- Ordnerauswahl (Server) ----------
+function pickFolder(input) {
+  const m = document.createElement("div"); m.className = "modal";
+  m.innerHTML = `<div class="box picker" role="dialog" aria-label="Ordner wählen"><header>Ordner auf dem Server wählen</header><div class="body" id="dirs"></div>
+    <footer><span class="where" id="crumb"></span><button class="btn" id="cancel">Abbrechen</button><button class="btn primary" id="ok">Diesen Ordner nehmen</button></footer></div>`;
+  document.body.appendChild(m);
+  let cur = "";
+  const load = async p => {
+    try {
+      const r = await api("GET", "/api/browse?path=" + encodeURIComponent(p));
+      cur = r.path || "";
+      $("#crumb", m).textContent = cur || "Laufwerke";
+      $("#ok", m).disabled = !cur;
+      const up = cur && (r.parent || cur !== "/") ? `<div class="dir" data-p="${esc(r.parent)}">${icon("up", "faint")}..</div>` : "";
+      $("#dirs", m).innerHTML = up + (r.dirs.length ? r.dirs.map(d => `<div class="dir" data-p="${esc(cur ? (cur.endsWith(r.sep) ? cur + d : cur + r.sep + d) : d)}"><span style="color:var(--amber);display:inline-flex;width:18px">${icon("folder")}</span>${esc(d)}</div>`).join("") : `<div class="empty">Keine Unterordner</div>`);
+      $$(".dir", m).forEach(d => d.onclick = () => load(d.dataset.p));
+    } catch (err) { toast(err.message, true); }
+  };
+  const close = () => m.remove();
+  $("#cancel", m).onclick = close;
+  m.onclick = e => { if (e.target === m) close(); };
+  m.onkeydown = e => { if (e.key === "Escape") close(); };
+  $("#ok", m).onclick = () => { input.value = cur; close(); };
+  load(input.value && !input.value.includes("%") ? input.value : "");
+}
+
+// ---------- Freigabe-Links ----------
+async function viewShares() {
+  setHead("Freigabe-Links", "Dateien und Ordner per Link teilen, auch mit Leuten ohne Konto");
+  const [list, st] = await Promise.all([api("GET", "/api/shares"), api("GET", "/api/settings")]).catch(e => { toast(e.message, true); return [[], null]; });
+  const web = st?.settings.web || {};
+  const warn = !web.enabled || !web.shares ? `<div class="panel" style="padding:14px 18px;margin-bottom:16px;border-color:var(--amber)"><b>Freigabe-Links sind ausgeschaltet.</b> <span class="muted">Unter Einstellungen → Dienste den Web-Zugang und Freigabe-Links einschalten, sonst funktionieren die Links nicht.</span></div>` : "";
+  $("#main").innerHTML = `${warn}<div class="toolbar"><button class="btn primary" id="newshare">Link erstellen</button><span class="hint">Teilen kannst du jeden Ordner und jede Datei auf dem Server oder etwas aus einem Benutzerkonto. Von ausserhalb erreichbar machst du Links unter Einstellungen.</span></div>
+    <div class="panel" style="overflow:auto"><table class="data"><thead><tr><th>Link</th><th>Inhalt</th><th>Art</th><th>Downloads</th><th>Gültig bis</th><th>Status</th><th></th></tr></thead><tbody>
+    ${list.length ? list.map(s => {
+      const status = s.disabled ? '<span class="pill">pausiert</span>' : s.expired ? '<span class="pill bad">abgelaufen</span>' : '<span class="pill ok">aktiv</span>';
+      return `<tr><td><div class="copyline"><span class="mono" title="${esc(s.url)}">/s/${esc(s.id)}</span><button class="btn small" data-copy="${esc(s.url)}">Kopieren</button></div>${s.comment ? `<div class="hint">${esc(s.comment)}</div>` : ""}</td>
+        <td>${s.realPath ? `<div>Server</div><div class="mono faint" style="font-size:12px">${esc(s.path === "/" ? s.realPath : s.realPath.replace(/[\/\\]$/, "") + s.path)}</div>` : `<div>${esc(s.owner)}</div><div class="mono faint" style="font-size:12px">${esc(s.path)}</div>`}</td>
+        <td>${s.upload ? "Briefkasten" : "Download"}${s.password ? ' <span class="pill" title="mit Passwort geschützt">Passwort</span>' : ""}</td>
+        <td>${s.upload ? "–" : nf(s.downloads) + (s.maxDownloads ? " von " + nf(s.maxDownloads) : "")}</td><td>${s.expiresAt ? fmtDay(s.expiresAt) : "unbegrenzt"}</td><td>${status}</td>
+        <td style="text-align:right;white-space:nowrap"><button class="btn small" data-toggle="${s.id}" data-on="${s.disabled ? 0 : 1}">${s.disabled ? "Fortsetzen" : "Pausieren"}</button>
+          ${s.maxDownloads && s.downloads >= s.maxDownloads ? `<button class="btn small" data-reset="${s.id}">Zähler zurück</button>` : ""}
+          <button class="btn small danger" data-del="${s.id}">Löschen</button></td></tr>`;
+    }).join("") : `<tr><td colspan="7"><div class="empty"><b>Noch keine Links</b>Erstelle einen Link für eine Datei, einen Ordner oder einen Briefkasten, in den andere Dateien hochladen können.</div></td></tr>`}
+    </tbody></table></div>`;
+  $("#newshare").onclick = () => shareDialog();
+  $$("[data-copy]").forEach(b => b.onclick = () => copy(b.dataset.copy));
+  $$("[data-toggle]").forEach(b => b.onclick = async () => { await api("PATCH", "/api/shares/" + b.dataset.toggle, { disabled: b.dataset.on === "1" }); viewShares(); });
+  $$("[data-reset]").forEach(b => b.onclick = async () => { await api("PATCH", "/api/shares/" + b.dataset.reset, { resetDownloads: true }); viewShares(); });
+  $$("[data-del]").forEach(b => b.onclick = async () => { if (!confirm("Link löschen? Wer ihn hat, kommt dann nicht mehr an die Dateien.")) return; await api("DELETE", "/api/shares/" + b.dataset.del); toast("Link gelöscht"); viewShares(); tick(); });
+}
+async function shareDialog() {
+  const users = await api("GET", "/api/users").catch(() => []);
+  const m = document.createElement("div"); m.className = "modal";
+  m.innerHTML = `<form class="box" id="sf" role="dialog" aria-label="Link erstellen" style="width:min(660px,100%)"><header>Link erstellen</header><div class="body" style="display:grid;gap:14px">
+    <div class="grid-form" style="grid-template-columns:1fr 1fr">
+      <div class="field">Inhalt kommt aus<div class="seg" id="src" style="align-self:flex-start">
+        <button type="button" data-src="server" aria-pressed="true">Ordner auf dem Server</button><button type="button" data-src="user" aria-pressed="false" ${users.length ? "" : "disabled title='Noch keine Benutzer'"}>Benutzerkonto</button></div></div>
+      <label class="field">Art<select name="kind"><option value="dl">Download</option><option value="up">Briefkasten (nur hochladen)</option></select></label></div>
+    <label class="field hidden" id="ownerf">Konto<select name="owner">${users.map(u => `<option>${esc(u.name)}</option>`).join("")}</select></label>
+    <div class="field">Was teilen?
+      <div class="picker-box">
+        <div class="picker-bar"><nav class="crumbs" id="pcrumbs" aria-label="Ordner"></nav>
+          <input class="input mono hidden" id="pgo" placeholder="Pfad eingeben und Enter, z. B. /mnt/user/fotos" style="margin-top:6px;font-size:12.5px"></div>
+        <div id="ptree" class="picker-list" role="listbox" aria-label="Dateien und Ordner"></div>
+        <div class="picker-sel">Ausgewählt: <span class="mono" id="psel">–</span></div>
+      </div>
+      <span class="hint" id="phint"></span>
+    </div>
+    <div class="grid-form" style="grid-template-columns:1fr 1fr">
+      <label class="field">Passwort<input name="password" type="text" autocomplete="off" placeholder="ohne"></label>
+      <label class="field">Gültig bis<input name="expiresAt" type="date"></label>
+      <label class="field" id="maxdl">Höchstens Downloads<input name="maxDownloads" type="number" min="0" placeholder="unbegrenzt"></label>
+      <label class="field">Notiz<input name="comment" placeholder="z. B. Fotos für Anna"></label></div>
+  </div><footer><button type="button" class="btn" id="cancel">Abbrechen</button><button class="btn primary">Link erstellen</button></footer></form>`;
+  document.body.appendChild(m);
+  const f = $("#sf", m), close = () => m.remove(), tree = $("#ptree", m);
+  $("#cancel", m).onclick = close; m.onclick = e => { if (e.target === m) close(); }; m.onkeydown = e => { if (e.key === "Escape" && e.target.id !== "pgo") close(); };
+  let src = "server", cwd = "", sep = "/", selected = "", selectedDir = true, items = [];
+  const upload = () => f.kind.value === "up";
+  const isWin = () => sep === "\\";
+  const join = (d, n) => src === "user" ? (d === "/" ? "" : d) + "/" + n : (d === "" ? n : (d.endsWith(sep) ? d + n : d + sep + n));
+  const select = (p, isDir) => {
+    selected = p; selectedDir = isDir;
+    $("#psel", m).textContent = p ? p + (src === "user" && p === "/" ? "  (der ganze Home-Ordner)" : "") : "–";
+    $$("[data-p]", tree).forEach(x => x.setAttribute("aria-selected", x.dataset.p === p));
+  };
+  const crumbs = () => {
+    let html = "";
+    if (src === "user") {
+      const parts = cwd.split("/").filter(Boolean);
+      html = `<button type="button" data-go="/">${esc(f.owner.value)}</button>` + parts.map((x, i) => `<span class="sep">/</span><button type="button" data-go="${esc("/" + parts.slice(0, i + 1).join("/"))}">${esc(x)}</button>`).join("");
+    } else if (isWin()) {
+      const parts = cwd.split("\\").filter(Boolean);
+      html = `<button type="button" data-go="">Laufwerke</button>` + parts.map((x, i) => `<span class="sep">›</span><button type="button" data-go="${esc(parts.slice(0, i + 1).join("\\") + "\\")}">${esc(x)}</button>`).join("");
+    } else {
+      const parts = cwd.split("/").filter(Boolean);
+      html = `<button type="button" data-go="/">/</button>` + parts.map((x, i) => `${i ? '<span class="sep">/</span>' : ""}<button type="button" data-go="${esc("/" + parts.slice(0, i + 1).join("/"))}">${esc(x)}</button>`).join("");
+    }
+    $("#pcrumbs", m).innerHTML = html;
+    $$("[data-go]", m).forEach(b => b.onclick = () => browse(b.dataset.go));
+  };
+  const draw = () => {
+    crumbs();
+    const shown = items.filter(e => e.dir || !upload());
+    tree.innerHTML = shown.length ? shown.map(e => {
+      const p = join(cwd, e.name);
+      return `<div class="pick-row" role="option" tabindex="0" data-p="${esc(p)}" data-d="${e.dir ? 1 : 0}" aria-selected="${p === selected}">
+        <span class="pick-ico" style="color:${e.dir ? "var(--amber)" : "var(--ink-3)"}">${icon(e.dir ? "folder" : "file")}</span>
+        <span class="mono pick-name">${esc(e.name)}</span>
+        ${e.dir ? `<button type="button" class="btn small quiet" data-open="${esc(p)}">Öffnen ›</button>` : `<span class="faint" style="font-size:var(--t-xs)">${fmtBytes(e.size)}</span>`}</div>`;
+    }).join("") : `<div class="empty" style="padding:18px">${!cwd && src === "server" ? "Keine Laufwerke gefunden." : upload() ? "Keine Unterordner. Der Briefkasten kommt dann direkt in diesen Ordner." : "Dieser Ordner ist leer. Du kannst ihn trotzdem teilen."}</div>`;
+    $$("[data-p]", tree).forEach(row => {
+      row.onclick = e => { if (e.target.closest("[data-open]")) return; select(row.dataset.p, row.dataset.d === "1"); };
+      row.ondblclick = () => { if (row.dataset.d === "1") browse(row.dataset.p); };
+      row.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); select(row.dataset.p, row.dataset.d === "1"); } };
+    });
+    $$("[data-open]", tree).forEach(b => b.onclick = () => browse(b.dataset.open));
+    $("#phint", m).textContent = upload() ? "Wähle den Ordner, in den andere hochladen dürfen." : "Antippen wählt aus. Mit „Öffnen“ gehst du in einen Ordner hinein.";
+  };
+  const browse = async p => {
+    tree.innerHTML = '<div class="empty" style="padding:18px">Lade …</div>';
+    try {
+      if (src === "user") {
+        const r = await api("GET", `/api/users/${encodeURIComponent(f.owner.value)}/ls?path=${encodeURIComponent(p)}`);
+        cwd = r.path; items = r.entries;
+      } else {
+        const r = await api("GET", `/api/browse?files=1&path=${encodeURIComponent(p)}`);
+        sep = r.sep; cwd = r.path || "";
+        items = [...r.dirs.map(d => ({ name: d, dir: true })), ...r.files.map(x => ({ name: x.name, size: x.size, dir: false }))];
+        if (!cwd) items = r.dirs.map(d => ({ name: d.replace(/\\$/, ""), dir: true, drive: d }));
+        try { localStorage.setItem("sg9-share-dir", cwd); } catch {}
+      }
+      select(cwd, true); draw();
+      if (src === "server" && !cwd) select("", true);
+    } catch (err) {
+      items = []; crumbs();
+      tree.innerHTML = `<div class="empty" style="padding:18px;color:var(--red)">${esc(err.message)}</div>`;
+    }
+  };
+  const startServer = async () => {
+    let start = "";
+    try { start = localStorage.getItem("sg9-share-dir") || ""; } catch {}
+    if (!start) { try { start = (await api("GET", "/api/browse?path=")).home || ""; } catch {} }
+    await browse(start);
+    if (start && !cwd) browse("");
+  };
+  $$("#src button", m).forEach(b => b.onclick = () => {
+    if (b.disabled) return;
+    src = b.dataset.src; $$("#src button", m).forEach(x => x.setAttribute("aria-pressed", x === b));
+    $("#ownerf", m).classList.toggle("hidden", src !== "user");
+    $("#pgo", m).classList.toggle("hidden", src !== "server");
+    selected = ""; src === "user" ? browse("/") : startServer();
+  });
+  $("#pgo", m).classList.remove("hidden");
+  $("#pgo", m).onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); const v = e.target.value.trim(); if (v) browse(v); } };
+  f.owner.onchange = () => browse("/");
+  f.kind.onchange = () => { $("#maxdl", m).classList.toggle("hidden", upload()); if (upload() && !selectedDir) select(cwd, true); draw(); };
+  f.onsubmit = async e => {
+    e.preventDefault();
+    if (!selected) { toast("Bitte zuerst einen Ordner oder eine Datei auswählen", true); return; }
+    const body = { upload: upload(), password: f.password.value, expiresAt: f.expiresAt.value, maxDownloads: num(f.maxDownloads.value), comment: f.comment.value };
+    if (src === "user") Object.assign(body, { owner: f.owner.value, path: selected }); else body.serverPath = selected;
+    try { const s = await api("POST", "/api/shares", body); close(); copy(s.url); viewShares(); tick(); }
+    catch (err) { toast(err.message, true); }
+  };
+  startServer();
+}
+
+// ---------- Ereignisse ----------
+const EV_LABEL = { upload: "Upload", download: "Download", delete: "Löschen", mkdir: "Ordner angelegt", rmdir: "Ordner gelöscht", rename: "Umbenannt", login: "Anmeldung", logout: "Abmeldung", loginfail: "Fehlversuch", share: "Freigabe-Link" };
+async function viewEvents() {
+  setHead("Ereignisse", "Bei bestimmten Aktionen automatisch ein Skript starten oder einen Webhook aufrufen");
+  const r = await api("GET", "/api/events").catch(e => { toast(e.message, true); return null; }); if (!r) return;
+  let events = r.events;
+  const win = r.os === "windows";
+  const example = win ? 'copy "%SG9_REAL_PATH%" "D:\\Backup\\"' : 'echo "$SG9_USER hat $SG9_PATH hochgeladen" >> /var/log/sg9-uploads.log';
+  const draw = () => {
+    $("#main").innerHTML = `<div class="panel" id="evs">${events.length ? events.map((e, i) => `<div class="event" data-i="${i}">
+      <div class="row" style="flex-wrap:wrap;gap:14px"><label class="switch"><input type="checkbox" data-k="enabled" ${e.enabled ? "checked" : ""}><span class="track"></span>${e.enabled ? "Aktiv" : "Aus"}</label>
+        <input class="input grow" data-k="comment" value="${esc(e.comment)}" placeholder="Beschreibung, z. B. Uploads sichern" style="min-width:200px">
+        <button type="button" class="btn small" data-test="${i}">Jetzt testen</button><button type="button" class="btn small quiet" data-rm="${i}" aria-label="Entfernen">Entfernen</button></div>
+      <div class="field">Auslöser<div class="chips">${r.names.map(n => `<label><input type="checkbox" data-on="${n}" ${(e.on || []).includes(n) ? "checked" : ""}>${EV_LABEL[n] || n}</label>`).join("")}</div></div>
+      <div class="grid-form" style="grid-template-columns:minmax(220px,auto) 1fr">
+        <label class="field">Aktion<select data-k="action"><option value="command" ${e.action === "command" ? "selected" : ""}>Befehl ausführen</option><option value="webhook" ${e.action === "webhook" ? "selected" : ""}>Webhook (POST JSON)</option></select></label>
+        <label class="field">${e.action === "webhook" ? "URL" : "Befehl"}<input class="mono" data-k="target" value="${esc(e.target)}" placeholder="${e.action === "webhook" ? "https://example.ch/hook" : esc(example)}"></label></div>
+      <div class="grid-form"><label class="field">Nur bei Dateien<input data-k="filter" value="${esc(e.filter)}" placeholder="alle, oder z. B. *.pdf"></label>
+        <label class="field">Nur für Benutzer<input data-k="users" value="${esc((e.users || []).join(", "))}" placeholder="alle"></label></div></div>`).join("")
+      : `<div class="empty"><b>Noch keine Ereignisse</b>Zum Beispiel jede hochgeladene Datei sichern, bei Fehlversuchen eine Nachricht schicken oder einen Webhook für Home Assistant auslösen.</div>`}</div>
+      <div class="sticky-save"><button class="btn" id="addev">Ereignis hinzufügen</button><button class="btn primary" id="saveev">Ereignisse speichern</button></div>
+      <div class="panel" style="margin-top:18px"><div class="panel-head"><h2>Verfügbare Angaben</h2></div><div class="panel-body" style="font-size:var(--t-s)">
+        <p style="margin:0 0 8px" class="muted">Befehle bekommen diese Umgebungsvariablen, Webhooks dieselben Angaben als JSON:</p>
+        <table class="data"><tbody>${[["SG9_EVENT", "Art des Ereignisses"], ["SG9_USER", "Benutzer"], ["SG9_IP", "IP-Adresse"], ["SG9_PROTOCOL", "Dienst"], ["SG9_PATH", "Pfad, wie der Benutzer ihn sieht"], ["SG9_REAL_PATH", "Echter Pfad auf dem Server"], ["SG9_BYTES", "Grösse in Bytes"], ["SG9_EXTRA", "Zusatz, z. B. alter Name beim Umbenennen"]].map(([k, v]) => `<tr><td class="mono">${win ? "%" + k + "%" : "$" + k}</td><td>${v}</td></tr>`).join("")}</tbody></table></div></div>`;
+    $$(".event").forEach(el => {
+      const i = +el.dataset.i;
+      el.querySelector('[data-k="action"]').onchange = () => { collect(); draw(); };
+      el.querySelector('[data-k="enabled"]').onchange = () => { collect(); draw(); };
+    });
+    $$("[data-rm]").forEach(b => b.onclick = () => { collect(); events.splice(+b.dataset.rm, 1); draw(); });
+    $$("[data-test]").forEach(b => b.onclick = async () => { collect(); try { await api("POST", "/api/events/test", events[+b.dataset.test]); toast("Test ausgelöst – Ergebnis im Protokoll"); } catch (err) { toast(err.message, true); } });
+    $("#addev").onclick = () => { collect(); events.push({ enabled: true, on: ["upload"], action: "command", target: "", filter: "", users: [], comment: "" }); draw(); $(".event:last-child input[data-k=comment]").focus(); };
+    $("#saveev").onclick = async () => { collect(); try { await api("PUT", "/api/events", events); toast("Ereignisse gespeichert"); const r2 = await api("GET", "/api/events"); events = r2.events; draw(); tick(); } catch (err) { toast(err.message, true); } };
+  };
+  const collect = () => {
+    events = $$(".event").map(el => {
+      const old = events[+el.dataset.i] || {};
+      const v = k => el.querySelector(`[data-k="${k}"]`);
+      return { ...old, enabled: v("enabled").checked, comment: v("comment").value, action: v("action").value, target: v("target").value.trim(), filter: v("filter").value.trim(),
+        users: unlines(v("users").value), on: $$("[data-on]", el).filter(x => x.checked).map(x => x.dataset.on) };
+    });
+  };
+  draw();
+}
+
+// ---------- Einstellungen ----------
+// Adresse "host:port" in Teile zerlegen und wieder zusammensetzen.
+function splitAddr(a) {
+  a = (a || "").trim(); if (!a) return { host: "", port: "" };
+  const m = a.match(/^\[(.*)\]:(\d+)$/) || a.match(/^(.*):(\d+)$/);
+  if (!m) return { host: "", port: a.replace(/\D/g, "") };
+  const h = m[1] === "0.0.0.0" || m[1] === "::" ? "" : m[1];
+  return { host: h, port: m[2] };
+}
+function joinAddr(host, port) {
+  host = (host || "").trim(); port = String(port || "").trim();
+  if (!port) return "";
+  return (host.includes(":") ? "[" + host + "]" : host) + ":" + port;
+}
+
+async function viewSettings() {
+  setHead("Einstellungen", "Änderungen gelten sofort, auch neue Ports. Laufende Sitzungen bleiben bestehen.");
+  const r = await api("GET", "/api/settings").catch(e => { toast(e.message, true); return null; }); if (!r) return;
+  const s = r.settings;
+  const i = (name, label, val, type = "text", extra = "") => `<label class="field">${label}<input name="${name}" type="${type}" value="${esc(val)}" ${extra}></label>`;
+  const c = (name, label, val) => `<label class="check"><input type="checkbox" name="${name}" ${val ? "checked" : ""}>${label}</label>`;
+  const web = splitAddr(s.web.listenAddr);
+  // Dienst-Zeilen der Port-Tabelle
+  const rows = [
+    { id: "ftp", name: "FTP", hint: "FileZilla, WinSCP, Cyberduck", on: s.ftpEnabled, addr: s.listenAddr, std: 21 },
+    { id: "ftps", name: "FTPS implizit", hint: "ältere Programme, sofort verschlüsselt", on: !!s.tls.implicitAddr, addr: s.tls.implicitAddr || ":990", std: 990 },
+    { id: "sftp", name: "SFTP", hint: "über SSH, immer verschlüsselt", on: s.sftp.enabled, addr: s.sftp.listenAddr, std: 22 },
+    { id: "web", name: "Browser", hint: "Dateien im Browser", on: s.web.webClient, addr: s.web.listenAddr, std: 443 },
+    { id: "dav", name: "WebDAV", hint: "Netzlaufwerk, Pfad /dav", on: s.web.webdav, addr: s.web.davAddr, std: 443, follow: true },
+    { id: "share", name: "Freigabe-Links", hint: "Links für Leute ohne Konto", on: s.web.shares, addr: s.web.shareAddr, std: 443, follow: true },
+    { id: "admin", name: "Verwaltung", hint: "diese Seite", on: true, fixed: true, addr: s.admin.listenAddr, std: 8021 },
+  ];
+  const row = x => {
+    const a = splitAddr(x.addr);
+    return `<tr data-row="${x.id}"><td><label class="switch"><input type="checkbox" data-on ${x.on ? "checked" : ""} ${x.fixed ? "disabled checked" : ""} aria-label="${x.name} ein"><span class="track"></span></label></td>
+      <td><b>${x.name}</b><div class="hint">${x.hint}</div></td>
+      <td><input class="input mono" data-port inputmode="numeric" pattern="[0-9]*" maxlength="5" value="${esc(a.port)}" placeholder="${x.follow ? "wie Browser" : ""}" aria-label="Port ${x.name}" style="width:120px"></td>
+      <td><input class="input mono" data-host value="${esc(a.host)}" placeholder="${x.id === "admin" ? "alle" : "alle"}" aria-label="Adresse ${x.name}" style="min-width:150px"></td>
+      <td class="faint" style="font-size:var(--t-xs)">${x.std ? "üblich: " + x.std : ""}</td></tr>`;
+  };
+  $("#main").innerHTML = `<form id="sf" class="settings" autocomplete="off">
+    <div class="panel"><div class="panel-head"><h2>Dienste und Ports</h2><span class="hint">Leere Adresse = auf allen Netzwerkkarten erreichbar</span></div>
+      <div style="overflow:auto"><table class="data ports"><thead><tr><th style="width:60px">An</th><th>Dienst</th><th>Port</th><th>Nur auf Adresse</th><th></th></tr></thead>
+      <tbody>${rows.map(row).join("")}
+      <tr><td></td><td><b>FTP-Passivbereich</b><div class="hint">für Datenverbindungen, im Router weiterleiten</div></td>
+        <td colspan="2"><div class="row"><input class="input mono" name="passivePortMin" inputmode="numeric" value="${s.passivePortMin}" style="width:120px" aria-label="Passiv von"><span class="faint">bis</span><input class="input mono" name="passivePortMax" inputmode="numeric" value="${s.passivePortMax}" style="width:120px" aria-label="Passiv bis"></div></td><td></td></tr>
+      </tbody></table></div>
+      <div class="panel-body" style="display:grid;gap:12px;border-top:1px solid var(--line-soft)">
+        <p class="hint" style="margin:0">Browser, WebDAV und Freigabe-Links dürfen sich einen Port teilen. Ports unter 1024 (21, 22, 443) brauchen unter Linux und macOS besondere Rechte. Die Verwaltung ist mit Adresse 127.0.0.1 nur auf diesem Rechner erreichbar.</p>
+        <div class="row" style="flex-wrap:wrap;gap:22px">${c("webTLS", "HTTPS für Browser, WebDAV und Links", s.web.useTLS)}${c("adminTLS", "HTTPS für die Verwaltung", s.admin.useTLS)}</div>
+      </div></div>
+    <div class="panel"><div class="panel-head"><h2>FTP</h2></div><div class="panel-body grid-form">
+      <label class="field">Verschlüsselung<select name="tlsMode">${[["off", "Aus"], ["optional", "Optional (AUTH TLS)"], ["required", "Erzwungen"]].map(([v, l]) => `<option value="${v}" ${s.tls.mode === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+      <label class="field">Öffentliche IP oder Hostname<input name="publicIP" value="${esc(s.publicIP)}" placeholder="leer = lokale IP"><span class="hint">Nur für Zugriffe aus dem Internet. Geräte im eigenen Netz bekommen weiter die lokale IP.</span></label>
+      <label class="field span">Begrüssung<input name="banner" value="${esc(s.banner)}"><span class="hint">%s wird durch den Servernamen ersetzt.</span></label>
+      <div class="span">${c("dirMessages", "Inhalt von .message beim Ordnerwechsel anzeigen", s.dirMessages)}</div></div></div>
+    <div class="panel"><div class="panel-head"><h2>SFTP</h2></div><div class="panel-body">
+      <div class="field">Fingerabdruck des Server-Schlüssels<span class="mono" style="color:var(--ink);font-weight:400">${esc(r.sftpFingerprint || "wird beim ersten Start erzeugt")}</span><span class="hint">Damit können Benutzer beim ersten Verbinden prüfen, dass sie wirklich mit diesem Server sprechen.</span></div></div></div>
+    <div class="panel" id="extpanel"><div class="panel-head"><h2>Links von ausserhalb erreichbar machen</h2></div><div class="panel-body">
+      <div>${c("acmeOn", "Echtes HTTPS-Zertifikat von Let's Encrypt (kostenlos)", s.web.acme?.enabled)}</div>
+      <div class="grid-form" id="acmef">
+        ${i("acmeDomain", "Deine Domain", s.web.acme?.domain || "", "text", 'placeholder="dateien.deinedomain.ch"')}
+        ${i("acmeEmail", "E-Mail für Hinweise (optional)", s.web.acme?.email || "", "email", 'placeholder="du@example.ch"')}
+      </div>
+      <div id="acmestate" class="acme-state"></div>
+      <ol class="steps" id="acmesteps">
+        <li><b>Domain auf deine Adresse zeigen lassen.</b> Mit DynDNS, z. B. im Router oder in der OPNsense mit dem Plugin os-ddclient.</li>
+        <li><b>Im Router Port 443 weiterleiten</b> an diesen Rechner, Port <span class="mono" id="acmeport"></span> (der Port der Freigabe-Links). Nur diesen einen Port.</li>
+        <li><b>Hier speichern und „Zertifikat holen“ klicken.</b> SG9 erneuert das Zertifikat danach von selbst.</li>
+      </ol>
+      <div class="grid-form">${i("publicURL", "Öffentliche Adresse für Links", s.web.publicURL, "text", 'placeholder="automatisch https://deine-domain"')}</div>
+      <p class="hint" style="margin:0">Leer lassen: Mit Let's Encrypt nehmen die Links automatisch <span class="mono">https://deine-domain</span>. Nutzt du stattdessen einen Tunnel wie Tailscale Funnel, trägst du hier dessen Adresse ein.</p>
+    </div></div>
+    <div class="panel"><div class="panel-head"><h2>Allgemein</h2></div><div class="panel-body grid-form">
+      ${i("serverName", "Servername", s.serverName)}${i("logFile", "Logdatei", s.logFile)}${i("adminUser", "Benutzername der Verwaltung", s.admin.username)}
+      <div class="span">${c("localNoLogin", "Verwaltung auf diesem Rechner ohne Passwort öffnen", s.admin.localNoLogin)}<div class="hint" style="margin-top:4px">Gilt nur direkt am Rechner, auf dem SG9 läuft. Von anderen Geräten braucht es immer das Passwort.</div></div></div></div>
+    <div class="panel"><div class="panel-head"><h2>Verbindungen und Bandbreite</h2></div><div class="panel-body grid-form">
+      ${i("maxConnections", "Verbindungen gesamt", s.maxConnections, "number")}${i("maxConnPerIP", "Verbindungen pro IP", s.maxConnPerIP, "number")}
+      ${i("idleTimeoutSec", "Trennen nach Leerlauf (s)", s.idleTimeoutSec, "number")}${i("loginTimeoutSec", "Zeit für die Anmeldung (s)", s.loginTimeoutSec, "number")}
+      ${i("globalDownloadKBps", "Download gesamt in KB/s", s.globalDownloadKBps, "number", 'placeholder="0 = frei"')}${i("globalUploadKBps", "Upload gesamt in KB/s", s.globalUploadKBps, "number", 'placeholder="0 = frei"')}</div></div>
+    <div class="panel"><div class="panel-head"><h2>Dateien</h2></div><div class="panel-body grid-form">
+      <label class="field">Für alle ausgeblendet<textarea name="hideFiles" placeholder="Thumbs.db&#10;desktop.ini&#10;.DS_Store">${esc(lines(s.hideFiles))}</textarea></label>
+      <label class="field">Für alle beim Upload gesperrt<textarea name="denyUpload" placeholder="*.exe">${esc(lines(s.denyUpload))}</textarea></label></div></div>
+    <div class="panel"><div class="panel-head"><h2>Sicherheit</h2></div><div class="panel-body">
+      <div class="grid-form"><label class="field">Erlaubte IP-Adressen<textarea name="ipAllow" placeholder="leer = alle">${esc(lines(s.ipAllow))}</textarea></label>
+        <label class="field">Gesperrte IP-Adressen<textarea name="ipDeny">${esc(lines(s.ipDeny))}</textarea></label></div>
+      <div class="row" style="flex-wrap:wrap;gap:22px">${c("ahEnabled", "IPs nach wiederholten Fehlversuchen sperren", s.antiHammer.enabled)}</div>
+      <div class="grid-form">${i("ahMax", "Fehlversuche", s.antiHammer.maxAttempts, "number")}${i("ahWin", "innerhalb von (s)", s.antiHammer.windowSec, "number")}${i("ahBan", "Sperre für (s)", s.antiHammer.banSec, "number")}</div>
+      <div class="row" style="flex-wrap:wrap;gap:22px">${c("allowFXP", "FXP erlauben (Server zu Server)", s.allowFXP)}${c("followSymlinks", "Symbolischen Links auch ausserhalb der Ordner folgen", s.followSymlinks)}</div>
+      <div class="grid-form">${i("certFile", "Eigenes Zertifikat (PEM)", s.tls.certFile, "text", 'placeholder="leer = selbst signiert"')}${i("keyFile", "Schlüssel dazu (PEM)", s.tls.keyFile)}</div></div></div>
+    <div class="sticky-save"><button type="button" class="btn" id="pw">Admin-Passwort ändern</button><button class="btn primary">Einstellungen speichern</button></div>
+  </form>`;
+  const f = $("#sf");
+  // Ausgeschaltete Dienste: Felder dimmen
+  const dim = tr => { const on = tr.querySelector("[data-on]").checked; tr.querySelectorAll("[data-port],[data-host]").forEach(x => x.style.opacity = on ? 1 : .45); };
+  $$("tr[data-row]", f).forEach(tr => { dim(tr); tr.querySelector("[data-on]").onchange = () => dim(tr); });
+  const get = id => { const tr = $(`tr[data-row="${id}"]`, f); return { on: tr.querySelector("[data-on]").checked, addr: joinAddr(tr.querySelector("[data-host]").value, tr.querySelector("[data-port]").value), port: tr.querySelector("[data-port]").value.trim(), host: tr.querySelector("[data-host]").value.trim() }; };
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const ftp = get("ftp"), ftps = get("ftps"), sftp = get("sftp"), w = get("web"), dav = get("dav"), sh = get("share"), adm = get("admin");
+    for (const [x, n, need] of [[ftp, "FTP", ftp.on], [sftp, "SFTP", sftp.on], [w, "Browser", w.on || (dav.on && !dav.port) || (sh.on && !sh.port)], [ftps, "FTPS implizit", ftps.on], [adm, "Verwaltung", true]])
+      if (need && !/^\d{1,5}$/.test(x.port)) { toast(`${n}: bitte einen Port angeben`, true); return; }
+    // WebDAV und Links ohne eigenen Port, aber mit eigener Adresse: Port des Browsers übernehmen
+    const follow = x => x.port ? x.addr : (x.host ? joinAddr(x.host, w.port) : "");
+    const body = { ...s, serverName: f.serverName.value, banner: f.banner.value, logFile: f.logFile.value.trim(),
+      ftpEnabled: ftp.on, listenAddr: ftp.addr || s.listenAddr,
+      passivePortMin: num(f.passivePortMin.value), passivePortMax: num(f.passivePortMax.value), publicIP: f.publicIP.value.trim(),
+      maxConnections: num(f.maxConnections.value), maxConnPerIP: num(f.maxConnPerIP.value), idleTimeoutSec: num(f.idleTimeoutSec.value), loginTimeoutSec: num(f.loginTimeoutSec.value) || 60,
+      globalDownloadKBps: num(f.globalDownloadKBps.value), globalUploadKBps: num(f.globalUploadKBps.value),
+      allowFXP: f.allowFXP.checked, followSymlinks: f.followSymlinks.checked, dirMessages: f.dirMessages.checked,
+      hideFiles: unlines(f.hideFiles.value), denyUpload: unlines(f.denyUpload.value), ipAllow: unlines(f.ipAllow.value), ipDeny: unlines(f.ipDeny.value),
+      tls: { mode: f.tlsMode.value, implicitAddr: ftps.on ? ftps.addr : "", certFile: f.certFile.value.trim(), keyFile: f.keyFile.value.trim() },
+      sftp: { enabled: sftp.on, listenAddr: sftp.addr || s.sftp.listenAddr },
+      web: { enabled: w.on || dav.on || sh.on, listenAddr: w.addr || s.web.listenAddr, davAddr: follow(dav), shareAddr: follow(sh), useTLS: f.webTLS.checked,
+        publicURL: f.publicURL.value.trim(), webClient: w.on, webdav: dav.on, shares: sh.on,
+        acme: { enabled: f.acmeOn.checked, domain: f.acmeDomain.value.trim(), email: f.acmeEmail.value.trim() } },
+      antiHammer: { enabled: f.ahEnabled.checked, maxAttempts: num(f.ahMax.value), windowSec: num(f.ahWin.value), banSec: num(f.ahBan.value) },
+      admin: { listenAddr: adm.addr, username: f.adminUser.value.trim(), useTLS: f.adminTLS.checked, localNoLogin: f.localNoLogin.checked } };
+    try {
+      const r = await api("PUT", "/api/settings", body);
+      if (r.adminURL) {
+        toast("Gespeichert. Die Verwaltung zieht um, du wirst weitergeleitet …");
+        setTimeout(() => { location.href = r.adminURL; }, 1200);
+        return;
+      }
+      toast("Einstellungen gespeichert"); if (body.admin.localNoLogin === false && state.auto) { boot(); return; } tick(); setTimeout(viewSettings, 400);
+    } catch (err) { toast(err.message, true); }
+  };
+  $("#pw").onclick = () => passwordDialog();
+  // Let's Encrypt
+  const sharePort = () => { const x = get("share"); return x.port || get("web").port; };
+  const acmeUI = () => {
+    const on = f.acmeOn.checked;
+    $("#acmef").classList.toggle("hidden", !on); $("#acmesteps").classList.toggle("hidden", !on); $("#acmestate").classList.toggle("hidden", !on);
+    $("#acmeport").textContent = sharePort();
+    if (on) f.webTLS.checked = true;
+  };
+  f.acmeOn.onchange = acmeUI;
+  $$('tr[data-row] [data-port]', f).forEach(x => x.addEventListener("input", acmeUI));
+  acmeUI();
+  const drawCert = async () => {
+    if (!s.web.acme?.enabled) { $("#acmestate").innerHTML = `<span class="hint">Nach dem Speichern kannst du hier das Zertifikat holen.</span>`; return; }
+    const c = await api("GET", "/api/cert").catch(() => null); if (!c) return;
+    const days = c.notAfter ? Math.round((new Date(c.notAfter) - Date.now()) / 864e5) : 0;
+    $("#acmestate").innerHTML = (c.valid
+      ? `<span class="led on"></span><span>Zertifikat für <b>${esc(c.domain)}</b> ist aktiv, noch ${days} Tage gültig. SG9 erneuert es rechtzeitig.</span>`
+      : `<span class="led ${c.lastError ? "err" : ""}"></span><span>${c.lastError ? esc(c.lastError) : "Noch kein Zertifikat für <b>" + esc(c.domain) + "</b>."}</span>`)
+      + `<button type="button" class="btn small" id="acmeget">${c.valid ? "Jetzt erneuern" : "Zertifikat holen"}</button>`;
+    $("#acmeget").onclick = async e => {
+      e.target.disabled = true; e.target.textContent = "Frage bei Let's Encrypt an …";
+      try { await api("POST", "/api/cert/request"); toast("Zertifikat ist da"); } catch (err) { toast(err.message, true); }
+      drawCert();
+    };
+  };
+  drawCert();
+}
+function passwordDialog() {
+  const m = document.createElement("div"); m.className = "modal";
+  m.innerHTML = `<form class="box" role="dialog" aria-label="Admin-Passwort ändern"><header>Admin-Passwort ändern</header><div class="body" style="display:grid;gap:12px">
+    <label class="field">Aktuelles Passwort<input name="cur" type="password" autocomplete="current-password" required></label>
+    <label class="field">Neues Passwort<input name="nw" type="password" autocomplete="new-password" minlength="8" required><span class="hint">Mindestens 8 Zeichen.</span></label></div>
+    <footer><button type="button" class="btn" id="cancel">Abbrechen</button><button class="btn primary">Passwort ändern</button></footer></form>`;
+  document.body.appendChild(m);
+  const f = $("form", m), close = () => m.remove();
+  $("#cancel", m).onclick = close; m.onkeydown = e => { if (e.key === "Escape") close(); };
+  f.cur.focus();
+  f.onsubmit = async e => { e.preventDefault(); try { await api("POST", "/api/admin/password", { current: f.cur.value, new: f.nw.value }); toast("Passwort geändert"); close(); } catch (err) { toast(err.message, true); } };
+}
+
+// ---------- Protokoll ----------
+function viewLogs() {
+  setHead("Protokoll", "Was gerade passiert, live mitgeschnitten");
+  $("#main").innerHTML = `<div class="toolbar"><select class="input" id="lvl" aria-label="Stufe"><option value="">Alles</option><option value="xfer">Übertragungen</option><option value="info">Info</option><option value="warn">Warnungen</option><option value="error">Fehler</option></select>
+      <input class="input" id="lq" placeholder="Filtern nach Benutzer, IP oder Text" style="flex:1;min-width:180px">
+      <button class="btn" id="pause">${state.logPaused ? "Weiterlaufen lassen" : "Anhalten"}</button></div>
+    <div class="panel logbox" id="logbox" tabindex="0"></div>`;
+  $("#lvl").onchange = drawLogs; $("#lq").oninput = drawLogs;
+  $("#pause").onclick = e => { state.logPaused = !state.logPaused; e.target.textContent = state.logPaused ? "Weiterlaufen lassen" : "Anhalten"; };
+  drawLogs(); loadLogs();
+}
+async function loadLogs() {
+  const n = await api("GET", "/api/logs?since=" + state.logSince).catch(() => null); if (!n) return;
+  if (n.length) { state.logSince = n.at(-1).id; state.logs.push(...n); if (state.logs.length > 2000) state.logs = state.logs.slice(-2000); drawLogs(); }
+}
+const LV = { info: "Info", warn: "Warnung", error: "Fehler", xfer: "Datei" };
+function drawLogs() {
+  const box = $("#logbox"); if (!box) return;
+  const lv = $("#lvl").value, q = $("#lq").value.toLowerCase();
+  const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+  const shown = state.logs.filter(e => (!lv || e.level === lv) && (!q || (e.msg + " " + (e.user || "") + " " + (e.ip || "")).toLowerCase().includes(q)));
+  box.innerHTML = shown.length ? shown.map(e => `<div class="logline lv-${e.level}"><span class="t">${fmtTime(e.time)}</span> <span class="l">${LV[e.level] || e.level}</span>${e.session ? `<span class="w">${esc(e.user || "–")} @ ${esc(e.ip)}</span>  ` : ""}${esc(e.msg)}</div>`).join("") : `<div class="empty">Keine Einträge</div>`;
+  if (atBottom) box.scrollTop = box.scrollHeight;
+}
+
+// ---------- Sperren ----------
+async function viewBans() {
+  setHead("Sperren", "IP-Adressen, die nach zu vielen Fehlversuchen vorübergehend gesperrt sind");
+  const list = await api("GET", "/api/bans").catch(() => []);
+  $("#main").innerHTML = `<div class="panel"><table class="data"><thead><tr><th>IP-Adresse</th><th>Gesperrt bis</th><th></th></tr></thead><tbody>${list.length ? list.map(b => `<tr><td class="mono">${esc(b.ip)}</td><td>${fmtDate(b.until)}</td><td style="text-align:right"><button class="btn small" data-ub="${esc(b.ip)}">Sperre aufheben</button></td></tr>`).join("") : `<tr><td colspan="3"><div class="empty"><b>Keine Sperren</b>Die Einstellungen dazu stehen unter Einstellungen → Sicherheit.</div></td></tr>`}</tbody></table></div>`;
+  $$("[data-ub]").forEach(b => b.onclick = async () => { await api("DELETE", "/api/bans/" + encodeURIComponent(b.dataset.ub)); toast("Sperre aufgehoben"); viewBans(); tick(); });
+}
+
+boot();
+</script>
+</body>
+</html>

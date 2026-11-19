@@ -91,6 +91,7 @@ type Hub struct {
 	Stats *Stats
 	Bans  *BanList
 	Certs *Certs
+	Geo   *GeoIP
 
 	GlobalDown *Limiter
 	GlobalUp   *Limiter
@@ -112,7 +113,7 @@ type Hub struct {
 // NewHub erstellt den Hub und lädt die Benutzerzähler.
 func NewHub(store *Store, log *Logger, stats *Stats, bans *BanList) *Hub {
 	st := store.Settings()
-	h := &Hub{Store: store, Log: log, Stats: stats, Bans: bans, Certs: NewCerts(store, log),
+	h := &Hub{Store: store, Log: log, Stats: stats, Bans: bans, Certs: NewCerts(store, log), Geo: NewGeoIP(store, log),
 		GlobalDown: NewLimiter(st.GlobalDownloadKBps), GlobalUp: NewLimiter(st.GlobalUploadKBps),
 		sessions: map[int64]Session{}, counters: map[string]*UserCounters{}, quotas: map[string]*atomic.Int64{}}
 	if b, err := os.ReadFile(h.countersPath()); err == nil {
@@ -225,6 +226,10 @@ func (h *Hub) Admit(ip net.IP) error {
 	case !IPAllowed(st.IPAllow, st.IPDeny, ip):
 		h.Log.Warn("Verbindung von %s durch IP-Filter abgelehnt", s)
 		return errors.New("Zugriff von dieser IP nicht erlaubt.")
+	}
+	if ok, cc := h.Geo.Allowed(ip, false); !ok {
+		h.Log.Warn("Verbindung von %s (%s) durch Länderfilter abgelehnt", s, cc)
+		return errors.New("Zugriff aus diesem Land nicht erlaubt.")
 	}
 	total, perIP, _ := h.Count(s, "")
 	if st.MaxConnections > 0 && total >= st.MaxConnections {

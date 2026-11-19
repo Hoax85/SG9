@@ -46,7 +46,9 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const fmtBytes = n => { n = Number(n) || 0; const u = ["B", "KB", "MB", "GB", "TB"]; let i = 0; while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; } return (i ? n.toFixed(n < 10 ? 1 : 0) : n) + " " + u[i]; };
 const fmtDate = t => new Date(t).toLocaleString("de-CH", { dateStyle: "medium", timeStyle: "short" });
 const joinP = (a, b) => (a === "/" ? "" : a) + "/" + b;
-const IMG = /\.(png|jpe?g|gif|webp|svg|bmp|avif)$/i;
+const IMG = /\.(png|jpe?g|gif|webp|bmp|avif)$/i;
+// Was der Browser direkt anzeigen darf (SVG/HTML nie: könnten Skripte enthalten)
+const previewKind = n => IMG.test(n) ? "image" : /\.(mp4|webm|mov|m4v|ogv)$/i.test(n) ? "video" : /\.(mp3|m4a|ogg|oga|wav|flac|opus)$/i.test(n) ? "audio" : /\.(pdf|txt|log|md|csv)$/i.test(n) ? "doc" : "";
 
 async function api(method, url, body) {
   const r = await fetch(url, { method, headers: { "X-SG9": "1", "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body), credentials: "same-origin" });
@@ -159,9 +161,21 @@ function selBar() {
 function openEntry(e) {
   const p = joinP(st.path, e.name);
   if (e.dir) { st.path = p; viewFiles(); return; }
-  if (IMG.test(e.name)) {
-    const m = modal(`<header>${esc(e.name)}</header><div class="body preview"><img src="/api/dl?inline=1&path=${encodeURIComponent(p)}" alt="${esc(e.name)}"></div>
-      <footer><span class="faint" style="margin-right:auto;font-size:var(--t-xs)">${fmtBytes(e.size)}</span><button class="btn" data-close>Schliessen</button><a class="btn primary" href="/api/dl?path=${encodeURIComponent(p)}">Herunterladen</a></footer>`, 900);
+  const kind = previewKind(e.name);
+  if (kind) {
+    // Blättern durch alle Dateien im Ordner, die sich anzeigen lassen
+    const list = st.data.entries.filter(x => !x.dir && previewKind(x.name));
+    let i = list.findIndex(x => x.name === e.name);
+    const m = modal("", 980), box = $(".box", m);
+    const show = () => {
+      const x = list[i], xp = joinP(st.path, x.name), k = previewKind(x.name), u = "/api/dl?inline=1&path=" + encodeURIComponent(xp);
+      const body = k === "image" ? `<img src="${u}" alt="${esc(x.name)}">` : k === "video" ? `<video src="${u}" controls playsinline style="max-width:100%;max-height:68vh"></video>`
+        : k === "audio" ? `<audio src="${u}" controls style="width:100%"></audio>` : `<iframe src="${u}" title="${esc(x.name)}" style="width:100%;height:68vh;border:1px solid var(--line-soft);background:#fff"></iframe>`;
+      box.innerHTML = `<header>${esc(x.name)}${list.length > 1 ? ` <span class="faint" style="font-weight:400">· ${i + 1} / ${list.length}</span>` : ""}</header><div class="body preview">${body}</div>
+        <footer><span class="faint" style="margin-right:auto;font-size:var(--t-xs)">${fmtBytes(x.size)}</span>${list.length > 1 ? `<button class="btn" data-p aria-label="Vorherige">‹</button><button class="btn" data-n aria-label="Nächste">›</button>` : ""}<button class="btn" data-close>Schliessen</button><a class="btn primary" href="/api/dl?path=${encodeURIComponent(xp)}">Herunterladen</a></footer>`;
+      if ($("[data-p]", m)) { $("[data-p]", m).onclick = () => { i = (i - 1 + list.length) % list.length; show(); }; $("[data-n]", m).onclick = () => { i = (i + 1) % list.length; show(); }; }
+    };
+    show();
     return;
   }
   location.href = "/api/dl?path=" + encodeURIComponent(p);
@@ -257,6 +271,7 @@ function shareDialog(path, isDir) {
       const s = await api("POST", "/api/shares", { path, upload: f.kind?.value === "up", password: f.password.value, expiresAt: f.expiresAt.value, maxDownloads: Number(f.maxDownloads.value) || 0, comment: f.comment.value });
       m.close();
       const r = modal(`<header>Link ist bereit</header><div class="body" style="display:grid;gap:10px"><div class="row"><input class="input grow mono" value="${esc(s.url)}" readonly><button class="btn primary" id="cp">Kopieren</button></div>
+        <img src="/api/qr?text=${encodeURIComponent(s.url)}" alt="QR-Code" style="width:200px;justify-self:center;image-rendering:pixelated;border-radius:6px">
         <span class="hint">${s.upload ? "Wer den Link hat, kann Dateien hochladen, sieht aber nicht, was schon da ist." : "Wer den Link hat, kann herunterladen."}${s.password ? " Das Passwort gibst du separat weiter." : ""}</span></div>
         <footer><button class="btn" data-close>Fertig</button></footer>`);
       $("#cp", r).onclick = () => copy(s.url); $("input", r).select();
@@ -269,9 +284,10 @@ async function viewLinks() {
     ${list.length ? list.map(s => `<tr><td><div class="mono">${esc(s.path)}</div>${s.comment ? `<div class="hint">${esc(s.comment)}</div>` : ""}</td>
       <td>${s.upload ? "Briefkasten" : "Download"} ${s.password ? '<span class="pill">Passwort</span>' : ""} ${s.expired ? '<span class="pill bad">abgelaufen</span>' : s.disabled ? '<span class="pill">pausiert</span>' : ""}</td>
       <td>${s.upload ? "–" : s.downloads + (s.maxDownloads ? " von " + s.maxDownloads : "")}</td><td>${s.expiresAt ? new Date(s.expiresAt + "T00:00").toLocaleDateString("de-CH") : "unbegrenzt"}</td>
-      <td style="text-align:right;white-space:nowrap"><button class="btn small" data-copy="${esc(s.url)}">Link kopieren</button> <button class="btn small danger" data-del="${s.id}">Löschen</button></td></tr>`).join("")
+      <td style="text-align:right;white-space:nowrap"><button class="btn small" data-copy="${esc(s.url)}">Link kopieren</button> <button class="btn small" data-qr="${esc(s.url)}">QR</button> <button class="btn small danger" data-del="${s.id}">Löschen</button></td></tr>`).join("")
     : `<tr><td colspan="5"><div class="empty"><b>Noch keine Links</b>Bei einer Datei oder einem Ordner auf „Teilen“ klicken.</div></td></tr>`}</tbody></table></div>`;
   $$("[data-copy]").forEach(b => b.onclick = () => copy(b.dataset.copy));
+  $$("[data-qr]").forEach(b => b.onclick = () => modal(`<header>QR-Code</header><div class="body" style="display:grid;gap:10px;justify-items:center"><img src="/api/qr?text=${encodeURIComponent(b.dataset.qr)}" alt="QR-Code" style="width:min(280px,80vw);image-rendering:pixelated;border-radius:6px"><span class="mono faint" style="font-size:12px;overflow-wrap:anywhere">${esc(b.dataset.qr)}</span></div><footer><button class="btn" data-close>Schliessen</button></footer>`));
   $$("[data-del]").forEach(b => b.onclick = async () => { if (!confirm("Link löschen? Er funktioniert dann nicht mehr.")) return; await api("DELETE", "/api/shares/" + b.dataset.del); toast("Link gelöscht"); viewLinks(); });
 }
 

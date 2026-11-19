@@ -2,10 +2,29 @@ package core
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 
 	"rsc.io/qr"
 )
+
+// ServeQR liefert einen QR-Code für ?text= als SVG-Bild.
+func ServeQR(w http.ResponseWriter, r *http.Request) {
+	t := r.URL.Query().Get("text")
+	if t == "" || len(t) > 1500 {
+		http.Error(w, "text fehlt oder zu lang", http.StatusBadRequest)
+		return
+	}
+	svg, err := QRSVG(t)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "image/svg+xml")
+	w.Header().Set("Cache-Control", "private, max-age=3600")
+	w.Header().Set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'")
+	w.Write([]byte(svg))
+}
 
 // QRSVG erzeugt einen QR-Code als SVG (für Authenticator-Apps und Freigabe-Links).
 func QRSVG(text string) (string, error) {

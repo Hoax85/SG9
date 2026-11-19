@@ -26,6 +26,24 @@ body { min-height: 100vh; display: flex; flex-direction: column; }
 .lock { display: grid; gap: 12px; max-width: 340px; }
 .done { display: grid; gap: 4px; margin-top: 14px; font-size: var(--t-s); }
 .done div { display: flex; gap: 8px; align-items: center; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 10px; margin: 0 0 18px; }
+.gallery button { padding: 0; border: 1px solid var(--line-soft); border-radius: var(--r-s, 6px); overflow: hidden; background: var(--panel-2, var(--bg)); aspect-ratio: 1; cursor: zoom-in; }
+.gallery img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.preview { margin: 0 0 18px; display: grid; place-items: center; }
+.preview img, .preview video { max-width: 100%; max-height: 62vh; border-radius: var(--r-s, 6px); border: 1px solid var(--line-soft); }
+.preview iframe { width: 100%; height: 70vh; border: 1px solid var(--line-soft); border-radius: var(--r-s, 6px); background: #fff; }
+.viewer { position: fixed; inset: 0; z-index: 50; background: rgba(10,14,16,.92); display: grid; grid-template-rows: auto 1fr; color: #eef2f3; }
+.viewer .top { display: flex; align-items: center; gap: 10px; padding: 10px 14px; }
+.viewer .top .t { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--t-s); }
+.viewer .top a, .viewer .top button { color: inherit; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); border-radius: 6px; padding: 6px 12px; font: inherit; font-size: var(--t-s); cursor: pointer; text-decoration: none; }
+.viewer .stage { display: grid; place-items: center; min-height: 0; padding: 0 56px 18px; position: relative; }
+.viewer .stage img, .viewer .stage video { max-width: 100%; max-height: 100%; object-fit: contain; }
+.viewer .stage iframe { width: 100%; height: 100%; border: 0; background: #fff; border-radius: 4px; }
+.viewer .nav { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 64px; border: 0; background: rgba(255,255,255,.08); color: #fff; font-size: 26px; cursor: pointer; border-radius: 6px; }
+.viewer .nav.prev { left: 6px; } .viewer .nav.next { right: 6px; }
+.sender { display: grid; gap: 12px; grid-template-columns: 1fr; margin: 0 0 16px; }
+.sender textarea { min-height: 86px; resize: vertical; }
+.msgrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 footer.page { text-align: center; padding: 18px; font-size: var(--t-xs); color: var(--ink-3); display: flex; justify-content: center; gap: 16px; align-items: center; }
 @media (max-width: 600px) { .shell { padding: 20px 14px; } .head, .body { padding-left: 18px; padding-right: 18px; } }
 </style>
@@ -49,6 +67,8 @@ const I = {
   file: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
   inbox: '<path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5 5h14l2 8v6H3v-6z"/>',
   check: '<path d="m5 12 5 5 9-10"/>',
+  image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 17-5-5-9 8"/>',
+  play: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/>',
 };
 const icon = (k, cls) => `<svg class="ico ${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
 async function api(method, path, body) {
@@ -58,6 +78,46 @@ async function api(method, path, body) {
   return data;
 }
 let info, cwd = "/";
+const ext = n => (n.match(/\.([^.]+)$/) || [, ""])[1].toLowerCase();
+const kindOf = n => { const e = ext(n);
+  if (["jpg", "jpeg", "png", "gif", "webp", "avif", "bmp"].includes(e)) return "image";
+  if (["mp4", "webm", "mov", "m4v", "ogv"].includes(e)) return "video";
+  if (["mp3", "m4a", "ogg", "oga", "wav", "flac", "opus"].includes(e)) return "audio";
+  if (e === "pdf") return "pdf";
+  if (["txt", "log", "md", "csv"].includes(e)) return "text";
+  return ""; };
+const inlineURL = p => base + "/dl?inline=1" + (p ? "&path=" + encodeURIComponent(p) : "");
+function media(kind, url, name) {
+  if (kind === "image") return `<img src="${url}" alt="${esc(name)}">`;
+  if (kind === "video") return `<video src="${url}" controls playsinline preload="metadata"></video>`;
+  if (kind === "audio") return `<audio src="${url}" controls preload="metadata" style="width:min(520px,100%)"></audio>`;
+  if (kind === "pdf" || kind === "text") return `<iframe src="${url}" title="${esc(name)}"></iframe>`;
+  return "";
+}
+// Vollbild-Ansicht mit Blättern (Pfeiltasten, Wischen)
+function viewer(items, idx) {
+  const v = document.createElement("div"); v.className = "viewer"; v.setAttribute("role", "dialog"); v.setAttribute("aria-modal", "true");
+  document.body.appendChild(v);
+  let x0 = null;
+  const show = () => {
+    const it = items[idx];
+    v.innerHTML = `<div class="top"><span class="t">${esc(it.name)}${items.length > 1 ? ` <span style="opacity:.6">· ${idx + 1} / ${items.length}</span>` : ""}</span>
+      <a href="${base}/dl?path=${encodeURIComponent(it.path)}">Herunterladen</a><button data-x>Schliessen</button></div>
+      <div class="stage">${media(it.kind, inlineURL(it.path), it.name)}${items.length > 1 ? `<button class="nav prev" aria-label="Zurück">‹</button><button class="nav next" aria-label="Weiter">›</button>` : ""}</div>`;
+    $("[data-x]", v).onclick = close;
+    const p = $(".prev", v), n = $(".next", v);
+    if (p) { p.onclick = () => go(-1); n.onclick = () => go(1); }
+    $("[data-x]", v).focus();
+  };
+  const go = d => { idx = (idx + d + items.length) % items.length; show(); };
+  const key = e => { if (e.key === "Escape") close(); else if (e.key === "ArrowRight" && items.length > 1) go(1); else if (e.key === "ArrowLeft" && items.length > 1) go(-1); };
+  const close = () => { document.removeEventListener("keydown", key); v.remove(); };
+  document.addEventListener("keydown", key);
+  v.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
+  v.addEventListener("touchend", e => { if (x0 === null || items.length < 2) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1); x0 = null; });
+  v.addEventListener("click", e => { if (e.target.classList.contains("stage")) close(); });
+  show();
+}
 
 function stop(title, text) {
   $("#root").innerHTML = `<div class="panel"><div class="head"><h1>${esc(title)}</h1></div><div class="body muted">${esc(text)}</div></div>`;
@@ -68,11 +128,11 @@ async function load() {
   $("#srv").textContent = info.server;
   document.title = info.name + " – geteilt";
   const kind = info.upload ? "inbox" : info.dir ? "folder" : "file";
-  const facts = info.upload ? [] : [`Geteilt von ${esc(info.owner)}`];
+  const facts = info.upload || !info.owner ? [] : [`Geteilt von ${esc(info.owner)}`];
   if (info.expiresAt) facts.push("Gültig bis " + new Date(info.expiresAt + "T00:00").toLocaleDateString("de-CH"));
   if (info.downloadsLeft !== undefined) facts.push(info.downloadsLeft === 1 ? "Noch 1 Download" : `Noch ${info.downloadsLeft} Downloads`);
   $("#root").innerHTML = `<div class="label"><span class="led on"></span>${info.upload ? "Briefkasten zum Hochladen" : info.dir ? "Geteilter Ordner" : "Geteilte Datei"}</div>
-    <div class="panel"><div class="head"><h1>${icon(kind, kind === "folder" || kind === "inbox" ? "dir" : "")}${esc(info.upload ? "Dateien an " + info.owner + " senden" : info.name)}</h1>
+    <div class="panel"><div class="head"><h1>${icon(kind, kind === "folder" || kind === "inbox" ? "dir" : "")}${esc(info.upload ? "Dateien an " + (info.owner || info.server) + " senden" : info.name)}</h1>
       <div class="facts">${facts.map(f => `<span>${f}</span>`).join("")}</div>${info.comment ? `<div class="note">${esc(info.comment)}</div>` : ""}</div>
       <div class="body" id="body"></div></div>`;
   if (info.locked) return lock();
@@ -88,7 +148,8 @@ function lock() {
   };
 }
 function single() {
-  $("#body").innerHTML = `<div class="single"><div><div class="size">${fmtBytes(info.size)}</div><div class="faint" style="font-size:var(--t-xs)">${info.modified ? "Stand " + fmtDate(info.modified) : ""}</div></div>
+  const k = info.preview ? kindOf(info.name) : "";
+  $("#body").innerHTML = (k ? `<div class="preview">${media(k, inlineURL(""), info.name)}</div>` : "") + `<div class="single"><div><div class="size">${fmtBytes(info.size)}</div><div class="faint" style="font-size:var(--t-xs)">${info.modified ? "Stand " + fmtDate(info.modified) : ""}</div></div>
     <a class="btn primary" href="${base}/dl" style="padding:10px 22px;font-size:var(--t-m)">Herunterladen</a></div>`;
 }
 async function folder() {
@@ -96,20 +157,36 @@ async function folder() {
   try { r = await api("GET", "/ls?path=" + encodeURIComponent(cwd)); }
   catch (e) { $("#body").innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
   cwd = r.path;
+  const items = info.preview ? r.entries.filter(e => !e.dir && kindOf(e.name)).map(e => ({ name: e.name, path: joinP(cwd, e.name), kind: kindOf(e.name) })) : [];
+  const pics = items.filter(i => i.kind === "image");
   const parts = cwd.split("/").filter(Boolean);
   $("#body").innerHTML = `<div class="bar-top"><nav class="crumbs" aria-label="Pfad"><button data-go="/">${esc(info.name)}</button>${parts.map((x, i) => `<span class="sep">/</span><button data-go="${esc("/" + parts.slice(0, i + 1).join("/"))}">${esc(x)}</button>`).join("")}</nav>
       <a class="btn" href="${base}/zip?path=${encodeURIComponent(cwd)}">Alles als ZIP</a></div>
+    ${pics.length ? `<div class="gallery">${pics.map((p, i) => `<button data-pic="${i}" title="${esc(p.name)}"><img loading="lazy" src="${inlineURL(p.path)}" alt="${esc(p.name)}"></button>`).join("")}</div>` : ""}
     <table class="files"><thead><tr><th>Name</th><th class="s">Grösse</th><th class="d">Geändert</th></tr></thead><tbody>
     ${r.entries.length ? r.entries.map(e => `<tr><td class="n">${e.dir ? `<button class="name" data-go="${esc(joinP(cwd, e.name))}">${icon("folder", "dir")}<span>${esc(e.name)}</span></button>`
-        : `<a class="name" href="${base}/dl?path=${encodeURIComponent(joinP(cwd, e.name))}">${icon("file")}<span>${esc(e.name)}</span></a>`}</td>
+        : `<a class="name" href="${base}/dl?path=${encodeURIComponent(joinP(cwd, e.name))}" ${info.preview && kindOf(e.name) ? `data-view="${esc(e.name)}"` : ""}>${icon(kindOf(e.name) === "image" ? "image" : ["video", "audio"].includes(kindOf(e.name)) ? "play" : "file")}<span>${esc(e.name)}</span></a>`}</td>
       <td class="s">${e.dir ? "" : fmtBytes(e.size)}</td><td class="d">${fmtDate(e.modified)}</td></tr>`).join("") : `<tr><td colspan="3"><div class="empty">Dieser Ordner ist leer.</div></td></tr>`}
     </tbody></table>`;
   $$("[data-go]").forEach(b => b.onclick = () => { cwd = b.dataset.go; folder(); });
+  $$("[data-pic]").forEach(b => b.onclick = () => viewer(pics, +b.dataset.pic));
+  $$("[data-view]").forEach(a => a.onclick = e => { e.preventDefault(); viewer(items, items.findIndex(i => i.name === a.dataset.view)); });
 }
 function dropbox() {
-  $("#body").innerHTML = `<div class="dropzone" id="dz"><p style="margin:0 0 12px">Dateien hierher ziehen</p><button class="btn primary" id="pick">Dateien auswählen</button>
+  let saved = ""; try { saved = localStorage.getItem("sg9-sender") || ""; } catch {}
+  $("#body").innerHTML = `<div class="sender"><label class="field">Dein Name <span class="faint">(freiwillig – so weiss ${esc(info.owner || "der Empfänger")}, von wem es kommt)</span><input id="from" maxlength="60" autocomplete="name" value="${esc(saved)}"></label></div>
+    <div class="dropzone" id="dz"><p style="margin:0 0 12px">Dateien hierher ziehen</p><button class="btn primary" id="pick">Dateien auswählen</button>
     <p class="hint" style="margin:12px 0 0">Bestehende Dateien werden nie überschrieben. Was andere hochgeladen haben, siehst du nicht.</p></div>
-    <div class="uploads" id="ups"></div><div class="done" id="done"></div>`;
+    <div class="uploads" id="ups"></div><div class="done" id="done"></div>
+    <details style="margin-top:18px"><summary style="cursor:pointer">Nachricht dazuschreiben</summary>
+      <div class="sender" style="margin-top:10px"><textarea class="input" id="msg" maxlength="20000" aria-label="Nachricht"></textarea>
+      <div class="msgrow"><button class="btn" id="sendmsg">Nachricht senden</button><span id="msgok" class="hint" role="status"></span></div></div></details>`;
+  $("#from").onchange = () => { try { localStorage.setItem("sg9-sender", $("#from").value.trim()); } catch {} };
+  $("#sendmsg").onclick = async () => {
+    const m = $("#msg").value.trim(); if (!m) return;
+    try { await api("POST", "/message", { from: $("#from").value.trim(), message: m }); $("#msg").value = ""; $("#msgok").textContent = "Nachricht übermittelt."; $("#msgok").style.color = ""; }
+    catch (e) { $("#msgok").textContent = e.message; $("#msgok").style.color = "var(--red)"; }
+  };
   const dz = $("#dz");
   $("#pick").onclick = () => $("#picker").click();
   ["dragenter", "dragover"].forEach(t => dz.addEventListener(t, e => { e.preventDefault(); dz.classList.add("over"); }));
@@ -123,7 +200,7 @@ function send(files) {
     row.innerHTML = `<span class="mono">${esc(file.name)}</span><span class="faint">0 %</span><div class="bar up"><i style="width:0%"></i></div>`;
     $("#ups").appendChild(row);
     const x = new XMLHttpRequest();
-    x.open("PUT", base + "/up?name=" + encodeURIComponent(file.name));
+    x.open("PUT", base + "/up?name=" + encodeURIComponent(file.name) + "&from=" + encodeURIComponent(($("#from") || {}).value?.trim() || ""));
     x.setRequestHeader("X-SG9", "1");
     x.upload.onprogress = e => { if (e.lengthComputable) { const p = Math.round(e.loaded / e.total * 100); row.children[1].textContent = p + " %"; row.querySelector("i").style.width = p + "%"; } };
     x.onloadend = () => {

@@ -702,7 +702,7 @@ async function viewShares() {
     <div class="panel" style="overflow:auto"><table class="data"><thead><tr><th>Link</th><th>Inhalt</th><th>Art</th><th>Downloads</th><th>Gültig bis</th><th>Status</th><th></th></tr></thead><tbody>
     ${list.length ? list.map(s => {
       const status = s.disabled ? '<span class="pill">pausiert</span>' : s.expired ? '<span class="pill bad">abgelaufen</span>' : '<span class="pill ok">aktiv</span>';
-      return `<tr><td><div class="copyline"><span class="mono" title="${esc(s.url)}">/s/${esc(s.id)}</span><button class="btn small" data-copy="${esc(s.url)}">Kopieren</button></div>${s.comment ? `<div class="hint">${esc(s.comment)}</div>` : ""}</td>
+      return `<tr><td><div class="copyline"><span class="mono" title="${esc(s.url)}">/s/${esc(s.id)}</span><button class="btn small" data-copy="${esc(s.url)}">Kopieren</button><button class="btn small" data-qr="${esc(s.url)}" title="QR-Code anzeigen">QR</button></div>${s.comment ? `<div class="hint">${esc(s.comment)}</div>` : ""}</td>
         <td>${s.realPath ? `<div>Server</div><div class="mono faint" style="font-size:12px">${esc(s.path === "/" ? s.realPath : s.realPath.replace(/[\/\\]$/, "") + s.path)}</div>` : `<div>${esc(s.owner)}</div><div class="mono faint" style="font-size:12px">${esc(s.path)}</div>`}</td>
         <td>${s.upload ? "Briefkasten" : "Download"}${s.password ? ' <span class="pill" title="mit Passwort geschützt">Passwort</span>' : ""}</td>
         <td>${s.upload ? "–" : nf(s.downloads) + (s.maxDownloads ? " von " + nf(s.maxDownloads) : "")}</td><td>${s.expiresAt ? fmtDay(s.expiresAt) : "unbegrenzt"}</td><td>${status}</td>
@@ -713,6 +713,7 @@ async function viewShares() {
     </tbody></table></div>`;
   $("#newshare").onclick = () => shareDialog();
   $$("[data-copy]").forEach(b => b.onclick = () => copy(b.dataset.copy));
+  $$("[data-qr]").forEach(b => b.onclick = () => showQR(b.dataset.qr, "Link /s/" + b.dataset.qr.split("/s/")[1]));
   $$("[data-toggle]").forEach(b => b.onclick = async () => { await api("PATCH", "/api/shares/" + b.dataset.toggle, { disabled: b.dataset.on === "1" }); viewShares(); });
   $$("[data-reset]").forEach(b => b.onclick = async () => { await api("PATCH", "/api/shares/" + b.dataset.reset, { resetDownloads: true }); viewShares(); });
   $$("[data-del]").forEach(b => b.onclick = async () => { if (!confirm("Link löschen? Wer ihn hat, kommt dann nicht mehr an die Dateien.")) return; await api("DELETE", "/api/shares/" + b.dataset.del); toast("Link gelöscht"); viewShares(); tick(); });
@@ -829,7 +830,7 @@ async function shareDialog() {
     if (!selected) { toast("Bitte zuerst einen Ordner oder eine Datei auswählen", true); return; }
     const body = { upload: upload(), password: f.password.value, expiresAt: f.expiresAt.value, maxDownloads: num(f.maxDownloads.value), comment: f.comment.value };
     if (src === "user") Object.assign(body, { owner: f.owner.value, path: selected }); else body.serverPath = selected;
-    try { const s = await api("POST", "/api/shares", body); close(); copy(s.url); viewShares(); tick(); }
+    try { const s = await api("POST", "/api/shares", body); close(); copy(s.url); viewShares(); tick(); showQR(s.url, "Link ist bereit und kopiert"); }
     catch (err) { toast(err.message, true); }
   };
   startServer();
@@ -1039,6 +1040,16 @@ async function viewSettings() {
       <div class="grid-form">${i("publicURL", "Öffentliche Adresse für Links", s.web.publicURL, "text", 'placeholder="automatisch https://deine-domain"')}</div>
       <p class="hint" style="margin:0">Leer lassen: Mit Let's Encrypt nehmen die Links automatisch <span class="mono">https://deine-domain</span>. Nutzt du stattdessen einen Tunnel wie Tailscale Funnel, trägst du hier dessen Adresse ein.</p>
     </div></div>
+    <div class="panel"><div class="panel-head"><h2>Länderfilter</h2></div><div class="panel-body">
+      <div>${c("geoOn", "Zugriffe nur aus bestimmten Ländern zulassen", s.web.geo?.enabled)}</div>
+      <div id="geof" style="display:grid;gap:14px">
+        <div class="grid-form">${i("geoAllow", "Erlaubte Länder", (s.web.geo?.allow || []).join(", "), "text", 'placeholder="CH, DE, AT, LI"')}
+          ${i("geoDB", "Länder-Datenbank (.mmdb)", s.web.geo?.dbPath || "", "text", 'placeholder="/pfad/zu/dbip-country-lite.mmdb"')}</div>
+        <div>${c("geoAll", "Auch für FTP, SFTP, WebDAV und Web-Zugang (sonst nur Freigabe-Links)", s.web.geo?.allProto)}</div>
+        <div id="geostate" class="acme-state"></div>
+        <p class="hint" style="margin:0">Zweibuchstabige Ländercodes, mit Komma getrennt. Das eigene Netz ist immer erlaubt. Die Datenbank lädst du kostenlos bei <span class="mono">db-ip.com</span> („IP to Country Lite“, Format MMDB) oder als GeoLite2 Country bei MaxMind und aktualisierst sie ab und zu. Fehlt sie, filtert SG9 nicht und meldet das im Protokoll.</p>
+      </div>
+    </div></div>
     <div class="panel"><div class="panel-head"><h2>Allgemein</h2></div><div class="panel-body grid-form">
       ${i("serverName", "Servername", s.serverName)}${i("logFile", "Logdatei", s.logFile)}${i("adminUser", "Benutzername der Verwaltung", s.admin.username)}
       <div class="span">${c("localNoLogin", "Verwaltung auf diesem Rechner ohne Passwort öffnen", s.admin.localNoLogin)}<div class="hint" style="margin-top:4px">Gilt nur direkt am Rechner, auf dem SG9 läuft. Von anderen Geräten braucht es immer das Passwort.</div></div></div></div>
@@ -1083,7 +1094,8 @@ async function viewSettings() {
       sftp: { enabled: sftp.on, listenAddr: sftp.addr || s.sftp.listenAddr },
       web: { enabled: w.on || dav.on || sh.on, listenAddr: w.addr || s.web.listenAddr, davAddr: follow(dav), shareAddr: follow(sh), useTLS: f.webTLS.checked,
         publicURL: f.publicURL.value.trim(), webClient: w.on, webdav: dav.on, shares: sh.on,
-        acme: { enabled: f.acmeOn.checked, domain: f.acmeDomain.value.trim(), email: f.acmeEmail.value.trim() } },
+        acme: { enabled: f.acmeOn.checked, domain: f.acmeDomain.value.trim(), email: f.acmeEmail.value.trim() },
+        geo: { enabled: f.geoOn.checked, dbPath: f.geoDB.value.trim(), allProto: f.geoAll.checked, allow: f.geoAllow.value.split(/[\s,;]+/).map(x => x.trim().toUpperCase()).filter(Boolean) } },
       antiHammer: { enabled: f.ahEnabled.checked, maxAttempts: num(f.ahMax.value), windowSec: num(f.ahWin.value), banSec: num(f.ahBan.value) },
       admin: { listenAddr: adm.addr, username: f.adminUser.value.trim(), useTLS: f.adminTLS.checked, localNoLogin: f.localNoLogin.checked } };
     try {
@@ -1124,6 +1136,18 @@ async function viewSettings() {
     };
   };
   drawCert();
+  // Länderfilter
+  const geoUI = () => $("#geof").classList.toggle("hidden", !f.geoOn.checked);
+  f.geoOn.onchange = geoUI; geoUI();
+  (async () => {
+    const g = await api("GET", "/api/geo").catch(() => null); if (!g) return;
+    $("#geostate").innerHTML = `<span class="led ${g.ok ? "on" : s.web.geo?.dbPath ? "err" : ""}"></span><span>${esc(g.message)}</span>`
+      + (g.ok ? `<input class="input" id="geoip" placeholder="IP-Adresse prüfen" style="width:180px"><button type="button" class="btn small" id="geotest">Prüfen</button>` : "");
+    if ($("#geotest")) $("#geotest").onclick = async () => {
+      try { const r = await api("GET", "/api/geo?ip=" + encodeURIComponent($("#geoip").value.trim())); toast(r.country ? `${r.ip}: ${r.country} – ${r.allowed ? "erlaubt" : "gesperrt"}` : `${r.ip}: Land unbekannt`); }
+      catch (err) { toast(err.message, true); }
+    };
+  })();
 }
 async function drawBackup() {
   const box = $("#backup"); if (!box) return;
@@ -1159,6 +1183,14 @@ async function draw2FA() {
     const f = $("form", m); f.p.focus();
     f.onsubmit = async e => { e.preventDefault(); try { await api("POST", "/api/2fa/disable", { password: f.p.value }); m.remove(); toast("Zwei-Faktor ist aus"); draw2FA(); } catch (err) { toast(err.message, true); } };
   };
+}
+function showQR(url, title) {
+  modalBox(`<header>${esc(title || "QR-Code")}</header><div class="body" style="display:grid;gap:12px;justify-items:center">
+    <img src="/api/qr?text=${encodeURIComponent(url)}" alt="QR-Code für ${esc(url)}" style="width:min(300px,80vw);image-rendering:pixelated;border-radius:6px">
+    <div class="mono faint" style="font-size:12px;overflow-wrap:anywhere;text-align:center">${esc(url)}</div>
+    <span class="hint">Mit der Handy-Kamera scannen – praktisch, um den Link schnell weiterzugeben.</span></div>
+    <footer><a class="btn" href="/api/qr?text=${encodeURIComponent(url)}" download="sg9-link-qr.svg">Bild speichern</a><button class="btn" data-qcopy>Link kopieren</button><button class="btn primary" data-close>Schliessen</button></footer>`)
+    .querySelector("[data-qcopy]").onclick = () => copy(url);
 }
 function modalBox(html) {
   const m = document.createElement("div"); m.className = "modal";

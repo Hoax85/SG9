@@ -28,7 +28,7 @@ func (c *Config) ShareAccount(sh *Share) (Account, bool) {
 	if sh.RealPath != "" {
 		perms := Permissions{List: true, Read: true}
 		if sh.Upload {
-			perms = Permissions{Write: true}
+			perms = Permissions{Write: true, MkDir: true}
 		}
 		a := Account{Name: "", Home: sh.RealPath, HomePerms: perms,
 			HideFiles: append([]string(nil), c.Settings.HideFiles...), DenyUpload: append([]string(nil), c.Settings.DenyUpload...)}

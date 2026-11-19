@@ -163,6 +163,7 @@ func (a *Admin) routes() http.Handler {
 	mux.HandleFunc("GET /api/backups/{name}", a.auth(a.backupGet))
 	mux.HandleFunc("POST /api/restore", a.auth(a.restore))
 	mux.HandleFunc("GET /api/audit", a.auth(a.auditLog))
+	mux.HandleFunc("GET /api/qr", a.auth(func(w http.ResponseWriter, r *http.Request) { core.ServeQR(w, r) }))
 	mux.HandleFunc("GET /api/2fa", a.auth(a.twofaStatus))
 	mux.HandleFunc("POST /api/2fa/begin", a.auth(a.twofaBegin))
 	mux.HandleFunc("POST /api/2fa/enable", a.auth(a.twofaEnable))
@@ -171,6 +172,7 @@ func (a *Admin) routes() http.Handler {
 	mux.HandleFunc("PUT /api/notify", a.auth(a.putNotify))
 	mux.HandleFunc("POST /api/notify/test", a.auth(a.testNotify))
 	mux.HandleFunc("GET /api/cert", a.auth(a.certStatus))
+	mux.HandleFunc("GET /api/geo", a.auth(a.geoStatus))
 	mux.HandleFunc("POST /api/cert/request", a.auth(a.certRequest))
 	mux.HandleFunc("POST /api/admin/password", a.auth(a.changePassword))
 	mux.HandleFunc("GET /api/shares", a.auth(a.listShares))
@@ -1077,4 +1079,25 @@ func (a *Admin) browse(w http.ResponseWriter, r *http.Request) {
 	sort.Slice(res.Files, func(i, j int) bool { return strings.ToLower(res.Files[i].Name) < strings.ToLower(res.Files[j].Name) })
 	sort.Slice(res.Dirs, func(i, j int) bool { return strings.ToLower(res.Dirs[i]) < strings.ToLower(res.Dirs[j]) })
 	writeJSON(w, 200, res)
+}
+
+// geoStatus: Zustand des Länderfilters, mit ?ip= eine Adresse nachschlagen.
+func (a *Admin) geoStatus(w http.ResponseWriter, r *http.Request) {
+	q := strings.TrimSpace(r.URL.Query().Get("ip"))
+	if q == "" {
+		writeJSON(w, 200, a.Hub.Geo.Status())
+		return
+	}
+	ip := net.ParseIP(q)
+	if ip == nil {
+		fail(w, 400, "Das ist keine IP-Adresse.")
+		return
+	}
+	cc, err := a.Hub.Geo.Country(ip)
+	if err != nil {
+		fail(w, 400, err.Error())
+		return
+	}
+	ok, _ := a.Hub.Geo.Allowed(ip, true)
+	writeJSON(w, 200, map[string]any{"ip": ip.String(), "country": cc, "allowed": ok})
 }

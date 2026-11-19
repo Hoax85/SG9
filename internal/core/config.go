@@ -152,6 +152,7 @@ type WebSettings struct {
 	WebClient  bool         `json:"webClient"`
 	Shares     bool         `json:"shares"`
 	ACME       ACMESettings `json:"acme"`
+	Geo        GeoSettings  `json:"geo"`
 }
 
 // EffectiveDav liefert die Adresse des WebDAV-Dienstes.

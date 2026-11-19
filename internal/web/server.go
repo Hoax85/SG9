@@ -303,7 +303,7 @@ func headers(h http.Handler) http.Handler {
 		w.Header().Set("Referrer-Policy", "no-referrer")
 		if !strings.HasPrefix(r.URL.Path, "/dav") {
 			w.Header().Set("X-Frame-Options", "DENY")
-			w.Header().Set("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:")
+			w.Header().Set("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; frame-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'")
 		}
 		h.ServeHTTP(w, r)
 	})
@@ -492,19 +492,20 @@ func (s *Server) janitor() {
 }
 
 type httpSession struct {
-	srv       *Server
-	key       string
-	id        int64
-	proto     string
-	ip        string
-	user      string
-	acct      core.Account
-	fs        *core.FS
-	secure    bool
-	connected time.Time
-	downLim   *core.Limiter
-	upLim     *core.Limiter
-	shareID   string
+	srv        *Server
+	key        string
+	id         int64
+	proto      string
+	ip         string
+	user       string
+	acct       core.Account
+	fs         *core.FS
+	secure     bool
+	connected  time.Time
+	downLim    *core.Limiter
+	upLim      *core.Limiter
+	shareID    string
+	uploadNote string // Zusatz für Ereignisse, z. B. "von Anna"
 
 	mu         sync.Mutex
 	registered bool
@@ -634,12 +635,21 @@ func (h *httpSession) log(level, f string, a ...any) {
 }
 
 func (h *httpSession) event(name string, t core.Target, n int64, extra string) {
+	h.mu.Lock()
+	note := h.uploadNote
+	h.mu.Unlock()
+	if note != "" && extra == "" {
+		extra = "von " + note
+	}
 	if h.proto == core.ProtoShare {
 		extra = strings.TrimSpace(name + " " + h.shareID + " " + extra)
 		name = "share"
 	}
 	h.srv.Hub.Fire(core.EventData{Event: name, User: h.acct.Name, IP: h.ip, Protocol: h.proto, Path: t.Virtual, RealPath: t.Real, Bytes: n, Extra: extra})
 }
+
+// setNote merkt sich den Absender eines Briefkastens für die Ereignisse.
+func (h *httpSession) setNote(from string) { h.mu.Lock(); h.uploadNote = from; h.mu.Unlock() }
 
 func (h *httpSession) addXfer(x *core.Xfer) { h.mu.Lock(); h.xfers[x] = true; h.mu.Unlock() }
 func (h *httpSession) delXfer(x *core.Xfer) { h.mu.Lock(); delete(h.xfers, x); h.mu.Unlock() }

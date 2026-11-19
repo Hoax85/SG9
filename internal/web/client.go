@@ -103,6 +103,20 @@ func (r *meteredReadSeeker) Read(p []byte) (int, error) {
 
 func (r *meteredReadSeeker) Seek(off int64, whence int) (int64, error) { return r.f.Seek(off, whence) }
 
+// SafeInline: Dateitypen, die im Browser angezeigt werden dürfen.
+func SafeInline(ct string) bool {
+	ct = strings.ToLower(strings.TrimSpace(strings.SplitN(ct, ";", 2)[0]))
+	switch {
+	case ct == "image/svg+xml":
+		return false
+	case strings.HasPrefix(ct, "image/"), strings.HasPrefix(ct, "video/"), strings.HasPrefix(ct, "audio/"):
+		return true
+	case ct == "application/pdf", ct == "text/plain":
+		return true
+	}
+	return false
+}
+
 func contentDisposition(kind, name string) string {
 	ascii := strings.Map(func(r rune) rune {
 		if r < 32 || r > 126 || r == '"' || r == '\\' {
@@ -129,16 +143,30 @@ func sendFile(w http.ResponseWriter, r *http.Request, sess *httpSession, fsys *c
 	}
 	sess.addXfer(x)
 	defer sess.delXfer(x)
-	kind := "attachment"
+	ct := mime.TypeByExtension(path.Ext(e.Name))
+	if ct == "" {
+		ct = "application/octet-stream"
+	}
 	if inline {
+		switch strings.ToLower(path.Ext(e.Name)) {
+		case ".txt", ".log", ".md", ".csv":
+			ct = "text/plain; charset=utf-8" // als reiner Text anzeigen
+		}
+	}
+	kind := "attachment"
+	// Direkt anzeigen nur bei Typen, die keine Skripte ausführen können.
+	// Eine hochgeladene HTML- oder SVG-Datei würde sonst auf dieser Seite laufen.
+	if inline && SafeInline(ct) {
 		kind = "inline"
+		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+		if ct == "application/pdf" {
+			w.Header().Set("Content-Security-Policy", "frame-ancestors 'self'")
+		} else {
+			w.Header().Set("Content-Security-Policy", "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; frame-ancestors 'self'")
+		}
 	}
 	w.Header().Set("Content-Disposition", contentDisposition(kind, e.Name))
-	if ct := mime.TypeByExtension(path.Ext(e.Name)); ct != "" {
-		w.Header().Set("Content-Type", ct)
-	} else {
-		w.Header().Set("Content-Type", "application/octet-stream")
-	}
+	w.Header().Set("Content-Type", ct)
 	http.ServeContent(w, r, e.Name, e.ModTime, &meteredReadSeeker{f: f, m: m})
 	n := x.Bytes.Load()
 	full := n >= e.Size && r.Method != http.MethodHead
@@ -272,6 +300,7 @@ func (s *Server) clientRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/login", s.apiLogin)
 	mux.HandleFunc("POST /api/logout", s.webAuth(s.apiLogout))
 	mux.HandleFunc("GET /api/me", s.webAuth(s.apiMe))
+	mux.HandleFunc("GET /api/qr", s.webAuth(func(w http.ResponseWriter, r *http.Request, _ *httpSession) { core.ServeQR(w, r) }))
 	mux.HandleFunc("GET /api/ls", s.webAuth(s.apiList))
 	mux.HandleFunc("GET /api/dl", s.webAuth(s.apiDownload))
 	mux.HandleFunc("GET /api/zip", s.webAuth(s.apiZip))

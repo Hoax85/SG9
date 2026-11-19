@@ -3,11 +3,13 @@ package web
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"path"
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode"
 
 	"sg9/internal/core"
 	"sg9/internal/ui"
@@ -27,6 +29,7 @@ func (s *Server) shareRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /s/{id}/dl", s.shareAPI(s.shareDownload, true))
 	mux.HandleFunc("GET /s/{id}/zip", s.shareAPI(s.shareZip, true))
 	mux.HandleFunc("PUT /s/{id}/up", s.shareAPI(s.shareUpload, true))
+	mux.HandleFunc("POST /s/{id}/message", s.shareAPI(s.shareMessage, true))
 }
 
 type shareCtx struct {
@@ -49,6 +52,11 @@ func (s *Server) shareAPI(next func(w http.ResponseWriter, r *http.Request, c *s
 		sh := cfg.FindShare(id)
 		if sh == nil || s.Hub.Bans.Banned(ip.String()) {
 			fail(w, 404, "Dieser Link existiert nicht (mehr).")
+			return
+		}
+		if okc, cc := s.Hub.Geo.Allowed(ip, true); !okc {
+			s.Hub.Log.Warn("Freigabe %s: Zugriff aus %s (%s) durch Länderfilter abgelehnt", sh.ID, cc, ip)
+			fail(w, 403, "Dieser Link ist aus deinem Land nicht erreichbar.")
 			return
 		}
 		if sh.Expired(time.Now()) {
@@ -145,6 +153,7 @@ func (c *shareCtx) sharePath(rel string) string {
 func (s *Server) shareInfo(w http.ResponseWriter, r *http.Request, c *shareCtx) {
 	out := map[string]any{
 		"name": c.name, "dir": c.isDir, "upload": c.sh.Upload, "comment": c.sh.Comment, "owner": c.sh.Owner,
+		"preview":   c.sh.MaxDownloads == 0,
 		"expiresAt": c.sh.ExpiresAt, "locked": c.sh.PasswordHash != "" && !s.unlocked(r, &c.sh),
 		"server": s.Hub.Store.Settings().ServerName,
 	}
@@ -188,6 +197,10 @@ func (s *Server) shareDownload(w http.ResponseWriter, r *http.Request, c *shareC
 		return
 	}
 	inline := r.URL.Query().Get("inline") == "1"
+	if inline && c.sh.MaxDownloads > 0 {
+		fail(w, 403, "Bei Links mit begrenzten Downloads gibt es keine Vorschau.")
+		return
+	}
 	rng := r.Header.Get("Range")
 	// Nur echte Downloads zählen, keine Vorschau und keine Fortsetzungs-Teilstücke.
 	count := r.Method == http.MethodGet && !inline && (rng == "" || strings.HasPrefix(rng, "bytes=0-"))
@@ -216,23 +229,103 @@ func (s *Server) shareUpload(w http.ResponseWriter, r *http.Request, c *shareCtx
 		fail(w, 400, "Dateiname fehlt")
 		return
 	}
-	target := path.Join(c.sh.Path, name)
-	ext := path.Ext(name)
-	stem := strings.TrimSuffix(name, ext)
-	for i := 1; ; i++ {
-		if _, _, err := c.sess.fs.StatPath(target); errors.Is(err, core.ErrNotFound) {
-			break
-		}
-		if i > 999 {
-			fail(w, 409, "Kein freier Dateiname")
-			return
-		}
-		target = path.Join(c.sh.Path, fmt.Sprintf("%s (%d)%s", stem, i, ext))
+	from := senderName(r.URL.Query().Get("from"))
+	dir := s.senderDir(c, from)
+	target, err := freeName(c.sess.fs, dir, name)
+	if err != nil {
+		failErr(w, err)
+		return
 	}
+	c.sess.setNote(from)
 	t, _, err := receiveUpload(r, c.sess, c.sess.fs, target)
 	if err != nil {
 		failErr(w, err)
 		return
 	}
 	writeJSON(w, 200, map[string]string{"ok": "1", "name": path.Base(t.Virtual)})
+}
+
+// shareMessage legt eine Nachricht des Absenders als Textdatei in den Briefkasten.
+func (s *Server) shareMessage(w http.ResponseWriter, r *http.Request, c *shareCtx) {
+	if !c.sh.Upload || !c.isDir {
+		fail(w, 403, "Dieser Link erlaubt kein Hochladen.")
+		return
+	}
+	var in struct{ From, Message string }
+	if readJSON(r, &in) != nil || strings.TrimSpace(in.Message) == "" {
+		fail(w, 400, "Nachricht fehlt")
+		return
+	}
+	if len(in.Message) > 20000 {
+		fail(w, 400, "Die Nachricht ist zu lang")
+		return
+	}
+	from := senderName(in.From)
+	dir := s.senderDir(c, from)
+	label := "Nachricht"
+	if from != "" {
+		label += " von " + from
+	}
+	target, err := freeName(c.sess.fs, dir, label+".txt")
+	if err != nil {
+		failErr(w, err)
+		return
+	}
+	body := label + ", " + time.Now().Format("02.01.2006 15:04") + "\n\n" + strings.TrimSpace(in.Message) + "\n"
+	r.Body = io.NopCloser(strings.NewReader(body))
+	r.ContentLength = int64(len(body))
+	c.sess.setNote(from)
+	_, _, err = receiveUpload(r, c.sess, c.sess.fs, target)
+	if err != nil {
+		failErr(w, err)
+		return
+	}
+	ok := map[string]string{"ok": "1"}
+	writeJSON(w, 200, ok)
+}
+
+// senderName macht aus der Eingabe einen sicheren Ordnernamen.
+func senderName(s string) string {
+	var b strings.Builder
+	for _, r := range strings.TrimSpace(s) {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || r == ' ' || r == '-' || r == '_' || r == '.' || r == '&' {
+			b.WriteRune(r)
+		}
+	}
+	out := strings.Trim(strings.Join(strings.Fields(b.String()), " "), ". ")
+	if len([]rune(out)) > 60 {
+		out = string([]rune(out)[:60])
+	}
+	return out
+}
+
+// senderDir liefert den Unterordner des Absenders (falls Ordner angelegt werden dürfen).
+func (s *Server) senderDir(c *shareCtx, from string) string {
+	if from == "" {
+		return c.sh.Path
+	}
+	dir := path.Join(c.sh.Path, from)
+	if _, e, err := c.sess.fs.StatPath(dir); err == nil && e.IsDir {
+		return dir
+	}
+	if _, err := c.sess.fs.Mkdir(dir); err == nil {
+		return dir
+	}
+	return c.sh.Path // kein Recht auf Unterordner: direkt in den Briefkasten
+}
+
+// freeName findet einen Dateinamen, der noch nicht existiert ("Datei (2).pdf").
+func freeName(fsys *core.FS, dir, name string) (string, error) {
+	target := path.Join(dir, name)
+	ext := path.Ext(name)
+	stem := strings.TrimSuffix(name, ext)
+	for i := 1; ; i++ {
+		if _, _, err := fsys.StatPath(target); errors.Is(err, core.ErrNotFound) {
+			return target, nil
+		}
+		if i > 999 {
+			return "", core.ErrExists
+		}
+		target = path.Join(dir, fmt.Sprintf("%s (%d)%s", stem, i, ext))
+	}
 }

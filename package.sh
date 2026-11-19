@@ -2,7 +2,7 @@
 # Packt die Dateien aus dist/ (siehe build.sh) zu Downloads für Windows, Linux und macOS in packages/.
 set -euo pipefail
 cd "$(dirname "$0")"
-VERSION="${VERSION:-2.4.1}"
+VERSION="${VERSION:-2.4.2}"
 rm -rf packages && mkdir -p packages
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT

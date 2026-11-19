@@ -413,20 +413,20 @@ function drawChart(hist) {
   const pts = hist.slice(-120), N = 120;
   const max = Math.max(4096, ...pts.map(p => Math.max(p.down, p.up)));
   let scale = 1024; outer: for (let e = 1024; ; e *= 10) for (const s of [1, 2, 5]) { if (s * e >= max) { scale = s * e; break outer; } }
-  const L = 72, R = 6, T = 6, B = 22, w = W - L - R, h = H - T - B;
+  const L = 72, R = 6, TOP = 6, B = 22, w = W - L - R, h = H - TOP - B;
   g.font = "11.5px " + col("--sans"); g.lineWidth = 1;
   for (let i = 0; i <= 4; i++) {
-    const y = Math.round(T + h - h * i / 4) + .5;
+    const y = Math.round(TOP + h - h * i / 4) + .5;
     g.strokeStyle = col(i ? "--line-soft" : "--line"); g.beginPath(); g.moveTo(L, y); g.lineTo(W - R, y); g.stroke();
     g.fillStyle = col("--ink-3"); g.textAlign = "right"; g.fillText(fmtRate(scale * i / 4), L - 10, y + 4);
   }
   g.textAlign = "left"; g.fillText(T("vor 2 Minuten"), L, H - 4); g.textAlign = "right"; g.fillText(T("jetzt"), W - R, H - 4);
-  const x = i => L + w * (N - pts.length + i) / (N - 1), y = v => T + h - h * Math.min(v, scale) / scale;
+  const x = i => L + w * (N - pts.length + i) / (N - 1), y = v => TOP + h - h * Math.min(v, scale) / scale;
   const line = (key, color) => {
     if (!pts.length) return;
     g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(x(i), y(p[key])) : g.moveTo(x(i), y(p[key])));
     g.strokeStyle = color; g.lineWidth = 2; g.lineJoin = "round"; g.stroke();
-    g.lineTo(x(pts.length - 1), T + h); g.lineTo(x(0), T + h); g.closePath();
+    g.lineTo(x(pts.length - 1), TOP + h); g.lineTo(x(0), TOP + h); g.closePath();
     g.globalAlpha = .1; g.fillStyle = color; g.fill(); g.globalAlpha = 1;
   };
   line("up", col("--amber")); line("down", col("--petrol"));
@@ -437,7 +437,7 @@ window.addEventListener("sg9-theme", () => { if (state.view === "status" && stat
 // ---------- Sitzungen ----------
 function viewSessions() {
   setHead("Sitzungen", "Alle Verbindungen über alle Dienste, sekündlich aktualisiert");
-  $("#main").innerHTML = `<div class="panel" style="overflow:auto"><table class="data"><thead><tr><th>Dienst</th><th>Benutzer</th><th>IP-Adresse</th><th>Verbunden</th><th>Zuletzt</th><th>Übertragung</th><th></th></tr></thead><tbody id="sbody"><tr><td colspan="7" class="empty">Lade…</td></tr></tbody></table></div>`;
+  $("#main").innerHTML = `<div class="panel" style="overflow:auto"><table class="data"><thead><tr><th>Dienst</th><th>Konto</th><th>IP-Adresse</th><th>Verbunden</th><th>Zuletzt</th><th>Übertragung</th><th></th></tr></thead><tbody id="sbody"><tr><td colspan="7" class="empty">Lade…</td></tr></tbody></table></div>`;
   loadSessions();
 }
 async function loadSessions() {
@@ -446,7 +446,7 @@ async function loadSessions() {
     let x = "<span class='faint'>–</span>";
     if (s.transfer) {
       const t = s.transfer, pct = t.size > 0 ? Math.min(100, t.bytes / t.size * 100) : 100;
-      const dir = t.direction === "up" ? "hoch" : t.direction === "down" ? "runter" : "Liste";
+      const dir = T(t.direction === "up" ? "Hochladen" : t.direction === "down" ? "Herunterladen" : "Liste");
       x = `<div style="font-size:var(--t-xs);margin-bottom:4px"><span class="mono">${esc(t.file.split("/").pop())}</span> · ${dir} · ${fmtRate(t.speed)}</div>
         <div class="bar ${t.direction === "up" ? "up" : ""}" title="${fmtBytes(t.bytes)}${t.size > 0 ? " von " + fmtBytes(t.size) : ""}"><i style="width:${pct}%;${t.size > 0 ? "" : "opacity:.35"}"></i></div>`;
     }

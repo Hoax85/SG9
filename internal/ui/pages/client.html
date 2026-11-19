@@ -133,7 +133,7 @@ async function viewFiles() {
     ${st.data.entries.length ? st.data.entries.map((e, i) => `<tr data-i="${i}"><td class="c"><input type="checkbox" data-sel="${i}" aria-label="${esc(e.name)} auswählen"></td>
       <td class="n"><button class="name" data-open="${i}">${e.dir ? icon("folder", "dir") : icon(IMG.test(e.name) ? "image" : "file")}<span>${esc(e.name)}</span></button></td>
       <td class="s">${e.dir ? "" : fmtBytes(e.size)}</td><td class="d">${fmtDate(e.modified)}</td>
-      <td class="a"><span class="act">${!e.dir ? `<a class="btn small quiet" href="/api/dl?path=${encodeURIComponent(joinP(st.path, e.name))}">Laden</a>` : `<a class="btn small quiet" href="/api/zip?path=${encodeURIComponent(joinP(st.path, e.name))}">ZIP</a>`}
+      <td class="a"><span class="act">${!e.dir ? `<a class="btn small quiet" href="/api/dl?path=${encodeURIComponent(joinP(st.path, e.name))}">Herunterladen</a>` : `<a class="btn small quiet" href="/api/zip?path=${encodeURIComponent(joinP(st.path, e.name))}">ZIP</a>`}
         ${st.me.shares ? `<button class="btn small quiet" data-share="${i}">Teilen</button>` : ""}${p.rename ? `<button class="btn small quiet" data-ren="${i}">Umbenennen</button>` : ""}</span>
         <button class="btn small quiet more" data-more="${i}" aria-label="Aktionen für ${esc(e.name)}">⋯</button></td></tr>`).join("")
       : `<tr><td colspan="5"><div class="empty"><b>Dieser Ordner ist leer</b>${p.write ? "Dateien hierher ziehen oder auf „Hochladen“ klicken." : ""}</div></td></tr>`}

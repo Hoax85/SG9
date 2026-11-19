@@ -1,5 +1,10 @@
 # Änderungen
 
+## 2.4.2
+
+- Behoben: Die Durchsatz-Grafik auf der Übersicht blieb seit 2.4.0 leer (Namenskonflikt mit der Übersetzungsfunktion). Ein Test verhindert das künftig.
+- Englisch/Französisch/Italienisch: „Herunterladen“ im Dateimanager, Richtung der Übertragung in der Sitzungsliste und die Spalte „Konto“ werden jetzt richtig übersetzt.
+
 ## 2.4.1
 
 - Installationsskripte für Linux (`install-linux.sh`) und macOS (`install-macos.sh`): installieren, aktualisieren, entfernen (`--uninstall`, `--purge`).

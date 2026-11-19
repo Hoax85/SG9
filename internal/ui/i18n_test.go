@@ -54,3 +54,23 @@ func TestTranslations(t *testing.T) {
 		}
 	}
 }
+
+// Die Übersetzungsfunktion heisst in den Seiten T. Wird der Name im Skript neu vergeben,
+// bricht der Code dort ab (so war in 2.4.0/2.4.1 die Durchsatz-Grafik leer).
+func TestNoShadowedT(t *testing.T) {
+	re := regexp.MustCompile(`(?:const|let|var)\s+[^;=]*\bT\s*=|[,(]\s*T\s*=\s*\d`)
+	for _, name := range []string{"pages/admin.html", "pages/client.html", "pages/share.html"} {
+		b, err := files.ReadFile(name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for i, line := range strings.Split(string(b), "\n") {
+			if strings.Contains(line, "const T = s =>") {
+				continue
+			}
+			if re.MatchString(line) {
+				t.Errorf("%s:%d: Name T wird überschrieben: %s", name, i+1, strings.TrimSpace(line))
+			}
+		}
+	}
+}

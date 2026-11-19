@@ -2,14 +2,14 @@
 
 *[Deutsche Version](INSTALL.md)*
 
-Downloads are under **Releases** on the SG9 GitHub page:
+Downloads are under **Releases** at <https://github.com/Hoax85/sg9/releases>:
 
 | System | File | Contents |
 |---|---|---|
 | Windows 10/11 | `SG9-<version>-windows.zip` | program for Intel/AMD (`amd64`) and ARM (`arm64`), install script |
 | Linux | `SG9-<version>-linux.tar.gz` | program for PC (`amd64`), 64-bit ARM (`arm64`, e.g. Raspberry Pi 4/5) and 32-bit ARM (`arm`, older Raspberry Pi), install script |
 | macOS | `SG9-<version>-macos.zip` | program for Apple Silicon (`arm64`) and Intel (`amd64`), install script |
-| Docker / Unraid | `ghcr.io/<github-name>/sg9` | image for amd64, arm64, armv7 |
+| Docker / Unraid | `ghcr.io/hoax85/sg9` | image for amd64, arm64, armv7 |
 
 There are two ways to run SG9:
 
@@ -139,7 +139,7 @@ sudo ./install-macos.sh --uninstall --purge   # deletes everything
 ```bash
 docker run -d --name sg9 --network host --restart unless-stopped \
   -v /path/to/sg9-data:/data -v /path/to/files:/shares \
-  ghcr.io/<github-name>/sg9:latest
+  ghcr.io/hoax85/sg9:latest
 ```
 Or with the included `docker-compose.yml`: `docker compose up -d`.
 
@@ -147,9 +147,9 @@ Or with the included `docker-compose.yml`: `docker compose up -d`.
 - On first start the administration is at `http://<server>:8021` (setting the password only works from your own network).
 - The container runs as user 99:100. The folders must be writable for that user: `sudo chown -R 99:100 /path/to/sg9-data`.
 
-**Update:** `docker pull ghcr.io/<github-name>/sg9:latest`, then recreate the container (`docker compose up -d`). Data stays in the folder.
+**Update:** `docker pull ghcr.io/hoax85/sg9:latest`, then recreate the container (`docker compose up -d`). Data stays in the folder.
 
-**Uninstall:** `docker rm -f sg9 && docker rmi ghcr.io/<github-name>/sg9`, then delete the data folder if you like.
+**Uninstall:** `docker rm -f sg9 && docker rmi ghcr.io/hoax85/sg9`, then delete the data folder if you like.
 
 ---
 

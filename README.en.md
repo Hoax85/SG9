@@ -65,7 +65,7 @@ online/offline switch, live sessions and live log.
 ## Docker and Unraid
 
 ```bash
-docker pull ghcr.io/<github-name>/sg9:latest   # amd64, arm64, armv7
+docker pull ghcr.io/hoax85/sg9:latest   # amd64, arm64, armv7
 docker compose up -d                           # with the included docker-compose.yml
 ```
 

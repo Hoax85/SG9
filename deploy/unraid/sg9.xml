@@ -1,16 +1,14 @@
 <?xml version="1.0"?>
 <Container version="2">
   <Name>SG9</Name>
-  <!-- Nach dem Veröffentlichen auf Forgejo durch die Adresse deiner Container-Registry ersetzen,
-       z. B. forgejo.example.lan/peter/sg9:latest -->
-  <Repository>sg9:latest</Repository>
-  <Registry/>
+  <Repository>ghcr.io/hoax85/sg9:latest</Repository>
+  <Registry>https://github.com/Hoax85/sg9/pkgs/container/sg9</Registry>
   <Network>host</Network>
   <MyIP/>
   <Shell>sh</Shell>
   <Privileged>false</Privileged>
-  <Support/>
-  <Project/>
+  <Support>https://github.com/Hoax85/sg9/issues</Support>
+  <Project>https://github.com/Hoax85/sg9</Project>
   <Overview>SG9 – Datei-Server im Stil von G6: FTP/FTPS, SFTP, WebDAV, Dateien im Browser und Freigabe-Links mit Passwort, Ablaufdatum und Briefkasten. Verwaltung im Browser auf Port 8021, beim ersten Öffnen Passwort festlegen.</Overview>
   <Category>Network:Other Tools:</Category>
   <WebUI>http://[IP]:8021/</WebUI>

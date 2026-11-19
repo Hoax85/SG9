@@ -151,7 +151,7 @@ Das Image ist sehr klein (rund 14 MB, ohne Betriebssystem darin) und läuft als 
 wie unter Unraid üblich.
 
 ```bash
-docker pull ghcr.io/<github-name>/sg9:latest   # fertiges Image (amd64, arm64, armv7)
+docker pull ghcr.io/hoax85/sg9:latest   # fertiges Image (amd64, arm64, armv7)
 docker build -t sg9 .                          # oder selbst bauen
 docker compose up -d                           # mit der mitgelieferten docker-compose.yml
 ```
@@ -166,7 +166,7 @@ docker compose up -d                           # mit der mitgelieferten docker-c
 
 **Unraid:** `deploy/unraid/sg9.xml` nach `/boot/config/plugins/dockerMan/templates-user/my-SG9.xml`
 kopieren, dann unter Docker → „Container hinzufügen“ die Vorlage „SG9“ wählen. In der Vorlage
-`Repository` auf dein Image setzen, z. B. `ghcr.io/<github-name>/sg9:latest`.
+`Repository` auf dein Image setzen, z. B. `ghcr.io/hoax85/sg9:latest`.
 
 ## Als Dienst einrichten
 

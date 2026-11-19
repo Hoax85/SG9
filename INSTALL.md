@@ -2,14 +2,14 @@
 
 *[English version](INSTALL.en.md)*
 
-Die Downloads findest du unter **Releases** auf der GitHub-Seite von SG9:
+Die Downloads findest du unter **Releases** auf <https://github.com/Hoax85/sg9/releases>:
 
 | System | Datei | Darin |
 |---|---|---|
 | Windows 10/11 | `SG9-<version>-windows.zip` | Programm für Intel/AMD (`amd64`) und ARM (`arm64`), Installationsskript |
 | Linux | `SG9-<version>-linux.tar.gz` | Programm für PC (`amd64`), ARM 64 Bit (`arm64`, z. B. Raspberry Pi 4/5) und ARM 32 Bit (`arm`, ältere Raspberry Pi), Installationsskript |
 | macOS | `SG9-<version>-macos.zip` | Programm für Apple Silicon (`arm64`) und Intel (`amd64`), Installationsskript |
-| Docker / Unraid | `ghcr.io/<github-name>/sg9` | Image für amd64, arm64, armv7 |
+| Docker / Unraid | `ghcr.io/hoax85/sg9` | Image für amd64, arm64, armv7 |
 
 Es gibt zwei Arten, SG9 zu betreiben:
 
@@ -138,7 +138,7 @@ sudo ./install-macos.sh --uninstall --purge   # alles löschen
 ```bash
 docker run -d --name sg9 --network host --restart unless-stopped \
   -v /pfad/zu/sg9-data:/data -v /pfad/zu/dateien:/shares \
-  ghcr.io/<github-name>/sg9:latest
+  ghcr.io/hoax85/sg9:latest
 ```
 Oder mit der mitgelieferten `docker-compose.yml`: `docker compose up -d`.
 
@@ -146,9 +146,9 @@ Oder mit der mitgelieferten `docker-compose.yml`: `docker compose up -d`.
 - Beim ersten Start ist die Verwaltung unter `http://<server>:8021` erreichbar (Passwort festlegen geht nur aus dem eigenen Netz).
 - Der Container läuft als Benutzer 99:100. Die Ordner müssen für diesen Benutzer beschreibbar sein: `sudo chown -R 99:100 /pfad/zu/sg9-data`.
 
-**Aktualisieren:** `docker pull ghcr.io/<github-name>/sg9:latest`, dann den Container neu erstellen (`docker compose up -d`). Die Daten liegen im Ordner und bleiben erhalten.
+**Aktualisieren:** `docker pull ghcr.io/hoax85/sg9:latest`, dann den Container neu erstellen (`docker compose up -d`). Die Daten liegen im Ordner und bleiben erhalten.
 
-**Deinstallieren:** `docker rm -f sg9 && docker rmi ghcr.io/<github-name>/sg9`, danach bei Bedarf den Datenordner löschen.
+**Deinstallieren:** `docker rm -f sg9 && docker rmi ghcr.io/hoax85/sg9`, danach bei Bedarf den Datenordner löschen.
 
 ---
 

@@ -8,7 +8,8 @@ SFTP, WebDAV as a network drive, a file manager in the browser and share links.
 
 One single file per operating system, no installation, no dependencies.
 Runs on **Windows**, **Linux** (including Raspberry Pi) and **macOS** (Intel and Apple Silicon).
-The interface speaks English, German, French and Italian.
+The interface speaks English, German, French and Italian. Switch languages at the top, next to
+the light/dark switch (**DE · EN · FR · IT**). Share pages automatically use the visitor's language.
 
 ## Quick start
 
@@ -97,7 +98,10 @@ go test ./...     # tests, including an end-to-end test of all services
 Pushing a tag like `v2.4.0` runs `.github/workflows/release.yml`: tests, builds, creates a GitHub
 release with the downloads and pushes the Docker image to `ghcr.io`.
 
-## Translating
+## Adding another language (for contributors)
+
+*This section is for anyone who wants to translate SG9 into an additional language.
+English, German, French and Italian are already built in.*
 
 All texts live in `internal/ui/i18n/sg9.tsv`: one line per text, columns German, English,
 French, Italian. `{}` marks a variable part. To add a language, append a column and add its code

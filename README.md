@@ -9,6 +9,10 @@ zuzugreifen: SFTP, WebDAV als Netzlaufwerk, ein Dateimanager im Browser und Frei
 Eine einzige Datei pro Betriebssystem, keine Installation, keine Abhängigkeiten.
 Läuft auf **Windows**, **Linux** (auch Raspberry Pi) und **macOS** (Intel und Apple Silicon).
 
+**Sprachen:** Die Oberfläche gibt es auf Deutsch, Englisch, Französisch und Italienisch. Umschalten
+geht oben neben dem Hell/Dunkel-Schalter (**DE · EN · FR · IT**). Freigabe-Seiten erscheinen
+automatisch in der Sprache des Besuchers.
+
 ## Schnellstart
 
 Installation als Dienst, Aktualisieren und Deinstallieren für Windows, Linux, macOS, Docker und Unraid:
@@ -267,7 +271,10 @@ kann sie entfernen und `go mod tidy` ausführen.
   gelöscht, funktionieren seine Links nicht mehr.
 - Ereignis-Befehle laufen mit den Rechten von SG9. Nur Befehle eintragen, denen du vertraust.
 
-## Übersetzen
+## Weitere Sprachen ergänzen (für Mitwirkende)
+
+*Dieser Abschnitt richtet sich an alle, die SG9 in eine zusätzliche Sprache übersetzen möchten.
+Deutsch, Englisch, Französisch und Italienisch sind bereits eingebaut.*
 
 Alle Texte stehen in einer Tabelle: `internal/ui/i18n/sg9.tsv`, eine Zeile pro Text, Spalten
 Deutsch, English, Français, Italiano. `{}` steht für einen veränderlichen Teil (Zahl, Name).

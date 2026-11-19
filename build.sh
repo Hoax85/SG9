@@ -3,8 +3,9 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-VERSION="${VERSION:-2.3.1}"
-LDFLAGS="-s -w -X main.version=${VERSION}"
+VERSION="${VERSION:-2.4.0}"
+# SG9_REPO (owner/name auf GitHub) aktiviert den Update-Hinweis in der Verwaltung
+LDFLAGS="-s -w -X main.version=${VERSION} -X main.updateRepo=${SG9_REPO:-}"
 mkdir -p dist
 rm -f dist/*
 

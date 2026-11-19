@@ -21,7 +21,7 @@ import (
 	"sg9/internal/web"
 )
 
-var version = "2.3.1"
+var version = "2.4.0"
 
 // updateRepo: GitHub-Projekt für den Update-Hinweis (owner/name).
 // Release-Builds setzen es mit -ldflags "-X main.updateRepo=…".

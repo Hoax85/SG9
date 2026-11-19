@@ -1,5 +1,7 @@
 # SG9 Server
 
+*[English version](README.en.md)*
+
 Ein Datei-Server im Geist des alten G6 FTP Server: Benutzer, Gruppen, virtuelle Ordner,
 Speed-Limits, Ratio und eine Verwaltung im Browser. Dazu die modernen Wege, auf Dateien
 zuzugreifen: SFTP, WebDAV als Netzlaufwerk, ein Dateimanager im Browser und Freigabe-Links.
@@ -76,7 +78,17 @@ bestimmte IP-Adresse beschränken.
 - **Freigabe-Links** für jeden Ordner und jede Datei auf dem Server oder aus einem Benutzerkonto, optional mit Passwort, Ablaufdatum und Download-Limit
 - **Let's Encrypt** eingebaut: echtes HTTPS-Zertifikat für Links von ausserhalb, ohne Reverse Proxy
 - **Briefkasten-Links**: andere laden Dateien zu dir hoch, ohne zu sehen, was schon da ist
+- **Briefkasten mit Absender**: Name und Nachricht angeben, die Dateien landen in einem Unterordner pro Absender
+- **Vorschau und Galerie**: Bilder als Galerie mit Blättern, PDFs, Videos und Musik direkt im Browser (HTML und SVG aus Sicherheitsgründen nie)
+- **QR-Code** zu jedem Link, zum schnellen Weitergeben aufs Handy
+- **Länderfilter**: Links (oder alle Dienste) nur aus bestimmten Ländern erreichbar, mit einer kostenlosen GeoIP-Datenbank
 - **Ereignisse**: bei Upload, Download, Anmeldung, Fehlversuch usw. ein Skript starten oder einen Webhook aufrufen
+- **Benachrichtigungen** per ntfy (Push aufs Handy), E-Mail oder Home Assistant: Briefkasten, Downloads, Sperren, Fehler
+- **Zwei-Faktor-Anmeldung** für die Verwaltung (Authenticator-App) mit Wiederherstellungscodes
+- **Sicherung und Umzug**: Einstellungen als ZIP herunterladen und wiederherstellen, dazu eine tägliche automatische Sicherung
+- **Prüfprotokoll**: wer wann was in der Verwaltung geändert hat
+- **Update-Hinweis**: einmal täglich ein Blick auf GitHub, ob es eine neue Version gibt (abschaltbar, lädt nichts herunter)
+- **Sprachen**: Deutsch, English, Français, Italiano; Freigabe-Seiten folgen automatisch der Sprache des Besuchers
 - Verwaltung in Hell, Dunkel oder nach Systemeinstellung, auch auf dem Handy bedienbar
 
 Alle Dienste nutzen dieselben Benutzer, Rechte, Limits und Kontingente. Pro Benutzer lässt
@@ -136,8 +148,9 @@ Das Image ist sehr klein (rund 14 MB, ohne Betriebssystem darin) und läuft als 
 wie unter Unraid üblich.
 
 ```bash
-docker build -t sg9 .
-docker compose up -d        # mit der mitgelieferten docker-compose.yml
+docker pull ghcr.io/<github-name>/sg9:latest   # fertiges Image (amd64, arm64, armv7)
+docker build -t sg9 .                          # oder selbst bauen
+docker compose up -d                           # mit der mitgelieferten docker-compose.yml
 ```
 
 - **Netzwerkmodus host** ist empfohlen: Dann funktioniert FTP im Passivmodus ohne weitere Einstellungen,
@@ -150,7 +163,7 @@ docker compose up -d        # mit der mitgelieferten docker-compose.yml
 
 **Unraid:** `deploy/unraid/sg9.xml` nach `/boot/config/plugins/dockerMan/templates-user/my-SG9.xml`
 kopieren, dann unter Docker → „Container hinzufügen“ die Vorlage „SG9“ wählen. In der Vorlage
-`Repository` auf dein Image setzen, z. B. aus der Container-Registry deines Forgejo.
+`Repository` auf dein Image setzen, z. B. `ghcr.io/<github-name>/sg9:latest`.
 
 ## Als Dienst einrichten
 
@@ -158,7 +171,10 @@ Vorlagen im Ordner `deploy/`, die Schritte stehen jeweils oben in der Datei:
 
 - **Linux:** `sg9.service` (systemd)
 - **macOS:** `ch.gerweck.sg9.plist` (launchd)
-- **Windows:** `install-windows.ps1` richtet SG9 als Aufgabe beim Systemstart ein und gibt das Programm in der Firewall frei, egal welche Ports eingestellt sind
+- **Windows:** `install-windows.ps1` kopiert SG9 nach `C:\Program Files\SG9`, richtet es als echten
+  Windows-Dienst ein (sichtbar in `services.msc`, startet mit Windows, auch ohne Anmeldung, startet nach
+  Absturz neu) und gibt das Programm in der Firewall frei, egal welche Ports eingestellt sind.
+  Ohne Skript geht es auch direkt: `sg9.exe -install-service` in einer Administrator-PowerShell.
 
 ## Anmeldung an der Verwaltung
 
@@ -170,7 +186,10 @@ Vorlagen im Ordner `deploy/`, die Schritte stehen jeweils oben in der Datei:
   **Einstellungen → Allgemein** abschaltbar. Gilt nur für Aufrufe direkt am Rechner (localhost),
   von anderen Geräten braucht es immer das Passwort. Abschalten, wenn mehrere Leute den Rechner benutzen.
 - **Passwort ändern** meldet alle anderen Geräte ab.
+- **Zwei-Faktor:** unter **Einstellungen → Zwei-Faktor** mit einer Authenticator-App (Aegis, Bitwarden,
+  2FAS, Google Authenticator) einschalten. Dazu gibt es zehn Wiederherstellungscodes für den Fall, dass das Handy weg ist.
 - **Passwort vergessen:** `sg9 -reset-admin` ausführen, danach legst du beim nächsten Öffnen ein neues fest.
+  Das schaltet auch die Zwei-Faktor-Anmeldung aus.
 
 ## Kommandozeile
 
@@ -180,6 +199,9 @@ sg9 -reset-admin                     Admin-Passwort löschen, beim nächsten Öf
 sg9 -set-admin-password <passwort>   Admin-Passwort direkt setzen
 sg9 -add-user name:passwort          Benutzer anlegen (Gruppe "Standard")
 sg9 -quiet                           keine Log-Ausgabe auf der Konsole
+sg9 -install-service                 als Windows-Dienst einrichten (Administrator)
+sg9 -uninstall-service               Windows-Dienst entfernen, Daten bleiben
+sg9 -healthcheck                     prüft, ob SG9 antwortet (für Docker)
 sg9 -version
 ```
 
@@ -194,6 +216,9 @@ sg9 -version
 | `sg9-cert.pem`, `sg9-key.pem` | selbst signiertes TLS-Zertifikat (FTPS, HTTPS) |
 | `sg9-hostkey` | SSH-Schlüssel des Servers (SFTP) – beim Umzug mitnehmen, sonst warnen die Clients |
 | `sg9-secret` | geheimer Schlüssel für Link-Passwörter |
+| `sg9-audit.log` | Prüfprotokoll: Änderungen in der Verwaltung |
+| `backups/` | tägliche automatische Sicherungen (die letzten 7) |
+| `letsencrypt/` | Zertifikate von Let's Encrypt |
 | `ftproot/<benutzer>/` | Home-Ordner der Gruppe „Standard“ |
 
 Eine Konfiguration von SG9 1.x wird beim ersten Start übernommen und um die neuen Dienste ergänzt.
@@ -204,12 +229,21 @@ Go 1.24 oder neuer. Alle Abhängigkeiten liegen im Ordner `vendor/`, es braucht 
 
 ```bash
 ./build.sh          # Linux / macOS → dist/
+./package.sh        # Downloads für Windows, Linux, macOS → packages/
 .\build.ps1         # Windows       → dist\
 go build -o sg9 .   # nur für das aktuelle System
+go test ./...       # Tests, inklusive Ende-zu-Ende-Test aller Dienste
 ```
 
+Mit `SG9_REPO=name/sg9 ./build.sh` kennt das Programm sein GitHub-Projekt und zeigt neue Versionen an.
+
+**Veröffentlichen auf GitHub:** Ein Tag wie `v2.4.0` pushen. Die Aktion in `.github/workflows/release.yml`
+testet, baut alle Plattformen, legt ein Release mit den Downloads an und schiebt das Docker-Image
+nach `ghcr.io`. Bei jedem Push laufen die Tests unter Linux, Windows und macOS.
+
 Verwendete Bibliotheken: `golang.org/x/crypto/ssh` (SSH), `github.com/pkg/sftp` (SFTP),
-`golang.org/x/net/webdav` (WebDAV). Die `replace`-Zeilen in `go.mod` holen die offiziellen
+`golang.org/x/net/webdav` (WebDAV), `golang.org/x/crypto/acme/autocert` (Let's Encrypt),
+`rsc.io/qr` (QR-Codes), `github.com/oschwald/maxminddb-golang` (Länderfilter). Die `replace`-Zeilen in `go.mod` holen die offiziellen
 golang.org/x-Pakete über ihre GitHub-Spiegel. Wer normalen Zugriff auf proxy.golang.org hat,
 kann sie entfernen und `go mod tidy` ausführen.
 
@@ -229,7 +263,16 @@ kann sie entfernen und `go mod tidy` ausführen.
   gelöscht, funktionieren seine Links nicht mehr.
 - Ereignis-Befehle laufen mit den Rechten von SG9. Nur Befehle eintragen, denen du vertraust.
 
+## Übersetzen
+
+Alle Texte stehen in einer Tabelle: `internal/ui/i18n/sg9.tsv`, eine Zeile pro Text, Spalten
+Deutsch, English, Français, Italiano. `{}` steht für einen veränderlichen Teil (Zahl, Name).
+Für eine neue Sprache eine Spalte anhängen und das Kürzel in `internal/ui/i18n.go` bei `Languages`
+eintragen. `go test ./internal/ui` prüft, dass jede Zeile vollständig ist.
+
 ## Lizenz
 
-© Gerweck Group GmbH. Lizenz nach Wahl ergänzen (z. B. MIT). Die mitgelieferten
-Bibliotheken stehen unter BSD-Lizenzen (siehe `vendor/`).
+© Gerweck Group GmbH. SG9 steht unter der **GNU Affero General Public License v3.0** (siehe `LICENSE`):
+Jeder darf SG9 nutzen, ändern und weitergeben. Wer eine veränderte Version anderen anbietet,
+auch nur als Dienst übers Netz, muss den geänderten Quellcode ebenfalls offenlegen.
+Die mitgelieferten Bibliotheken stehen unter BSD-, MIT- bzw. ISC-Lizenzen (siehe `vendor/`).

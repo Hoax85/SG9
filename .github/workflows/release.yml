@@ -1,0 +1,67 @@
+# Neue Version veröffentlichen: git tag v2.4.0 && git push origin v2.4.0
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Testen
+        run: go test -mod=vendor -count=1 ./...
+      - name: Bauen und packen
+        env:
+          VERSION: ${{ github.ref_name }}
+          SG9_REPO: ${{ github.repository }}
+        run: |
+          export VERSION="${VERSION#v}"
+          ./build.sh
+          ./package.sh
+      - name: Release anlegen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          notes=$(awk -v v="## $V" '$0 ~ "^## " {p = index($0, v) == 1} p' CHANGELOG.md | tail -n +2)
+          gh release create "$GITHUB_REF_NAME" packages/* dist/SHA256SUMS.txt --title "SG9 $V" --notes "${notes:-SG9 $V}"
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            SG9_REPO=${{ github.repository }}

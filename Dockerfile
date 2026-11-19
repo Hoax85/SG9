@@ -2,11 +2,16 @@
 # Bauen:   docker build -t sg9 .
 # Starten: siehe docker-compose.yml oder deploy/unraid/sg9.xml
 
-FROM golang:1.24-alpine AS build
+# Gebaut wird immer auf der Plattform des Build-Rechners, Go übersetzt direkt für das Ziel (schnell, ohne Emulation)
+FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS build
 WORKDIR /src
 COPY . .
 ARG VERSION=dev
-RUN CGO_ENABLED=0 go build -mod=vendor -trimpath -ldflags "-s -w -X main.version=${VERSION}" -o /out/sg9 . \
+ARG SG9_REPO=
+ARG TARGETOS TARGETARCH TARGETVARIANT
+RUN V="${VERSION#v}"; GOARM="${TARGETVARIANT#v}"; export GOARM \
+ && CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -mod=vendor -trimpath \
+    -ldflags "-s -w -X main.version=${V} -X main.updateRepo=${SG9_REPO}" -o /out/sg9 . \
  && mkdir -p /out/data /out/shares
 
 FROM scratch

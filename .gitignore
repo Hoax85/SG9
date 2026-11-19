@@ -3,3 +3,4 @@ dist/
 sg9.exe
 sg9-data/
 *.tmp
+packages/

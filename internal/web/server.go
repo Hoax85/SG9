@@ -77,6 +77,14 @@ func loadSecret(dir string) []byte {
 
 func (s *Server) settings() core.WebSettings { return s.Hub.Store.Settings().Web }
 
+// ReloadSecret liest den geheimen Schlüssel für Link-Passwörter neu ein (nach einer Wiederherstellung).
+func (s *Server) ReloadSecret() {
+	sec := loadSecret(s.Hub.Store.DataDir)
+	s.smu.Lock()
+	s.secret = sec
+	s.smu.Unlock()
+}
+
 // Listening meldet alle Web-Adressen.
 func (s *Server) Listening() []string { return s.ListeningFor("") }
 

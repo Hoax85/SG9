@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"os"
@@ -32,6 +33,7 @@ type Services struct {
 	SFTP interface {
 		Listening() []string
 		Fingerprint() string
+		ReloadHostKey()
 	}
 	Web *web.Server
 }
@@ -156,6 +158,11 @@ func (a *Admin) routes() http.Handler {
 	mux.HandleFunc("GET /api/bans", a.auth(a.listBans))
 	mux.HandleFunc("DELETE /api/bans/{ip}", a.auth(a.unban))
 	mux.HandleFunc("GET /api/browse", a.auth(a.browse))
+	mux.HandleFunc("GET /api/backup", a.auth(a.backupDownload))
+	mux.HandleFunc("GET /api/backups", a.auth(a.backupList))
+	mux.HandleFunc("GET /api/backups/{name}", a.auth(a.backupGet))
+	mux.HandleFunc("POST /api/restore", a.auth(a.restore))
+	mux.HandleFunc("GET /api/audit", a.auth(a.auditLog))
 	mux.HandleFunc("GET /api/2fa", a.auth(a.twofaStatus))
 	mux.HandleFunc("POST /api/2fa/begin", a.auth(a.twofaBegin))
 	mux.HandleFunc("POST /api/2fa/enable", a.auth(a.twofaEnable))
@@ -391,6 +398,7 @@ func (a *Admin) saveUser(w http.ResponseWriter, r *http.Request) {
 	}
 	u := in.User
 	u.Name = strings.TrimSpace(u.Name)
+	auditDetail(r, u.Name)
 	err := a.store().Update(func(c *core.Config) error {
 		var existing *core.User
 		if in.OriginalName != "" {
@@ -538,6 +546,7 @@ func (a *Admin) saveGroup(w http.ResponseWriter, r *http.Request) {
 	}
 	g := in.Group
 	g.Name = strings.TrimSpace(g.Name)
+	auditDetail(r, g.Name)
 	err := a.store().Update(func(c *core.Config) error {
 		if in.OriginalName == "" {
 			if c.FindGroup(g.Name) != nil {
@@ -606,6 +615,7 @@ func (a *Admin) putSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	old := a.store().Settings()
+	defer func() { auditDetail(r, diffKeys(old, a.store().Settings())) }()
 	if in.Admin.ListenAddr == "" {
 		in.Admin.ListenAddr = old.Admin.ListenAddr
 	}
@@ -732,6 +742,11 @@ func (a *Admin) createShare(w http.ResponseWriter, r *http.Request) {
 	if err := readJSON(r, &in); err != nil {
 		fail(w, 400, "Ungültige Anfrage")
 		return
+	}
+	if in.ServerPath != "" {
+		auditDetail(r, in.ServerPath)
+	} else {
+		auditDetail(r, in.Owner+": "+in.Path)
 	}
 	sh, err := a.Hub.CreateShare(in, true)
 	if err != nil {
@@ -920,6 +935,61 @@ func (a *Admin) testNotify(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 40*time.Second)
 	defer cancel()
 	writeJSON(w, 200, a.Hub.TestNotify(ctx, in))
+}
+
+// ---------- Sicherung ----------
+
+func (a *Admin) backupDownload(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/zip")
+	w.Header().Set("Content-Disposition", `attachment; filename="sg9-sicherung-`+time.Now().Format("2006-01-02")+`.zip"`)
+	if err := a.store().WriteBackup(w); err != nil {
+		a.Hub.Log.Error("Sicherung: %v", err)
+		return
+	}
+	a.store().Audit(clientIP(r), "Sicherung heruntergeladen", "")
+}
+
+func (a *Admin) backupList(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, 200, a.store().ListBackups())
+}
+
+func (a *Admin) backupGet(w http.ResponseWriter, r *http.Request) {
+	name := r.PathValue("name")
+	if !(strings.HasPrefix(name, "sg9-") || strings.HasPrefix(name, "vor-wiederherstellung-")) || !strings.HasSuffix(name, ".zip") ||
+		strings.ContainsAny(name, `/\`) || strings.Contains(name, "..") {
+		fail(w, 404, "Nicht gefunden")
+		return
+	}
+	w.Header().Set("Content-Disposition", `attachment; filename="`+name+`"`)
+	http.ServeFile(w, r, filepath.Join(a.store().DataDir, "backups", name))
+}
+
+func (a *Admin) restore(w http.ResponseWriter, r *http.Request) {
+	data, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 200<<20))
+	if err != nil {
+		fail(w, 400, "Die Datei ist zu gross oder unvollständig")
+		return
+	}
+	// Vorher den jetzigen Stand sichern, damit nichts verloren geht.
+	safety := filepath.Join(a.store().DataDir, "backups", "vor-wiederherstellung-"+time.Now().Format("2006-01-02-150405")+".zip")
+	_ = os.MkdirAll(filepath.Dir(safety), 0o750)
+	if f, err := os.Create(safety); err == nil {
+		_ = a.store().WriteBackup(f)
+		f.Close()
+	}
+	if err := a.store().RestoreBackup(data); err != nil {
+		fail(w, 400, err.Error())
+		return
+	}
+	a.Hub.Certs.Reset()
+	a.Svc.SFTP.ReloadHostKey()
+	a.Svc.Web.ReloadSecret()
+	a.Hub.Log.Info("Sicherung wiederhergestellt (der vorherige Stand liegt in %s)", safety)
+	writeJSON(w, 200, map[string]any{"ok": "1", "safety": filepath.Base(safety)})
+}
+
+func (a *Admin) auditLog(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, 200, a.store().AuditLog(500))
 }
 
 // ---------- Let's Encrypt ----------

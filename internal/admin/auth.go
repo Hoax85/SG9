@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
@@ -10,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -167,11 +169,112 @@ func (a *Admin) auth(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		if a.validSession(r) || a.autoLogin(r) {
-			next(w, r)
+			if r.Method == http.MethodGet {
+				next(w, r)
+				return
+			}
+			// Änderungen ins Prüfprotokoll
+			rec := &statusRecorder{ResponseWriter: w, status: 200}
+			detail := new(string)
+			r = r.WithContext(context.WithValue(r.Context(), auditKey{}, detail))
+			next(rec, r)
+			if label, ok := auditLabels[r.Pattern]; ok && rec.status < 400 {
+				d := *detail
+				for _, k := range []string{"name", "id", "ip"} {
+					if v := r.PathValue(k); v != "" && d == "" {
+						d = v
+					}
+				}
+				a.store().Audit(clientIP(r), label, d)
+			}
 			return
 		}
 		fail(w, http.StatusUnauthorized, "Nicht angemeldet")
 	}
+}
+
+// ---------- Prüfprotokoll ----------
+
+type auditKey struct{}
+
+// auditDetail ergänzt den Eintrag im Prüfprotokoll um eine Angabe (z. B. den Benutzernamen).
+func auditDetail(r *http.Request, d string) {
+	if p, ok := r.Context().Value(auditKey{}).(*string); ok && d != "" {
+		*p = d
+	}
+}
+
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+}
+
+func (s *statusRecorder) WriteHeader(code int) { s.status = code; s.ResponseWriter.WriteHeader(code) }
+
+var auditLabels = map[string]string{
+	"POST /api/sessions/{id}/kick":          "Sitzung getrennt",
+	"PUT /api/users":                        "Benutzer gespeichert",
+	"DELETE /api/users/{name}":              "Benutzer gelöscht",
+	"POST /api/users/{name}/reset-counters": "Zähler zurückgesetzt",
+	"PUT /api/groups":                       "Gruppe gespeichert",
+	"DELETE /api/groups/{name}":             "Gruppe gelöscht",
+	"PUT /api/settings":                     "Einstellungen geändert",
+	"POST /api/server/online":               "Online/Offline umgeschaltet",
+	"DELETE /api/bans/{ip}":                 "Sperre aufgehoben",
+	"POST /api/admin/password":              "Admin-Passwort geändert",
+	"POST /api/shares":                      "Freigabe-Link erstellt",
+	"PATCH /api/shares/{id}":                "Freigabe-Link geändert",
+	"DELETE /api/shares/{id}":               "Freigabe-Link gelöscht",
+	"PUT /api/events":                       "Ereignisse geändert",
+	"PUT /api/notify":                       "Benachrichtigungen geändert",
+	"POST /api/2fa/enable":                  "Zwei-Faktor eingeschaltet",
+	"POST /api/2fa/disable":                 "Zwei-Faktor ausgeschaltet",
+	"POST /api/cert/request":                "Zertifikat angefordert",
+	"POST /api/restore":                     "Sicherung wiederhergestellt",
+	"POST /api/logout":                      "Abgemeldet",
+}
+
+// diffKeys nennt die Einstellungen, die sich geändert haben (z. B. "sftp.listenAddr, web.useTLS").
+func diffKeys(a, b any) string {
+	var ma, mb map[string]any
+	ja, _ := json.Marshal(a)
+	jb, _ := json.Marshal(b)
+	_ = json.Unmarshal(ja, &ma)
+	_ = json.Unmarshal(jb, &mb)
+	var out []string
+	var walk func(prefix string, x, y map[string]any)
+	walk = func(prefix string, x, y map[string]any) {
+		keys := map[string]bool{}
+		for k := range x {
+			keys[k] = true
+		}
+		for k := range y {
+			keys[k] = true
+		}
+		for k := range keys {
+			if k == "passwordHash" || k == "totpSecret" || k == "recoveryHashes" || k == "totpLastUsed" {
+				continue
+			}
+			xv, yv := x[k], y[k]
+			xm, xok := xv.(map[string]any)
+			ym, yok := yv.(map[string]any)
+			if xok && yok {
+				walk(prefix+k+".", xm, ym)
+				continue
+			}
+			jx, _ := json.Marshal(xv)
+			jy, _ := json.Marshal(yv)
+			if string(jx) != string(jy) {
+				out = append(out, prefix+k)
+			}
+		}
+	}
+	walk("", ma, mb)
+	sort.Strings(out)
+	if len(out) > 12 {
+		out = append(out[:12], "…")
+	}
+	return strings.Join(out, ", ")
 }
 
 // ---------- Endpunkte ----------
@@ -239,6 +342,7 @@ func (a *Admin) setup(w http.ResponseWriter, r *http.Request) {
 	}
 	_ = os.Remove(filepath.Join(a.store().DataDir, "ERSTES-ADMIN-PASSWORT.txt"))
 	a.issueSession(w)
+	a.store().Audit(clientIP(r), "Verwaltung eingerichtet", in.Username)
 	a.Hub.Log.Info("Verwaltung eingerichtet von %s", clientIP(r))
 	ok(w)
 }
@@ -282,6 +386,7 @@ func (a *Admin) login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	a.issueSession(w)
+	a.store().Audit(ip, "Angemeldet", "")
 	a.Hub.Log.Info("Verwaltung: angemeldet von %s", ip)
 	ok(w)
 }

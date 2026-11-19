@@ -81,6 +81,13 @@ func (c *Certs) fallbackCert() (*tls.Certificate, error) {
 	return c.fallback, nil
 }
 
+// Reset verwirft zwischengespeicherte Zertifikate (nach einer Wiederherstellung).
+func (c *Certs) Reset() {
+	c.mu.Lock()
+	c.fallback, c.fbKey, c.mgr, c.mgrKey, c.lastErr = nil, "", nil, "", ""
+	c.mu.Unlock()
+}
+
 // TLSConfig für einen Dienst. Die Zertifikatswahl passiert bei jeder Verbindung.
 func (c *Certs) TLSConfig() *tls.Config {
 	return &tls.Config{

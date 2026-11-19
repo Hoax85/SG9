@@ -129,6 +129,7 @@ func main() {
 			started++
 		}
 	}
+	store.AutoBackup(log, 7)
 	adm = admin.New(hub, admin.Services{FTP: ftpSrv, SFTP: sftpSrv, Web: webSrv})
 	if err := adm.Start(); err != nil {
 		log.Error("%v", err)

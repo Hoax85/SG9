@@ -122,6 +122,7 @@ main { min-width: 0; padding: 22px 32px 48px; }
 .picker .where { font: 12.5px var(--mono); color: var(--ink-2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .copyline { display: flex; gap: 6px; align-items: center; }
+.backups { display: grid; grid-template-columns: auto auto; justify-content: start; gap: 4px 18px; margin-top: 6px; font-size: var(--t-s); }
 .twofa-setup { display: grid; gap: 14px; justify-items: center; }
 .twofa-setup .steps, .twofa-setup .field { justify-self: stretch; }
 .qrbox { width: 210px; height: 210px; background: #fff; border-radius: 10px; padding: 6px; }
@@ -1048,6 +1049,7 @@ async function viewSettings() {
     <div class="panel"><div class="panel-head"><h2>Dateien</h2></div><div class="panel-body grid-form">
       <label class="field">Für alle ausgeblendet<textarea name="hideFiles" placeholder="Thumbs.db&#10;desktop.ini&#10;.DS_Store">${esc(lines(s.hideFiles))}</textarea></label>
       <label class="field">Für alle beim Upload gesperrt<textarea name="denyUpload" placeholder="*.exe">${esc(lines(s.denyUpload))}</textarea></label></div></div>
+    <div class="panel"><div class="panel-head"><h2>Sicherung und Umzug</h2></div><div class="panel-body" id="backup"></div></div>
     <div class="panel"><div class="panel-head"><h2>Zwei-Faktor-Anmeldung für die Verwaltung</h2></div><div class="panel-body" id="twofa"><span class="hint">Lade …</span></div></div>
     <div class="panel"><div class="panel-head"><h2>Sicherheit</h2></div><div class="panel-body">
       <div class="grid-form"><label class="field">Erlaubte IP-Adressen<textarea name="ipAllow" placeholder="leer = alle">${esc(lines(s.ipAllow))}</textarea></label>
@@ -1095,7 +1097,7 @@ async function viewSettings() {
     } catch (err) { toast(err.message, true); }
   };
   $("#pw").onclick = () => passwordDialog();
-  draw2FA();
+  draw2FA(); drawBackup();
   // Let's Encrypt
   const sharePort = () => { const x = get("share"); return x.port || get("web").port; };
   const acmeUI = () => {
@@ -1122,6 +1124,26 @@ async function viewSettings() {
     };
   };
   drawCert();
+}
+async function drawBackup() {
+  const box = $("#backup"); if (!box) return;
+  const list = await api("GET", "/api/backups").catch(() => []);
+  box.innerHTML = `<p class="hint" style="margin:0">Eine Sicherung enthält Einstellungen, Benutzer, Gruppen, Links, Ereignisse, Schlüssel und Zertifikate, aber nicht die Dateien selbst. Damit ziehst du SG9 auf einen anderen Rechner um, etwa auf den Unraid-Server.</p>
+    <div class="row" style="flex-wrap:wrap"><a class="btn primary" href="/api/backup">Sicherung herunterladen</a><button type="button" class="btn" id="restore">Sicherung wiederherstellen …</button><input type="file" id="restorefile" accept=".zip,application/zip" hidden></div>
+    <div><b style="font-size:var(--t-s)">Automatische Sicherungen</b><span class="hint"> · einmal täglich, die letzten 7 bleiben</span>
+      ${list.length ? `<div class="backups">${list.map(b => `<a class="mono" href="/api/backups/${encodeURIComponent(b.name)}">${esc(b.name)}</a><span class="faint">${fmtBytes(b.size)}</span>`).join("")}</div>` : `<div class="hint" style="margin-top:4px">Die erste entsteht kurz nach dem Start.</div>`}</div>`;
+  $("#restore").onclick = () => $("#restorefile").click();
+  $("#restorefile").onchange = async e => {
+    const file = e.target.files[0]; e.target.value = ""; if (!file) return;
+    if (!confirm(`Sicherung „${file.name}“ wiederherstellen? Alle Einstellungen, Benutzer und Links werden durch die aus der Sicherung ersetzt. Der jetzige Stand wird vorher automatisch gesichert.`)) return;
+    try {
+      const r = await fetch("/api/restore", { method: "POST", headers: { "X-SG9": "1", "Content-Type": "application/zip" }, body: file, credentials: "same-origin" });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || r.statusText);
+      toast("Sicherung wiederhergestellt. Der vorherige Stand liegt unter Automatische Sicherungen.");
+      setTimeout(() => location.reload(), 1500);
+    } catch (err) { toast(err.message, true); }
+  };
 }
 async function draw2FA() {
   const box = $("#twofa"); if (!box) return;
@@ -1189,12 +1211,14 @@ function passwordDialog() {
 // ---------- Protokoll ----------
 function viewLogs() {
   setHead("Protokoll", "Was gerade passiert, live mitgeschnitten");
-  $("#main").innerHTML = `<div class="toolbar"><select class="input" id="lvl" aria-label="Stufe"><option value="">Alles</option><option value="xfer">Übertragungen</option><option value="info">Info</option><option value="warn">Warnungen</option><option value="error">Fehler</option></select>
+  if (state.logTab === "audit") return viewAudit();
+  $("#main").innerHTML = `${logTabs("live")}<div class="toolbar"><select class="input" id="lvl" aria-label="Stufe"><option value="">Alles</option><option value="xfer">Übertragungen</option><option value="info">Info</option><option value="warn">Warnungen</option><option value="error">Fehler</option></select>
       <input class="input" id="lq" placeholder="Filtern nach Benutzer, IP oder Text" style="flex:1;min-width:180px">
       <button class="btn" id="pause">${state.logPaused ? "Weiterlaufen lassen" : "Anhalten"}</button></div>
     <div class="panel logbox" id="logbox" tabindex="0"></div>`;
   $("#lvl").onchange = drawLogs; $("#lq").oninput = drawLogs;
   $("#pause").onclick = e => { state.logPaused = !state.logPaused; e.target.textContent = state.logPaused ? "Weiterlaufen lassen" : "Anhalten"; };
+  wireLogTabs();
   drawLogs(); loadLogs();
 }
 async function loadLogs() {
@@ -1209,6 +1233,17 @@ function drawLogs() {
   const shown = state.logs.filter(e => (!lv || e.level === lv) && (!q || (e.msg + " " + (e.user || "") + " " + (e.ip || "")).toLowerCase().includes(q)));
   box.innerHTML = shown.length ? shown.map(e => `<div class="logline lv-${e.level}"><span class="t">${fmtTime(e.time)}</span> <span class="l">${LV[e.level] || e.level}</span>${e.session ? `<span class="w">${esc(e.user || "–")} @ ${esc(e.ip)}</span>  ` : ""}${esc(e.msg)}</div>`).join("") : `<div class="empty">Keine Einträge</div>`;
   if (atBottom) box.scrollTop = box.scrollHeight;
+}
+
+const logTabs = cur => `<div class="seg" style="margin-bottom:14px"><button type="button" data-lt="live" aria-pressed="${cur === "live"}">Betrieb</button><button type="button" data-lt="audit" aria-pressed="${cur === "audit"}">Änderungen in der Verwaltung</button></div>`;
+const wireLogTabs = () => $$("[data-lt]").forEach(b => b.onclick = () => { state.logTab = b.dataset.lt; viewLogs(); });
+async function viewAudit() {
+  setHead("Protokoll", "Wer wann was in der Verwaltung geändert hat");
+  const list = await api("GET", "/api/audit").catch(() => []);
+  $("#main").innerHTML = `${logTabs("audit")}<div class="panel" style="overflow:auto"><table class="data"><thead><tr><th>Zeit</th><th>Änderung</th><th>Betrifft</th><th>IP-Adresse</th></tr></thead><tbody>
+    ${list.length ? list.map(e => `<tr><td style="white-space:nowrap">${fmtDate(e.time)}</td><td>${esc(e.action)}</td><td class="mono" style="font-size:12px;word-break:break-word">${esc(e.detail || "")}</td><td class="mono">${esc(e.ip)}</td></tr>`).join("")
+      : `<tr><td colspan="4"><div class="empty"><b>Noch keine Änderungen</b>Hier erscheint jede Änderung an Benutzern, Links und Einstellungen.</div></td></tr>`}</tbody></table></div>`;
+  wireLogTabs();
 }
 
 // ---------- Sperren ----------

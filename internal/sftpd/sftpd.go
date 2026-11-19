@@ -48,6 +48,18 @@ func (s *Server) Fingerprint() string {
 	return ssh.FingerprintSHA256(s.signer.PublicKey())
 }
 
+// ReloadHostKey liest den Host-Schlüssel neu ein (nach einer Wiederherstellung).
+func (s *Server) ReloadHostKey() {
+	sg, err := s.hostKey()
+	if err != nil {
+		s.Hub.Log.Error("SSH-Host-Schlüssel: %v", err)
+		return
+	}
+	s.mu.Lock()
+	s.signer = sg
+	s.mu.Unlock()
+}
+
 // Listening meldet die Adresse.
 func (s *Server) Listening() []string {
 	s.mu.Lock()

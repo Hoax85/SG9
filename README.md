@@ -13,6 +13,16 @@ Läuft auf **Windows**, **Linux** (auch Raspberry Pi) und **macOS** (Intel und A
 geht oben neben dem Hell/Dunkel-Schalter (**DE · EN · FR · IT**). Freigabe-Seiten erscheinen
 automatisch in der Sprache des Besuchers.
 
+![Übersicht](docs/screenshots/overview-dark.png)
+
+| Sitzungen live | Freigabe-Links |
+|---|---|
+| ![Sitzungen](docs/screenshots/sessions.png) | ![Freigabe-Links](docs/screenshots/links.png) |
+| **Dateien im Browser** | **Geteilter Ordner mit Galerie** |
+| ![Dateien](docs/screenshots/files.png) | ![Galerie](docs/screenshots/share-gallery.png) |
+| **Briefkasten** | **Auf dem Handy** |
+| ![Briefkasten](docs/screenshots/share-dropbox.png) | <img src="docs/screenshots/mobile-share.png" width="220" alt="Handy"> |
+
 ## Schnellstart
 
 Installation als Dienst, Aktualisieren und Deinstallieren für Windows, Linux, macOS, Docker und Unraid:

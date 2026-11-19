@@ -11,6 +11,16 @@ Runs on **Windows**, **Linux** (including Raspberry Pi) and **macOS** (Intel and
 The interface speaks English, German, French and Italian. Switch languages at the top, next to
 the light/dark switch (**DE · EN · FR · IT**). Share pages automatically use the visitor's language.
 
+![Overview](docs/screenshots/overview-dark.png)
+
+| Live sessions | Share links |
+|---|---|
+| ![Sessions](docs/screenshots/sessions.png) | ![Share links](docs/screenshots/links.png) |
+| **Files in the browser** | **Shared folder with gallery** |
+| ![Files](docs/screenshots/files.png) | ![Gallery](docs/screenshots/share-gallery.png) |
+| **Drop box** | **On a phone** |
+| ![Drop box](docs/screenshots/share-dropbox.png) | <img src="docs/screenshots/mobile-share.png" width="220" alt="Phone"> |
+
 ## Quick start
 
 Installing as a service, updating and uninstalling on Windows, Linux, macOS, Docker and Unraid:

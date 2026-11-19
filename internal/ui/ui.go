@@ -5,6 +5,7 @@ import (
 	"embed"
 	"io/fs"
 	"net/http"
+	"strings"
 )
 
 //go:embed assets pages
@@ -15,6 +16,13 @@ func Handler() http.Handler {
 	sub, _ := fs.Sub(files, "assets")
 	fsrv := http.StripPrefix("/assets/", http.FileServer(http.FS(sub)))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if l, ok := strings.CutPrefix(r.URL.Path, "/assets/i18n/"); ok {
+			if serveDict(w, strings.TrimSuffix(l, ".json")) {
+				return
+			}
+			http.NotFound(w, r)
+			return
+		}
 		w.Header().Set("Cache-Control", "no-cache")
 		fsrv.ServeHTTP(w, r)
 	})

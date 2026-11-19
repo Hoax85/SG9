@@ -7,6 +7,7 @@
 <link rel="icon" href="/assets/mark.svg">
 <link rel="stylesheet" href="/assets/sg9.css">
 <script src="/assets/theme.js"></script>
+<script src="/assets/i18n.js"></script>
 <style>
 .app { display: grid; grid-template-columns: 232px 1fr; min-height: 100vh; background: linear-gradient(to right, var(--surface) 231px, var(--line) 231px, var(--line) 232px, transparent 232px); }
 aside { background: var(--surface); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; }
@@ -178,6 +179,8 @@ pre.yaml { background: var(--surface); border: 1px solid var(--line); border-rad
 <div id="root"></div>
 <script>
 "use strict";
+const LOC = window.SG9I18n ? SG9I18n.locale : "de-CH";
+const T = s => window.SG9I18n ? SG9I18n.t(s) : s;
 // ---------- Grundlagen ----------
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -186,11 +189,11 @@ const fmtBytes = n => { n = Number(n) || 0; const u = ["B", "KB", "MB", "GB", "T
 const splitUnit = s => { const i = s.lastIndexOf(" "); return [s.slice(0, i), s.slice(i + 1)]; };
 const fmtRate = n => fmtBytes(n) + "/s";
 const fmtDur = s => { s = Math.max(0, Math.floor(s)); const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60); return d ? `${d} T ${h} h` : h ? `${h} h ${m} min` : m ? `${m} min` : `${s} s`; };
-const fmtTime = t => new Date(t).toLocaleTimeString("de-CH");
-const fmtDate = t => new Date(t).toLocaleString("de-CH", { dateStyle: "short", timeStyle: "short" });
-const fmtDay = d => d ? new Date(d + "T00:00").toLocaleDateString("de-CH") : "";
+const fmtTime = t => new Date(t).toLocaleTimeString(LOC);
+const fmtDate = t => new Date(t).toLocaleString(LOC, { dateStyle: "short", timeStyle: "short" });
+const fmtDay = d => d ? new Date(d + "T00:00").toLocaleDateString(LOC) : "";
 const ago = t => fmtDur((Date.now() - new Date(t)) / 1000);
-const nf = n => Number(n || 0).toLocaleString("de-CH");
+const nf = n => Number(n || 0).toLocaleString(LOC);
 const num = v => Number(v) || 0;
 const lines = a => (a || []).join("\n");
 const unlines = s => s.split(/[\n,;]+/).map(x => x.trim()).filter(Boolean);
@@ -417,7 +420,7 @@ function drawChart(hist) {
     g.strokeStyle = col(i ? "--line-soft" : "--line"); g.beginPath(); g.moveTo(L, y); g.lineTo(W - R, y); g.stroke();
     g.fillStyle = col("--ink-3"); g.textAlign = "right"; g.fillText(fmtRate(scale * i / 4), L - 10, y + 4);
   }
-  g.textAlign = "left"; g.fillText("vor 2 Minuten", L, H - 4); g.textAlign = "right"; g.fillText("jetzt", W - R, H - 4);
+  g.textAlign = "left"; g.fillText(T("vor 2 Minuten"), L, H - 4); g.textAlign = "right"; g.fillText(T("jetzt"), W - R, H - 4);
   const x = i => L + w * (N - pts.length + i) / (N - 1), y = v => T + h - h * Math.min(v, scale) / scale;
   const line = (key, color) => {
     if (!pts.length) return;
@@ -865,7 +868,8 @@ action:
   $("#main").innerHTML = `<form id="nf" class="settings" autocomplete="off">
     <div class="panel"><div class="panel-head"><h2>Wann</h2></div><div class="panel-body">
       <div class="notify-kinds">${n.kinds.map(k => `<label class="check nk"><input type="checkbox" data-kind="${k}" ${n.on.includes(k) ? "checked" : ""}><span><b>${NOTIFY_LABEL[k][0]}</b><span class="hint">${NOTIFY_LABEL[k][1]}</span></span></label>`).join("")}</div>
-      <p class="hint" style="margin:0">Gleiche Fehlermeldungen kommen höchstens alle 10 Minuten, insgesamt höchstens 30 Nachrichten pro Stunde.</p></div></div>
+      <p class="hint" style="margin:0">Gleiche Fehlermeldungen kommen höchstens alle 10 Minuten, insgesamt höchstens 30 Nachrichten pro Stunde.</p>
+      <label class="field" style="max-width:260px">Sprache der Nachrichten<select name="lang" data-noi18n>${Object.entries(window.SG9I18n ? SG9I18n.names : { de: "Deutsch" }).map(([k, v]) => `<option value="${k}" ${(n.lang || "de") === k ? "selected" : ""}>${v}</option>`).join("")}</select></label></div></div>
 
     <div class="panel"><div class="panel-head"><h2>ntfy (Push aufs Handy)</h2>${sw("ntfyOn", n.ntfy.enabled)}</div><div class="panel-body">
       <p class="hint" style="margin:0">Die App <b>ntfy</b> installieren (F-Droid oder Play Store, läuft auch ohne Google-Dienste), dort das Thema unten abonnieren. Fertig. Mit eigenem ntfy-Server dessen Adresse eintragen.</p>
@@ -904,6 +908,7 @@ action:
     ntfy: { enabled: f.ntfyOn.checked, server: f.ntfyServer.value.trim(), topic: f.ntfyTopic.value.trim(), token: f.ntfyToken.value },
     email: { enabled: f.mailOn.checked, host: f.mailHost.value.trim(), port: num(f.mailPort.value), security: f.mailSec.value, username: f.mailUser.value.trim(), password: f.mailPass.value, from: f.mailFrom.value.trim(), to: f.mailTo.value.trim() },
     ha: { enabled: f.haOn.checked, url: f.haUrl.value.trim(), webhookId: f.haId.value.trim() },
+    lang: f.lang.value,
   });
   $("#test").onclick = async e => {
     const b = e.target; b.disabled = true; b.textContent = "Sende …"; $("#testres").textContent = "";

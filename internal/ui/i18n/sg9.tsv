@@ -1,0 +1,840 @@
+# SG9 Übersetzungen / translations / traductions / traduzioni
+# Spalten: Deutsch<TAB>English<TAB>Français<TAB>Italiano. {} = variabler Teil (Zahl, Name …), {1} {2} für andere Reihenfolge.
+# Neue Sprache: eine Spalte anhängen und in internal/ui/i18n.go bei Languages eintragen.
+Abbrechen	Cancel	Annuler	Annulla
+Abmelden	Sign out	Se déconnecter	Esci
+Abmeldung	Sign-out	Déconnexion	Disconnessione
+Aktion	Action	Action	Azione
+Aktionen für {}	Actions for {}	Actions pour {}	Azioni per {}
+Aktiv	Active	Actif	Attivo
+aktiv	active	actif	attivo
+Alles	All	Tout	Tutto
+Allgemein	General	Général	Generale
+An	On	Activé	Attivo
+Aus	Off	Désactivé	Disattivo
+Ein	On	Activé	Attivo
+Anhalten	Pause	Mettre en pause	Sospendi
+Anmelden	Sign in	Se connecter	Accedi
+Anmeldung	Sign-in	Connexion	Accesso
+Anmeldungen	Sign-ins	Connexions	Accessi
+Anzahl	Count	Nombre	Numero
+Art	Type	Type	Tipo
+Bestätigen	Confirm	Confirmer	Conferma
+Darstellung	Appearance	Apparence	Aspetto
+System	System	Système	Sistema
+Hell	Light	Clair	Chiaro
+Dunkel	Dark	Sombre	Scuro
+Datei	File	Fichier	File
+Dateien	Files	Fichiers	File
+Dienst	Service	Service	Servizio
+Download	Download	Téléchargement	Download
+Downloads	Downloads	Téléchargements	Download
+Upload	Upload	Envoi	Upload
+Durchsuchen	Browse	Parcourir	Sfoglia
+Einschalten	Turn on	Activer	Attiva
+Ausschalten	Turn off	Désactiver	Disattiva
+Einstellungen	Settings	Paramètres	Impostazioni
+Entfernen	Remove	Supprimer	Rimuovi
+Fehler	Error	Erreur	Errore
+Fertig	Done	Terminé	Fatto
+Fortsetzen	Resume	Reprendre	Riprendi
+Gelöscht	Deleted	Supprimé	Eliminato
+Geändert	Modified	Modifié	Modificato
+Grösse	Size	Taille	Dimensione
+Gruppe	Group	Groupe	Gruppo
+Gruppen	Groups	Groupes	Gruppi
+Benutzer	Users	Utilisateurs	Utenti
+Benutzername	Username	Nom d'utilisateur	Nome utente
+Gültig bis	Valid until	Valable jusqu'au	Valido fino al
+Gültig bis {}	Valid until {}	Valable jusqu'au {}	Valido fino al {}
+Herunterladen	Download	Télécharger	Scarica
+Hochladen	Upload	Envoyer	Carica
+Heruntergeladen	Downloaded	Téléchargé	Scaricato
+Hochgeladen	Uploaded	Envoyé	Caricato
+Info	Info	Info	Info
+Inhalt	Content	Contenu	Contenuto
+Ja	Yes	Oui	Sì
+Nein	No	Non	No
+Keine	None	Aucun	Nessuno
+Keine Einträge	No entries	Aucune entrée	Nessuna voce
+Kommentar	Comment	Commentaire	Commento
+Konto	Account	Compte	Account
+Kopieren	Copy	Copier	Copia
+Lade …	Loading …	Chargement …	Caricamento …
+Lade…	Loading…	Chargement…	Caricamento…
+Laden	Load	Charger	Carica
+Lesen	Read	Lecture	Lettura
+Schreiben	Write	Écriture	Scrittura
+Link	Link	Lien	Link
+Liste	List	Liste	Elenco
+Löschen	Delete	Supprimer	Elimina
+Name	Name	Nom	Nome
+Neu	New	Nouveau	Nuovo
+Nächste	Next	Suivant	Successivo
+Vorherige	Previous	Précédent	Precedente
+Weiter	Next	Suivant	Avanti
+Zurück	Back	Retour	Indietro
+Offline	Offline	Hors ligne	Offline
+Online	Online	En ligne	Online
+Ordner	Folder	Dossier	Cartella
+Öffnen	Open	Ouvrir	Apri
+Öffnen ›	Open ›	Ouvrir ›	Apri ›
+Passwort	Password	Mot de passe	Password
+Pausieren	Pause	Mettre en pause	Sospendi
+pausiert	paused	en pause	in pausa
+abgelaufen	expired	expiré	scaduto
+Port	Port	Port	Porta
+Prüfen	Check	Vérifier	Verifica
+Schliessen	Close	Fermer	Chiudi
+Schlüssel	Key	Clé	Chiave
+Server	Server	Serveur	Server
+Sitzung	Session	Session	Sessione
+Sitzungen	Sessions	Sessions	Sessioni
+{#} Sitzung	{#} session	{#} session	{#} sessione
+{#} Sitzungen	{#} sessions	{#} sessions	{#} sessioni
+Speichern	Save	Enregistrer	Salva
+Start	Start	Démarrage	Avvio
+Status	Status	Statut	Stato
+Teilen	Share	Partager	Condividi
+Trennen	Disconnect	Déconnecter	Disconnetti
+Umbenennen	Rename	Renommer	Rinomina
+Umbenannt	Renamed	Renommé	Rinominato
+Version	Version	Version	Versione
+Version {}	Version {}	Version {}	Versione {}
+Verwaltung	Administration	Administration	Amministrazione
+Von	From	De	Da
+Wann	When	Quand	Quando
+Warnung	Warning	Avertissement	Avviso
+Warnungen	Warnings	Avertissements	Avvisi
+Zeit	Time	Heure	Ora
+Zugriff	Access	Accès	Accesso
+Zugriffe	Accesses	Accès	Accessi
+Zuletzt	Last	Dernier	Ultimo
+Für	For	Pour	Per
+Neuer Name	New name	Nouveau nom	Nuovo nome
+Neuer Ordner	New folder	Nouveau dossier	Nuova cartella
+Notiz	Note	Note	Nota
+Notiz für dich	Note for yourself	Note pour toi	Nota per te
+Thema	Topic	Sujet	Argomento
+Befehl	Command	Commande	Comando
+Betrifft	Affects	Concerne	Riguarda
+Auslöser	Trigger	Déclencheur	Attivatore
+Extras	Extras	Extras	Extra
+Limits	Limits	Limites	Limiti
+Statistik	Statistics	Statistiques	Statistiche
+Verkehr	Traffic	Trafic	Traffico
+Übersicht	Overview	Vue d'ensemble	Panoramica
+Übertragen	Transferred	Transféré	Trasferito
+Übertragung	Transfer	Transfert	Trasferimento
+Übertragungen	Transfers	Transferts	Trasferimenti
+Änderung	Change	Modification	Modifica
+Willkommen	Welcome	Bienvenue	Benvenuto
+Einrichtung	Setup	Configuration	Configurazione
+Sicherheit	Security	Sécurité	Sicurezza
+Verschlüsselung	Encryption	Chiffrement	Crittografia
+verschlüsselt	encrypted	chiffré	crittografato
+Verbindungen	Connections	Connexions	Connessioni
+Verbunden	Connected	Connecté	Connesso
+Ausgewählt	Selected	Sélectionné	Selezionato
+{#} ausgewählt	{#} selected	{#} sélectionné(s)	{#} selezionati
+auswählen	select	sélectionner	seleziona
+Zufällig	Random	Aléatoire	Casuale
+Gesendet	Sent	Envoyé	Inviato
+Empfangen	Received	Reçu	Ricevuto
+Protokoll	Log	Journal	Registro
+Betrieb	Operation	Fonctionnement	Funzionamento
+Sperren	Bans	Blocages	Blocchi
+Sperre aufheben	Lift ban	Lever le blocage	Rimuovi blocco
+Sperre aufgehoben	Ban lifted	Blocage levé	Blocco rimosso
+Gesperrt bis	Banned until	Bloqué jusqu'au	Bloccato fino al
+Gesperrte IPs	Banned IPs	IP bloquées	IP bloccati
+Keine Sperren	No bans	Aucun blocage	Nessun blocco
+Ereignisse	Events	Événements	Eventi
+Benachrichtigungen	Notifications	Notifications	Notifiche
+Freigabe-Links	Share links	Liens de partage	Link di condivisione
+Briefkasten	Drop box	Boîte de dépôt	Cassetta di deposito
+Neu laden	Reload	Recharger	Ricarica
+Enter	Enter	Entrée	Invio
+Escape	Escape	Échap	Esc
+Admin-Passwort ändern	Change admin password	Changer le mot de passe admin	Cambia password admin
+Aktive Freigabe-Links	Active share links	Liens de partage actifs	Link di condivisione attivi
+Aktuelles Passwort	Current password	Mot de passe actuel	Password attuale
+Alle Verbindungen über alle Dienste, sekündlich aktualisiert	All connections across all services, updated every second	Toutes les connexions de tous les services, actualisées chaque seconde	Tutte le connessioni di tutti i servizi, aggiornate ogni secondo
+Alles als ZIP	Everything as ZIP	Tout en ZIP	Tutto come ZIP
+Als Datei speichern	Save as file	Enregistrer comme fichier	Salva come file
+Als Laufwerk verbinden	Connect as a drive	Connecter comme lecteur	Collega come unità
+Als ZIP laden	Download as ZIP	Télécharger en ZIP	Scarica come ZIP
+Angemeldet als	Signed in as	Connecté en tant que	Accesso come
+Anhängen	Append	Ajouter à la fin	Accoda
+Anmeldung fehlgeschlagen	Sign-in failed	Échec de la connexion	Accesso non riuscito
+Antippen wählt aus. Mit „Öffnen“ gehst du in einen Ordner hinein.	Tap to select. Use “Open” to go into a folder.	Touchez pour sélectionner. « Ouvrir » entre dans un dossier.	Tocca per selezionare. Con «Apri» entri in una cartella.
+Auf diesem Rechner fragt SG9 nicht nach dem Passwort. Abschalten unter Einstellungen → Allgemein.	On this computer SG9 does not ask for the password. Turn this off under Settings → General.	Sur cet ordinateur, SG9 ne demande pas le mot de passe. Désactivable sous Paramètres → Général.	Su questo computer SG9 non chiede la password. Disattivabile in Impostazioni → Generale.
+Auf diesem Rechner nicht nach dem Passwort fragen	Don't ask for the password on this computer	Ne pas demander le mot de passe sur cet ordinateur	Non chiedere la password su questo computer
+Auflisten	List	Lister	Elencare
+Aus. Mit Zwei-Faktor reicht ein gestohlenes Passwort nicht, um die Verwaltung zu öffnen. Empfohlen, sobald etwas von aussen erreichbar ist.	Off. With two-factor, a stolen password is not enough to open the administration. Recommended as soon as anything is reachable from outside.	Désactivé. Avec la double authentification, un mot de passe volé ne suffit pas pour ouvrir l'administration. Recommandé dès que quelque chose est accessible de l'extérieur.	Disattivato. Con l'autenticazione a due fattori una password rubata non basta per aprire l'amministrazione. Consigliato appena qualcosa è raggiungibile dall'esterno.
+Ausgeblendete Dateien	Hidden files	Fichiers masqués	File nascosti
+Authenticator-App öffnen	Open your authenticator app	Ouvre ton application d'authentification	Apri l'app di autenticazione
+Automatische Sicherungen	Automatic backups	Sauvegardes automatiques	Backup automatici
+Befehl ausführen	Run command	Exécuter une commande	Esegui comando
+Befehle bekommen diese Umgebungsvariablen, Webhooks dieselben Angaben als JSON	Commands get these environment variables, webhooks the same data as JSON	Les commandes reçoivent ces variables d'environnement, les webhooks les mêmes données en JSON	I comandi ricevono queste variabili d'ambiente, i webhook gli stessi dati in JSON
+Begrüssung	Welcome message	Message d'accueil	Messaggio di benvenuto
+Begrüssung nach dem Anmelden	Welcome message after sign-in	Message d'accueil après connexion	Messaggio di benvenuto dopo l'accesso
+Bei Gmail und GMX braucht es ein App-Passwort, nicht das normale Passwort.	Gmail and GMX need an app password, not your normal password.	Gmail et GMX exigent un mot de passe d'application, pas le mot de passe habituel.	Gmail e GMX richiedono una password per app, non la password normale.
+Bei bestimmten Aktionen automatisch ein Skript starten oder einen Webhook aufrufen	Run a script or call a webhook automatically on certain actions	Lancer automatiquement un script ou appeler un webhook lors de certaines actions	Avviare automaticamente uno script o chiamare un webhook per determinate azioni
+Bei einer Datei oder einem Ordner auf „Teilen“ klicken.	Click “Share” on a file or folder.	Clique sur « Partager » sur un fichier ou un dossier.	Clicca «Condividi» su un file o una cartella.
+Bei „anonymous“ gilt jedes Passwort.	For “anonymous” any password works.	Pour « anonymous », n'importe quel mot de passe fonctionne.	Per «anonymous» va bene qualsiasi password.
+Benachrichtigungen gespeichert	Notifications saved	Notifications enregistrées	Notifiche salvate
+Benutzer angelegt	User created	Utilisateur créé	Utente creato
+Benutzer gelöscht	User deleted	Utilisateur supprimé	Utente eliminato
+Benutzerkonto	User account	Compte utilisateur	Account utente
+Beschreibung, z. B. Uploads sichern	Description, e.g. Back up uploads	Description, p. ex. Sauvegarder les envois	Descrizione, ad es. Backup degli upload
+Bewahre diese Codes gut auf.	Keep these codes in a safe place.	Conserve ces codes en lieu sûr.	Conserva questi codici in un luogo sicuro.
+Bild speichern	Save image	Enregistrer l'image	Salva immagine
+Bitte erneut anmelden	Please sign in again	Merci de te reconnecter	Accedi di nuovo
+Bitte zuerst einen Ordner oder eine Datei auswählen	Please select a folder or file first	Sélectionne d'abord un dossier ou un fichier	Seleziona prima una cartella o un file
+Briefkasten (nur hochladen)	Drop box (upload only)	Boîte de dépôt (envoi seulement)	Cassetta di deposito (solo caricamento)
+Briefkasten: andere können hier nur hochladen	Drop box: others can only upload here	Boîte de dépôt : les autres peuvent seulement envoyer ici	Cassetta di deposito: gli altri possono solo caricare qui
+Browser	Browser	Navigateur	Browser
+Browser, WebDAV und Freigabe-Links dürfen sich einen Port teilen. Ports unter 1024 (21, 22, 443) brauchen unter Linux und macOS besondere Rechte. Die Verwaltung ist mit Adresse 127.0.0.1 nur auf diesem Rechner erreichbar.	Browser, WebDAV and share links may share a port. Ports below 1024 (21, 22, 443) need special privileges on Linux and macOS. With address 127.0.0.1 the administration is only reachable from this computer.	Navigateur, WebDAV et liens de partage peuvent partager un port. Les ports inférieurs à 1024 (21, 22, 443) nécessitent des droits particuliers sous Linux et macOS. Avec l'adresse 127.0.0.1, l'administration n'est accessible que depuis cet ordinateur.	Browser, WebDAV e link di condivisione possono condividere una porta. Le porte sotto 1024 (21, 22, 443) richiedono permessi speciali su Linux e macOS. Con l'indirizzo 127.0.0.1 l'amministrazione è raggiungibile solo da questo computer.
+Code aus der App	Code from the app	Code de l'application	Codice dell'app
+Code aus der Authenticator-App	Code from the authenticator app	Code de l'application d'authentification	Codice dell'app di autenticazione
+Codes kopiert	Codes copied	Codes copiés	Codici copiati
+Damit können Benutzer beim ersten Verbinden prüfen, dass sie wirklich mit diesem Server sprechen.	Lets users verify on first connect that they are really talking to this server.	Permet aux utilisateurs de vérifier à la première connexion qu'ils parlent bien à ce serveur.	Permette agli utenti di verificare al primo collegamento che stanno davvero parlando con questo server.
+Das sieht der Benutzer als „/“. Leer lassen, um den Ordner der Gruppe zu verwenden.	The user sees this as “/”. Leave empty to use the group's folder.	L'utilisateur le voit comme « / ». Laisser vide pour utiliser le dossier du groupe.	L'utente lo vede come «/». Lascia vuoto per usare la cartella del gruppo.
+Dateien auswählen	Choose files	Choisir des fichiers	Scegli file
+Dateien heruntergeladen	Files downloaded	Fichiers téléchargés	File scaricati
+Dateien hierher ziehen	Drag files here	Glisse des fichiers ici	Trascina qui i file
+Dateien hierher ziehen oder auf „Hochladen“ klicken.	Drag files here or click “Upload”.	Glisse des fichiers ici ou clique sur « Envoyer ».	Trascina qui i file o clicca «Carica».
+Dateien hoch / runter	Files up / down	Fichiers envoyés / reçus	File su / giù
+Dateien hochgeladen	Files uploaded	Fichiers envoyés	File caricati
+Dateien im Browser	Files in the browser	Fichiers dans le navigateur	File nel browser
+Dateien und Ordner per Link teilen, auch mit Leuten ohne Konto	Share files and folders by link, even with people without an account	Partager fichiers et dossiers par lien, même avec des personnes sans compte	Condividi file e cartelle tramite link, anche con chi non ha un account
+Dateien – SG9	Files – SG9	Fichiers – SG9	File – SG9
+Die 6 Ziffern eingeben	Enter the 6 digits	Saisis les 6 chiffres	Inserisci le 6 cifre
+Die App	The app	L'application	L'app
+Die Einstellungen dazu stehen unter Einstellungen → Sicherheit.	The related settings are under Settings → Security.	Les réglages correspondants se trouvent sous Paramètres → Sécurité.	Le relative impostazioni sono in Impostazioni → Sicurezza.
+Die beiden Passwörter sind nicht gleich.	The two passwords don't match.	Les deux mots de passe ne correspondent pas.	Le due password non coincidono.
+Die erste entsteht kurz nach dem Start.	The first one is created shortly after start.	La première est créée peu après le démarrage.	Il primo viene creato poco dopo l'avvio.
+Dienste und Ports	Services and ports	Services et ports	Servizi e porte
+Dienste, Durchsatz und Zähler seit dem Start	Services, throughput and counters since start	Services, débit et compteurs depuis le démarrage	Servizi, velocità e contatori dall'avvio
+Diesen Code scannen.	Scan this code.	Scanne ce code.	Scansiona questo codice.
+Diesen Ordner nehmen	Use this folder	Prendre ce dossier	Usa questa cartella
+Diesen Ordner teilen	Share this folder	Partager ce dossier	Condividi questa cartella
+Dieser Link ist mit einem Passwort geschützt	This link is password protected	Ce lien est protégé par un mot de passe	Questo link è protetto da password
+Dieser Ordner ist leer	This folder is empty	Ce dossier est vide	Questa cartella è vuota
+Dieser Ordner ist leer.	This folder is empty.	Ce dossier est vide.	Questa cartella è vuota.
+Direkt am Rechner, auf dem SG9 läuft, gilt weiterhin „ohne Passwort“. Das schaltest du unter Allgemein ab.	Directly on the computer running SG9, “no password” still applies. Turn it off under General.	Directement sur l'ordinateur où tourne SG9, « sans mot de passe » reste actif. Désactivable sous Général.	Direttamente sul computer su cui gira SG9 vale ancora «senza password». Si disattiva in Generale.
+Domain auf deine Adresse zeigen lassen.	Point the domain to your address.	Fais pointer le domaine vers ton adresse.	Fai puntare il dominio al tuo indirizzo.
+Download in KB/s	Download in KB/s	Téléchargement en Ko/s	Download in KB/s
+Download über einen Link	Download via a link	Téléchargement via un lien	Download tramite link
+Du bleibst auf diesem Gerät 30 Tage angemeldet. Passwort vergessen? Auf dem Server	You stay signed in on this device for 30 days. Forgot your password? On the server run	Tu restes connecté 30 jours sur cet appareil. Mot de passe oublié ? Sur le serveur	Resti connesso su questo dispositivo per 30 giorni. Password dimenticata? Sul server
+ausführen.	.	exécuter.	eseguire.
+Echte Ordner, die zusätzlich unter einem eigenen Pfad erscheinen, auch Netzlaufwerke. Gleichnamige Ordner der Gruppe werden ersetzt.	Real folders that also appear under their own path, including network drives. Group folders with the same name are replaced.	Dossiers réels qui apparaissent en plus sous leur propre chemin, y compris lecteurs réseau. Les dossiers du groupe du même nom sont remplacés.	Cartelle reali che compaiono anche sotto un proprio percorso, comprese le unità di rete. Le cartelle del gruppo con lo stesso nome vengono sostituite.
+Eine Nachricht aufs Handy oder per E-Mail, wenn etwas Wichtiges passiert	A message to your phone or by email when something important happens	Un message sur ton téléphone ou par e-mail quand quelque chose d'important se produit	Un messaggio sul telefono o per e-mail quando succede qualcosa di importante
+Eine Sicherung enthält Einstellungen, Benutzer, Gruppen, Links, Ereignisse, Schlüssel und Zertifikate, aber nicht die Dateien selbst. Damit ziehst du SG9 auf einen anderen Rechner um, etwa auf den Unraid-Server.	A backup contains settings, users, groups, links, events, keys and certificates, but not the files themselves. Use it to move SG9 to another computer, for example to the Unraid server.	Une sauvegarde contient paramètres, utilisateurs, groupes, liens, événements, clés et certificats, mais pas les fichiers eux-mêmes. Elle permet de déplacer SG9 sur un autre ordinateur, par exemple sur le serveur Unraid.	Un backup contiene impostazioni, utenti, gruppi, link, eventi, chiavi e certificati, ma non i file stessi. Serve per spostare SG9 su un altro computer, ad esempio sul server Unraid.
+Eine Zeile pro Schlüssel, wie in authorized_keys. Mit Schlüssel geht es auch ohne Passwort.	One line per key, as in authorized_keys. With a key, no password is needed.	Une ligne par clé, comme dans authorized_keys. Avec une clé, pas besoin de mot de passe.	Una riga per chiave, come in authorized_keys. Con una chiave non serve la password.
+Eingeschaltet. Beim Anmelden fragt SG9 zusätzlich nach dem Code aus deiner Authenticator-App. Noch	On. When signing in, SG9 also asks for the code from your authenticator app.	Activé. À la connexion, SG9 demande en plus le code de ton application d'authentification. Encore	Attivo. All'accesso SG9 chiede anche il codice dell'app di autenticazione. Ancora
+Wiederherstellungscodes übrig.	recovery codes left.	codes de récupération restants.	codici di recupero rimasti.
+Einstellungen gespeichert	Settings saved	Paramètres enregistrés	Impostazioni salvate
+Einstellungen speichern	Save settings	Enregistrer les paramètres	Salva impostazioni
+Einträge gelöscht	Entries deleted	Entrées supprimées	Voci eliminate
+{#} Einträge gelöscht	{#} entries deleted	{#} entrées supprimées	{#} voci eliminate
+Ereignis hinzufügen	Add event	Ajouter un événement	Aggiungi evento
+Ereignisse gespeichert	Events saved	Événements enregistrés	Eventi salvati
+Ereignisse speichern	Save events	Enregistrer les événements	Salva eventi
+Erlaubte Dienste	Allowed services	Services autorisés	Servizi consentiti
+Erlaubte IP-Adressen	Allowed IP addresses	Adresses IP autorisées	Indirizzi IP consentiti
+Erscheinen nicht in Listen und sind nicht abrufbar. Zusätzlich zu Gruppe und Server.	Don't appear in listings and can't be fetched. In addition to group and server.	N'apparaissent pas dans les listes et ne sont pas accessibles. En plus du groupe et du serveur.	Non compaiono negli elenchi e non sono accessibili. In aggiunta a gruppo e server.
+Erstelle einen Link für eine Datei, einen Ordner oder einen Briefkasten, in den andere Dateien hochladen können.	Create a link for a file, a folder or a drop box where others can upload files.	Crée un lien pour un fichier, un dossier ou une boîte de dépôt où d'autres peuvent envoyer des fichiers.	Crea un link per un file, una cartella o una cassetta di deposito in cui altri possono caricare file.
+FTPS implizit	Implicit FTPS	FTPS implicite	FTPS implicito
+Fehler in SG9	Error in SG9	Erreur dans SG9	Errore in SG9
+Fehlgeschlagene Anmeldung	Failed sign-in	Échec de connexion	Accesso non riuscito
+Fehlversuch	Failed attempt	Tentative échouée	Tentativo fallito
+Fehlversuche	Failed attempts	Tentatives échouées	Tentativi falliti
+Fingerabdruck des Server-Schlüssels	Server key fingerprint	Empreinte de la clé du serveur	Impronta della chiave del server
+Frag bei der Person nach, die ihn dir geschickt hat.	Ask the person who sent it to you.	Demande à la personne qui te l'a envoyé.	Chiedi alla persona che te l'ha inviato.
+Frage bei Let's Encrypt an …	Asking Let's Encrypt …	Demande à Let's Encrypt …	Richiesta a Let's Encrypt …
+Fragt nur bei GitHub nach der neusten Versionsnummer und zeigt auf der Übersicht einen Hinweis. Heruntergeladen oder installiert wird nichts.	Only asks GitHub for the latest version number and shows a hint on the overview. Nothing is downloaded or installed.	Demande seulement à GitHub le dernier numéro de version et affiche une indication sur la vue d'ensemble. Rien n'est téléchargé ni installé.	Chiede solo a GitHub l'ultimo numero di versione e mostra un avviso nella panoramica. Non viene scaricato né installato nulla.
+Einmal täglich nachschauen, ob es eine neue Version gibt	Check once a day whether there is a new version	Vérifier une fois par jour s'il existe une nouvelle version	Controlla una volta al giorno se c'è una nuova versione
+Version {} verfügbar	Version {} available	Version {} disponible	Versione {} disponibile
+Neue Version herunterladen	Download new version	Télécharger la nouvelle version	Scarica la nuova versione
+Freigabe-Links erstellen	Create share links	Créer des liens de partage	Creare link di condivisione
+Freigabe-Links sind ausgeschaltet.	Share links are turned off.	Les liens de partage sont désactivés.	I link di condivisione sono disattivati.
+Für alle ausgeblendet	Hidden for everyone	Masqués pour tous	Nascosti per tutti
+Für alle beim Upload gesperrt	Blocked for everyone on upload	Bloqués pour tous à l'envoi	Bloccati per tutti al caricamento
+Geht das nicht, das Geheimnis darunter von Hand eintippen.	If that doesn't work, type the secret below by hand.	Si ça ne marche pas, saisis le secret ci-dessous à la main.	Se non funziona, digita a mano il segreto qui sotto.
+Gespeichert, fertig	Saved, done	Enregistré, terminé	Salvato, fatto
+Gespeichert. Die Verwaltung zieht um, du wirst weitergeleitet …	Saved. The administration is moving, you'll be redirected …	Enregistré. L'administration déménage, tu vas être redirigé …	Salvato. L'amministrazione si sposta, verrai reindirizzato …
+Gesperrte Dateitypen beim Upload	File types blocked on upload	Types de fichiers bloqués à l'envoi	Tipi di file bloccati al caricamento
+Gesperrte IP-Adressen	Blocked IP addresses	Adresses IP bloquées	Indirizzi IP bloccati
+Geteilt von	Shared by	Partagé par	Condiviso da
+Geteilt von {}	Shared by {}	Partagé par {}	Condiviso da {}
+Geteilte Dateien	Shared files	Fichiers partagés	File condivisi
+Geteilter Ordner	Shared folder	Dossier partagé	Cartella condivisa
+Geteilte Datei	Shared file	Fichier partagé	File condiviso
+{} – geteilt	{} – shared	{} – partagé	{} – condiviso
+Gilt nur direkt am Rechner, auf dem SG9 läuft. Von anderen Geräten braucht es immer das Passwort.	Applies only directly on the computer running SG9. Other devices always need the password.	Ne s'applique que sur l'ordinateur où tourne SG9. Les autres appareils ont toujours besoin du mot de passe.	Vale solo direttamente sul computer su cui gira SG9. Dagli altri dispositivi serve sempre la password.
+Gleiche Fehlermeldungen kommen höchstens alle 10 Minuten, insgesamt höchstens 30 Nachrichten pro Stunde.	The same error is sent at most every 10 minutes, and no more than 30 messages per hour in total.	Une même erreur est envoyée au plus toutes les 10 minutes, au total 30 messages par heure au maximum.	Lo stesso errore viene inviato al massimo ogni 10 minuti, in totale al massimo 30 messaggi all'ora.
+Gleichzeitige Verbindungen	Simultaneous connections	Connexions simultanées	Connessioni simultanee
+Gruppe angelegt	Group created	Groupe créé	Gruppo creato
+Gruppe gelöscht	Group deleted	Groupe supprimé	Gruppo eliminato
+Handy nicht da? Einen Wiederherstellungscode eingeben.	Phone not at hand? Enter a recovery code.	Pas de téléphone sous la main ? Saisis un code de récupération.	Telefono non a portata di mano? Inserisci un codice di recupero.
+Hier erscheint jede Änderung an Benutzern, Links und Einstellungen.	Every change to users, links and settings appears here.	Chaque modification des utilisateurs, liens et paramètres apparaît ici.	Qui compare ogni modifica a utenti, link e impostazioni.
+Hier speichern und „Zertifikat holen“ klicken.	Save here and click “Get certificate”.	Enregistre ici et clique sur « Obtenir le certificat ».	Salva qui e clicca «Ottieni certificato».
+Home Assistant	Home Assistant	Home Assistant	Home Assistant
+Höchstens Downloads	Maximum downloads	Téléchargements maximum	Download massimi
+IP-Adresse gesperrt	IP address banned	Adresse IP bloquée	Indirizzo IP bloccato
+IP-Adressen, die nach zu vielen Fehlversuchen vorübergehend gesperrt sind	IP addresses temporarily banned after too many failed attempts	Adresses IP bloquées temporairement après trop de tentatives échouées	Indirizzi IP bloccati temporaneamente dopo troppi tentativi falliti
+Im Explorer oder Finder „Netzlaufwerk verbinden“ bzw. „Mit Server verbinden“ wählen und diese Adresse eingeben	In Explorer choose “Map network drive”, in Finder “Connect to Server”, and enter this address	Dans l'Explorateur, choisis « Connecter un lecteur réseau », dans le Finder « Se connecter au serveur », puis saisis cette adresse	In Esplora risorse scegli «Connetti unità di rete», nel Finder «Connessione al server» e inserisci questo indirizzo
+Im Router Port 443 weiterleiten	Forward port 443 in your router	Redirige le port 443 dans ton routeur	Inoltra la porta 443 nel router
+an diesen Rechner, Port	to this computer, port	vers cet ordinateur, port	a questo computer, porta
+(der Port der Freigabe-Links). Nur diesen einen Port.	(the share link port). Only this one port.	(le port des liens de partage). Uniquement ce port.	(la porta dei link di condivisione). Solo questa porta.
+In diesem Ordner darfst du nichts hochladen	You may not upload anything in this folder	Tu ne peux rien envoyer dans ce dossier	Non puoi caricare nulla in questa cartella
+Inhalt kommt aus	Content comes from	Le contenu provient de	Il contenuto proviene da
+Ist dein Handy weg, kommst du mit einem davon wieder in die Verwaltung. Jeder Code funktioniert einmal, und du siehst sie nur jetzt.	If your phone is gone, one of these gets you back into the administration. Each code works once, and you only see them now.	Si tu perds ton téléphone, l'un d'eux te permet de revenir dans l'administration. Chaque code fonctionne une fois, et tu ne les vois que maintenant.	Se perdi il telefono, con uno di questi rientri nell'amministrazione. Ogni codice funziona una volta e li vedi solo adesso.
+Jede Anmeldung	Every sign-in	Chaque connexion	Ogni accesso
+Jeder Upload	Every upload	Chaque envoi	Ogni caricamento
+Jetzt testen	Test now	Tester maintenant	Prova ora
+Keine Unterordner	No subfolders	Aucun sous-dossier	Nessuna sottocartella
+Konto aktiv	Account active	Compte actif	Account attivo
+Land unbekannt	Country unknown	Pays inconnu	Paese sconosciuto
+Laufwerke	Drives	Lecteurs	Unità
+Leer lassen für unbegrenzt.	Leave empty for unlimited.	Laisser vide pour illimité.	Lascia vuoto per illimitato.
+Leer lassen: Mit Let's Encrypt nehmen die Links automatisch	Leave empty: with Let's Encrypt the links automatically use	Laisser vide : avec Let's Encrypt, les liens utilisent automatiquement	Lascia vuoto: con Let's Encrypt i link usano automaticamente
+Leere Adresse = auf allen Netzwerkkarten erreichbar	Empty address = reachable on all network interfaces	Adresse vide = accessible sur toutes les interfaces réseau	Indirizzo vuoto = raggiungibile su tutte le interfacce di rete
+Leere Felder übernimmt der Benutzer von seiner Gruppe.	Empty fields are inherited from the user's group.	Les champs vides sont repris du groupe de l'utilisateur.	I campi vuoti vengono ereditati dal gruppo dell'utente.
+Leg fest, mit welchem Passwort du die Verwaltung öffnest.	Choose the password you'll use to open the administration.	Définis le mot de passe pour ouvrir l'administration.	Scegli la password con cui aprirai l'amministrazione.
+Link /s/{}	Link /s/{}	Lien /s/{}	Link /s/{}
+Link abgelaufen	Link expired	Lien expiré	Link scaduto
+Link erstellen	Create link	Créer un lien	Crea link
+Link gelöscht	Link deleted	Lien supprimé	Link eliminato
+Link ist bereit	Link is ready	Le lien est prêt	Il link è pronto
+Link ist bereit und kopiert	Link is ready and copied	Le lien est prêt et copié	Il link è pronto e copiato
+Link kopieren	Copy link	Copier le lien	Copia link
+Link kopiert	Link copied	Lien copié	Link copiato
+Link löschen? Er funktioniert dann nicht mehr.	Delete link? It will stop working.	Supprimer le lien ? Il ne fonctionnera plus.	Eliminare il link? Non funzionerà più.
+Link löschen? Wer ihn hat, kommt dann nicht mehr an die Dateien.	Delete link? Anyone who has it can no longer get to the files.	Supprimer le lien ? Ceux qui l'ont n'auront plus accès aux fichiers.	Eliminare il link? Chi lo ha non potrà più accedere ai file.
+Link nicht gefunden	Link not found	Lien introuvable	Link non trovato
+Links für Leute ohne Konto	Links for people without an account	Liens pour personnes sans compte	Link per persone senza account
+Links von ausserhalb erreichbar machen	Make links reachable from outside	Rendre les liens accessibles de l'extérieur	Rendere i link raggiungibili dall'esterno
+Loslassen zum Hochladen nach	Release to upload to	Relâche pour envoyer vers	Rilascia per caricare in
+Länderfilter	Country filter	Filtre par pays	Filtro paesi
+Meine Links	My links	Mes liens	I miei link
+Mindestens 8 Zeichen.	At least 8 characters.	Au moins 8 caractères.	Almeno 8 caratteri.
+Mit DynDNS, z. B. im Router oder in der OPNsense mit dem Plugin os-ddclient.	With dynamic DNS, e.g. in your router or in OPNsense with the os-ddclient plugin.	Avec un DNS dynamique, p. ex. dans le routeur ou dans OPNsense avec le plugin os-ddclient.	Con un DNS dinamico, ad es. nel router o in OPNsense con il plugin os-ddclient.
+Mit deinem SG9-Konto anmelden	Sign in with your SG9 account	Connecte-toi avec ton compte SG9	Accedi con il tuo account SG9
+Mit der Handy-Kamera scannen – praktisch, um den Link schnell weiterzugeben.	Scan with your phone camera – handy for passing the link on quickly.	Scanner avec l'appareil photo du téléphone – pratique pour transmettre le lien rapidement.	Scansiona con la fotocamera del telefono – comodo per passare il link al volo.
+Mitglieder dürfen Freigabe-Links erstellen	Members may create share links	Les membres peuvent créer des liens de partage	I membri possono creare link di condivisione
+Nach dem Speichern kannst du hier das Zertifikat holen.	After saving you can get the certificate here.	Après l'enregistrement, tu peux obtenir le certificat ici.	Dopo il salvataggio puoi ottenere qui il certificato.
+Netzlaufwerk, Pfad /dav	Network drive, path /dav	Lecteur réseau, chemin /dav	Unità di rete, percorso /dav
+Neue Datei im Briefkasten	New file in drop box	Nouveau fichier dans la boîte de dépôt	Nuovo file nella cassetta di deposito
+Neues Passwort	New password	Nouveau mot de passe	Nuova password
+Nicht alle Wege haben geklappt	Not all channels worked	Tous les canaux n'ont pas fonctionné	Non tutti i canali hanno funzionato
+Nicht angemeldet	Not signed in	Non connecté	Non connesso
+nicht angemeldet	not signed in	non connecté	non connesso
+Nichts angehakt heisst: alle Dienste.	Nothing checked means: all services.	Rien de coché signifie : tous les services.	Nessuna selezione significa: tutti i servizi.
+Nichts angehakt heisst: wie die Gruppe. Hat auch die Gruppe nichts festgelegt, sind alle Dienste erlaubt.	Nothing checked means: same as the group. If the group sets nothing either, all services are allowed.	Rien de coché signifie : comme le groupe. Si le groupe ne définit rien non plus, tous les services sont autorisés.	Nessuna selezione significa: come il gruppo. Se anche il gruppo non definisce nulla, tutti i servizi sono consentiti.
+Niemand verbunden	Nobody connected	Personne n'est connecté	Nessuno connesso
+Noch 1 Download	1 download left	Encore 1 téléchargement	Ancora 1 download
+Noch {#} Downloads	{#} downloads left	Encore {#} téléchargements	Ancora {#} download
+Noch keine Ereignisse	No events yet	Aucun événement pour l'instant	Ancora nessun evento
+Noch keine Links	No links yet	Aucun lien pour l'instant	Ancora nessun link
+Noch keine Änderungen	No changes yet	Aucune modification pour l'instant	Ancora nessuna modifica
+Nur auf Adresse	Only on address	Uniquement sur l'adresse	Solo sull'indirizzo
+Nur bei Dateien	Only for files	Uniquement pour les fichiers	Solo per i file
+Nur für Benutzer	Only for user	Uniquement pour l'utilisateur	Solo per l'utente
+Nur für Zugriffe aus dem Internet. Geräte im eigenen Netz bekommen weiter die lokale IP.	Only for access from the internet. Devices on your own network keep getting the local IP.	Uniquement pour les accès depuis Internet. Les appareils du réseau local reçoivent toujours l'IP locale.	Solo per accessi da Internet. I dispositivi della rete locale continuano a ricevere l'IP locale.
+Nur verschlüsselte Verbindungen	Encrypted connections only	Connexions chiffrées uniquement	Solo connessioni crittografate
+Ordner angelegt	Folder created	Dossier créé	Cartella creata
+Ordner anlegen	Create folder	Créer un dossier	Crea cartella
+Ordner auf dem Server	Folder on the server	Dossier sur le serveur	Cartella sul server
+Ordner auf dem Server wählen	Choose a folder on the server	Choisir un dossier sur le serveur	Scegli una cartella sul server
+Ordner freigeben	Share folder	Partager le dossier	Condividi cartella
+Ordner gelöscht	Folder deleted	Dossier supprimé	Cartella eliminata
+Ordner löschen	Delete folder	Supprimer le dossier	Elimina cartella
+Passwort festlegen und loslegen	Set password and get started	Définir le mot de passe et commencer	Imposta la password e inizia
+Passwort geändert	Password changed	Mot de passe modifié	Password modificata
+Passwort wiederholen	Repeat password	Répéter le mot de passe	Ripeti password
+Passwort ändern	Change password	Changer le mot de passe	Cambia password
+Pro hochgeladenem MB darf N MB heruntergeladen werden.	For each MB uploaded, N MB may be downloaded.	Pour chaque Mo envoyé, N Mo peuvent être téléchargés.	Per ogni MB caricato si possono scaricare N MB.
+QR-Code	QR code	Code QR	Codice QR
+QR-Code anzeigen	Show QR code	Afficher le code QR	Mostra codice QR
+Ratio 1 : N	Ratio 1 : N	Ratio 1 : N	Rapporto 1 : N
+Rechte der Gruppe verwenden	Use the group's permissions	Utiliser les droits du groupe	Usa i permessi del gruppo
+SG9 Verwaltung	SG9 Administration	Administration SG9	Amministrazione SG9
+SG9 erneuert das Zertifikat danach von selbst.	SG9 then renews the certificate on its own.	SG9 renouvelle ensuite le certificat automatiquement.	SG9 poi rinnova il certificato da solo.
+SG9 ist nicht erreichbar.	SG9 is not reachable.	SG9 n'est pas accessible.	SG9 non è raggiungibile.
+SG9 ist noch nicht eingerichtet.	SG9 is not set up yet.	SG9 n'est pas encore configuré.	SG9 non è ancora configurato.
+SSH-Schlüssel für SFTP	SSH keys for SFTP	Clés SSH pour SFTP	Chiavi SSH per SFTP
+Sende …	Sending …	Envoi …	Invio …
+Server ist offline	Server is offline	Le serveur est hors ligne	Il server è offline
+Server ist online	Server is online	Le serveur est en ligne	Il server è online
+Setzt auch das Ratio-Guthaben auf den Start zurück.	Also resets the ratio credit to the starting value.	Réinitialise aussi le crédit de ratio à la valeur de départ.	Reimposta anche il credito del rapporto al valore iniziale.
+Sicherung herunterladen	Download backup	Télécharger la sauvegarde	Scarica backup
+Sicherung und Umzug	Backup and migration	Sauvegarde et déménagement	Backup e trasferimento
+Sicherung wiederhergestellt. Der vorherige Stand liegt unter Automatische Sicherungen.	Backup restored. The previous state is under Automatic backups.	Sauvegarde restaurée. L'état précédent se trouve sous Sauvegardes automatiques.	Backup ripristinato. Lo stato precedente si trova in Backup automatici.
+Sicherung wiederherstellen …	Restore backup …	Restaurer une sauvegarde …	Ripristina backup …
+So richtest du die Automation in Home Assistant ein	How to set up the automation in Home Assistant	Comment configurer l'automatisation dans Home Assistant	Come configurare l'automazione in Home Assistant
+Sobald sich jemand per FTP, SFTP, WebDAV, Browser oder Link verbindet, erscheint die Sitzung hier.	As soon as someone connects via FTP, SFTP, WebDAV, browser or link, the session appears here.	Dès qu'une personne se connecte via FTP, SFTP, WebDAV, navigateur ou lien, la session apparaît ici.	Appena qualcuno si collega via FTP, SFTP, WebDAV, browser o link, la sessione compare qui.
+Speicherplatz in MB	Storage in MB	Espace de stockage en Mo	Spazio di archiviazione in MB
+Startguthaben in MB	Starting credit in MB	Crédit de départ en Mo	Credito iniziale in MB
+Tage gültig. SG9 erneuert es rechtzeitig.	days. SG9 renews it in time.	jours. SG9 le renouvelle à temps.	giorni. SG9 lo rinnova in tempo.
+Teilen kannst du jeden Ordner und jede Datei auf dem Server oder etwas aus einem Benutzerkonto. Von ausserhalb erreichbar machst du Links unter Einstellungen.	You can share any folder or file on the server, or something from a user account. Make links reachable from outside under Settings.	Tu peux partager n'importe quel dossier ou fichier du serveur, ou quelque chose d'un compte utilisateur. Rends les liens accessibles de l'extérieur sous Paramètres.	Puoi condividere qualsiasi cartella o file sul server, o qualcosa da un account utente. Rendi i link raggiungibili dall'esterno in Impostazioni.
+Test ausgelöst – Ergebnis im Protokoll	Test triggered – see the log for the result	Test déclenché – résultat dans le journal	Test avviato – risultato nel registro
+Testnachricht senden	Send test message	Envoyer un message de test	Invia messaggio di prova
+Testnachricht verschickt	Test message sent	Message de test envoyé	Messaggio di prova inviato
+Unter Einstellungen → Dienste den Web-Zugang und Freigabe-Links einschalten, sonst funktionieren die Links nicht.	Turn on web access and share links under Settings → Services, otherwise the links won't work.	Active l'accès web et les liens de partage sous Paramètres → Services, sinon les liens ne fonctionnent pas.	Attiva l'accesso web e i link di condivisione in Impostazioni → Servizi, altrimenti i link non funzionano.
+Upload in KB/s	Upload in KB/s	Envoi en Ko/s	Upload in KB/s
+Verbindung abgebrochen	Connection lost	Connexion interrompue	Connessione interrotta
+Verbindungen getrennt	Connections closed	Connexions fermées	Connessioni chiuse
+Verbindungen pro Benutzer	Connections per user	Connexions par utilisateur	Connessioni per utente
+Verbindungen trennen	Disconnect	Fermer les connexions	Chiudi connessioni
+Verbindungen und Bandbreite	Connections and bandwidth	Connexions et bande passante	Connessioni e larghezza di banda
+Verfügbare Angaben	Available fields	Données disponibles	Dati disponibili
+Von anderen Geräten braucht es weiterhin das Passwort. Abschalten, wenn auch andere Leute diesen Rechner benutzen.	Other devices still need the password. Turn off if other people also use this computer.	Les autres appareils ont toujours besoin du mot de passe. Désactive si d'autres personnes utilisent aussi cet ordinateur.	Dagli altri dispositivi serve ancora la password. Disattiva se anche altre persone usano questo computer.
+Vorlagen für Benutzer. %u im Pfad steht für den Benutzernamen.	Templates for users. %u in the path stands for the username.	Modèles pour les utilisateurs. %u dans le chemin représente le nom d'utilisateur.	Modelli per gli utenti. %u nel percorso sta per il nome utente.
+Was gerade passiert, live mitgeschnitten	What's happening right now, recorded live	Ce qui se passe en ce moment, en direct	Cosa succede in questo momento, in diretta
+Webhook (POST JSON)	Webhook (POST JSON)	Webhook (POST JSON)	Webhook (POST JSON)
+Weitere Ordner	Additional folders	Dossiers supplémentaires	Cartelle aggiuntive
+Weitere Ordner für alle Mitglieder	Additional folders for all members	Dossiers supplémentaires pour tous les membres	Cartelle aggiuntive per tutti i membri
+Weiterlaufen lassen	Keep running	Laisser tourner	Lascia in esecuzione
+Wer das Thema kennt, kann mitlesen. Ein zufälliger Name schützt.	Anyone who knows the topic can read along. A random name protects you.	Quiconque connaît le sujet peut lire. Un nom aléatoire protège.	Chi conosce l'argomento può leggere. Un nome casuale protegge.
+Wer wann was in der Verwaltung geändert hat	Who changed what in the administration, and when	Qui a modifié quoi dans l'administration, et quand	Chi ha modificato cosa nell'amministrazione, e quando
+Wiederherstellungscodes	Recovery codes	Codes de récupération	Codici di recupero
+Win	Win	Win	Win
+Wähle den Ordner, in den andere hochladen dürfen.	Choose the folder others may upload to.	Choisis le dossier où les autres peuvent envoyer.	Scegli la cartella in cui altri possono caricare.
+Zertifikat für	Certificate for	Certificat pour	Certificato per
+ist aktiv, noch	is active, valid for another	est actif, encore valable	è attivo, valido ancora
+Zertifikat ist da	Certificate received	Certificat obtenu	Certificato ottenuto
+Zum Beispiel jede hochgeladene Datei sichern, bei Fehlversuchen eine Nachricht schicken oder einen Webhook für Home Assistant auslösen.	For example back up every uploaded file, send a message on failed attempts or trigger a webhook for Home Assistant.	Par exemple sauvegarder chaque fichier envoyé, envoyer un message lors de tentatives échouées ou déclencher un webhook pour Home Assistant.	Ad esempio salvare ogni file caricato, inviare un messaggio per tentativi falliti o attivare un webhook per Home Assistant.
+Zum Herunterladen	For download	À télécharger	Da scaricare
+Zur Bestätigung dein Passwort	Your password to confirm	Ton mot de passe pour confirmer	La tua password per confermare
+Zwei-Faktor ausschalten	Turn off two-factor	Désactiver la double authentification	Disattiva i due fattori
+Zwei-Faktor einschalten	Turn on two-factor	Activer la double authentification	Attiva i due fattori
+Zwei-Faktor ist aus	Two-factor is off	La double authentification est désactivée	I due fattori sono disattivati
+Zwei-Faktor ist eingeschaltet.	Two-factor is on.	La double authentification est activée.	I due fattori sono attivi.
+Zwei-Faktor-Anmeldung für die Verwaltung	Two-factor sign-in for the administration	Double authentification pour l'administration	Accesso a due fattori per l'amministrazione
+Zähler zurück	Reset counter	Remettre à zéro	Azzera contatore
+Zähler zurückgesetzt	Counters reset	Compteurs remis à zéro	Contatori azzerati
+Zähler zurücksetzen	Reset counters	Remettre les compteurs à zéro	Azzera contatori
+alle, oder z. B. *.pdf	all, or e.g. *.pdf	tous, ou p. ex. *.pdf	tutti, o ad es. *.pdf
+bei falschem Passwort oder unbekanntem Benutzer	on a wrong password or unknown user	en cas de mot de passe erroné ou d'utilisateur inconnu	con password errata o utente sconosciuto
+bei jeder erfolgreichen Anmeldung eines Benutzers	on every successful user sign-in	à chaque connexion réussie d'un utilisateur	a ogni accesso riuscito di un utente
+bitte einen Port angeben	please enter a port	merci d'indiquer un port	indica una porta
+die die App jetzt anzeigt.	that the app shows now.	qu'affiche maintenant l'application.	che l'app mostra ora.
+diese Seite	this page	cette page	questa pagina
+einmal täglich, die letzten 7 bleiben	once a day, the last 7 are kept	une fois par jour, les 7 dernières sont conservées	una volta al giorno, gli ultimi 7 vengono conservati
+für Datenverbindungen, im Router weiterleiten	for data connections, forward in your router	pour les connexions de données, à rediriger dans le routeur	per le connessioni dati, da inoltrare nel router
+kannst du z. B. deine Handy-App oder eine Lampe ansteuern. Die Nachricht enthält auch	you can control e.g. your phone app or a lamp. The message also contains	tu peux par exemple piloter ton application mobile ou une lampe. Le message contient aussi	puoi comandare ad es. l'app del telefono o una lampada. Il messaggio contiene anche
+löschen? Ordner werden samt Inhalt gelöscht.	delete? Folders are deleted with their contents.	supprimer ? Les dossiers sont supprimés avec leur contenu.	eliminare? Le cartelle vengono eliminate con il loro contenuto.
+löschen? Seine Dateien bleiben erhalten, seine Freigabe-Links werden gelöscht.	delete? Their files are kept, their share links are deleted.	supprimer ? Ses fichiers sont conservés, ses liens de partage sont supprimés.	eliminare? I suoi file restano, i suoi link di condivisione vengono eliminati.
+ntfy (Push aufs Handy)	ntfy (push to your phone)	ntfy (push sur le téléphone)	ntfy (push sul telefono)
+installieren (F-Droid oder Play Store, läuft auch ohne Google-Dienste), dort das Thema unten abonnieren. Fertig. Mit eigenem ntfy-Server dessen Adresse eintragen.	(F-Droid or Play Store, also works without Google services), then subscribe to the topic below. Done. With your own ntfy server, enter its address.	(F-Droid ou Play Store, fonctionne aussi sans les services Google), puis s'abonner au sujet ci-dessous. Terminé. Avec ton propre serveur ntfy, saisis son adresse.	(F-Droid o Play Store, funziona anche senza i servizi Google), poi iscriviti all'argomento qui sotto. Fatto. Con un tuo server ntfy inserisci il suo indirizzo.
+ohne Anmeldung	without sign-in	sans connexion	senza accesso
+verfügbar	available	disponible	disponibile
+vor 2 Minuten	2 minutes ago	il y a 2 minutes	2 minuti fa
+wenn ein Benutzer eine Datei hochlädt, egal über welchen Dienst	when a user uploads a file, via any service	quand un utilisateur envoie un fichier, quel que soit le service	quando un utente carica un file, tramite qualsiasi servizio
+wenn eine Adresse nach zu vielen Fehlversuchen gesperrt wird	when an address is banned after too many failed attempts	quand une adresse est bloquée après trop de tentatives échouées	quando un indirizzo viene bloccato dopo troppi tentativi falliti
+wenn jemand etwas über einen Freigabe-Link herunterlädt	when someone downloads something via a share link	quand quelqu'un télécharge quelque chose via un lien de partage	quando qualcuno scarica qualcosa tramite un link di condivisione
+wenn jemand über einen Briefkasten-Link etwas hochlädt	when someone uploads something via a drop box link	quand quelqu'un envoie quelque chose via un lien de boîte de dépôt	quando qualcuno carica qualcosa tramite un link di cassetta di deposito
+z. B. ein Dienst startet nicht oder das Zertifikat lässt sich nicht holen	e.g. a service doesn't start or the certificate can't be obtained	p. ex. un service ne démarre pas ou le certificat ne peut être obtenu	ad es. un servizio non si avvia o il certificato non si ottiene
+Änderungen gelten sofort, auch neue Ports. Laufende Sitzungen bleiben bestehen.	Changes apply immediately, including new ports. Running sessions stay connected.	Les modifications s'appliquent immédiatement, y compris les nouveaux ports. Les sessions en cours sont conservées.	Le modifiche valgono subito, anche le nuove porte. Le sessioni in corso restano attive.
+Änderungen gespeichert	Changes saved	Modifications enregistrées	Modifiche salvate
+Änderungen in der Verwaltung	Changes in the administration	Modifications dans l'administration	Modifiche nell'amministrazione
+Öffentliche IP oder Hostname	Public IP or hostname	IP publique ou nom d'hôte	IP pubblico o nome host
+Öffne die Verwaltung einmal auf dem Rechner, auf dem SG9 läuft, oder von einem Gerät im selben Netz, und lege dort das Passwort fest.	Open the administration once on the computer running SG9, or from a device on the same network, and set the password there.	Ouvre l'administration une fois sur l'ordinateur où tourne SG9, ou depuis un appareil du même réseau, et définis-y le mot de passe.	Apri l'amministrazione una volta sul computer su cui gira SG9, o da un dispositivo della stessa rete, e imposta lì la password.
+ältere Programme, sofort verschlüsselt	older programs, encrypted from the start	anciens programmes, chiffré dès le départ	programmi più vecchi, crittografato da subito
+über SSH, immer verschlüsselt	over SSH, always encrypted	via SSH, toujours chiffré	tramite SSH, sempre crittografato
+übertragen	transferred	transféré	trasferito
+{} übertragen	{} transferred	{} transféré	{} trasferito
+wie Gruppe ({})	as group ({})	comme le groupe ({})	come il gruppo ({})
+Briefkasten zum Hochladen	Drop box for uploads	Boîte de dépôt	Cassetta di deposito per caricamenti
+Dateien an {} senden	Send files to {}	Envoyer des fichiers à {}	Invia file a {}
+Dein Name	Your name	Ton nom	Il tuo nome
+(freiwillig – so weiss der Empfänger, von wem es kommt)	(optional – so the recipient knows who it's from)	(facultatif – pour que le destinataire sache de qui ça vient)	(facoltativo – così il destinatario sa da chi arriva)
+(freiwillig – so weiss {}, von wem es kommt)	(optional – so {} knows who it's from)	(facultatif – pour que {} sache de qui ça vient)	(facoltativo – così {} sa da chi arriva)
+Bestehende Dateien werden nie überschrieben. Was andere hochgeladen haben, siehst du nicht.	Existing files are never overwritten. You can't see what others have uploaded.	Les fichiers existants ne sont jamais écrasés. Tu ne vois pas ce que d'autres ont envoyé.	I file esistenti non vengono mai sovrascritti. Non vedi cosa hanno caricato gli altri.
+Nachricht dazuschreiben	Add a message	Ajouter un message	Aggiungi un messaggio
+Nachricht	Message	Message	Messaggio
+Nachricht senden	Send message	Envoyer le message	Invia messaggio
+Nachricht übermittelt.	Message delivered.	Message transmis.	Messaggio inviato.
+{} Frag bei der Person nach, die ihn dir geschickt hat.	{} Ask the person who sent it to you.	{} Demande à la personne qui te l'a envoyé.	{} Chiedi alla persona che te l'ha inviato.
+Stand {}	As of {}	État au {}	Aggiornato al {}
+Pfad	Path	Chemin	Percorso
+Fehler {#}	Error {#}	Erreur {#}	Errore {#}
+QR-Code für {}	QR code for {}	Code QR pour {}	Codice QR per {}
+Länder-Datenbank (.mmdb)	Country database (.mmdb)	Base de données des pays (.mmdb)	Database dei paesi (.mmdb)
+Erlaubte Länder	Allowed countries	Pays autorisés	Paesi consentiti
+Zugriffe nur aus bestimmten Ländern zulassen	Only allow access from certain countries	N'autoriser l'accès que depuis certains pays	Consenti l'accesso solo da determinati paesi
+Auch für FTP, SFTP, WebDAV und Web-Zugang (sonst nur Freigabe-Links)	Also for FTP, SFTP, WebDAV and web access (otherwise share links only)	Aussi pour FTP, SFTP, WebDAV et l'accès web (sinon uniquement les liens de partage)	Anche per FTP, SFTP, WebDAV e accesso web (altrimenti solo link di condivisione)
+IP-Adresse prüfen	Check IP address	Vérifier une adresse IP	Verifica indirizzo IP
+Noch keine Datenbank eingetragen.	No database configured yet.	Aucune base de données configurée.	Nessun database configurato.
+Zweibuchstabige Ländercodes, mit Komma getrennt. Das eigene Netz ist immer erlaubt. Die Datenbank lädst du kostenlos bei	Two-letter country codes, separated by commas. Your own network is always allowed. Download the database for free from	Codes pays à deux lettres, séparés par des virgules. Le réseau local est toujours autorisé. Télécharge gratuitement la base de données sur	Codici paese di due lettere, separati da virgola. La rete locale è sempre consentita. Scarica gratis il database da
+(„IP to Country Lite“, Format MMDB) oder als GeoLite2 Country bei MaxMind und aktualisierst sie ab und zu. Fehlt sie, filtert SG9 nicht und meldet das im Protokoll.	(“IP to Country Lite”, MMDB format) or as GeoLite2 Country from MaxMind, and update it now and then. If it's missing, SG9 doesn't filter and notes this in the log.	(« IP to Country Lite », format MMDB) ou en tant que GeoLite2 Country chez MaxMind, et mets-la à jour de temps en temps. Si elle manque, SG9 ne filtre pas et le signale dans le journal.	(«IP to Country Lite», formato MMDB) o come GeoLite2 Country da MaxMind, e aggiornalo ogni tanto. Se manca, SG9 non filtra e lo segnala nel registro.
+{}: {} – erlaubt	{}: {} – allowed	{} : {} – autorisé	{}: {} – consentito
+{}: {} – gesperrt	{}: {} – blocked	{} : {} – bloqué	{}: {} – bloccato
+{}: Land unbekannt	{}: country unknown	{} : pays inconnu	{}: paese sconosciuto
+{} vom {}	{} from {}	{} du {}	{} del {}
+Online seit {}	Online for {}	En ligne depuis {}	Online da {}
+Offline – neue Verbindungen werden abgewiesen	Offline – new connections are refused	Hors ligne – les nouvelles connexions sont refusées	Offline – le nuove connessioni vengono rifiutate
+Ausgeschaltet: {}	Turned off: {}	Désactivés : {}	Disattivati: {}
+einschalten	turn on	activer	attiva
+ausgeschaltet	turned off	désactivé	disattivato
+startet nicht – Port belegt?	doesn't start – port in use?	ne démarre pas – port occupé ?	non si avvia – porta occupata?
+Schlüssel {}	Key {}	Clé {}	Chiave {}
+ohne Verschlüsselung	without encryption	sans chiffrement	senza crittografia
+TLS optional	TLS optional	TLS facultatif	TLS facoltativo
+TLS erzwungen	TLS required	TLS obligatoire	TLS obbligatorio
+unbegrenzt	unlimited	illimité	illimitato
+{#} von {#}	{1} of {2}	{1} sur {2}	{1} di {2}
+mit Passwort geschützt	password protected	protégé par mot de passe	protetto da password
+Durchsatz der letzten zwei Minuten	Throughput over the last two minutes	Débit des deux dernières minutes	Velocità degli ultimi due minuti
+Sprache / Language	Language / Sprache	Langue / Language	Lingua / Language
+{} ist keine gültige Adresse (Beispiel :2121 oder 192.168.1.10:2121)	{} is not a valid address (example :2121 or 192.168.1.10:2121)	{} n'est pas une adresse valide (exemple :2121 ou 192.168.1.10:2121)	{} non è un indirizzo valido (esempio :2121 o 192.168.1.10:2121)
+{} gibt es nicht	{} does not exist	{} n'existe pas	{} non esiste
+Ablaufdatum ungültig	Invalid expiry date	Date d'expiration invalide	Data di scadenza non valida
+Ablaufdatum ungültig (JJJJ-MM-TT)	Invalid expiry date (YYYY-MM-DD)	Date d'expiration invalide (AAAA-MM-JJ)	Data di scadenza non valida (AAAA-MM-GG)
+Absender fehlt	Sender missing	Expéditeur manquant	Mittente mancante
+Adresse fehlt	Address missing	Adresse manquante	Indirizzo mancante
+Adresse nicht gefunden (Schreibweise prüfen)	Address not found (check spelling)	Adresse introuvable (vérifie l'orthographe)	Indirizzo non trovato (controlla l'ortografia)
+Adresse oder Webhook-ID fehlt	Address or webhook ID missing	Adresse ou ID de webhook manquant	Indirizzo o ID webhook mancante
+Anmeldung am Mailserver fehlgeschlagen: {}	Sign-in to mail server failed: {}	Échec de connexion au serveur de messagerie : {}	Accesso al server di posta non riuscito: {}
+Auflisten nicht erlaubt	Listing not allowed	Listage non autorisé	Elenco non consentito
+Bei Links mit begrenzten Downloads gibt es keine Vorschau.	Links with limited downloads have no preview.	Les liens à téléchargements limités n'ont pas d'aperçu.	I link con download limitati non hanno anteprima.
+Benutzer {} doppelt	User {} appears twice	Utilisateur {} en double	Utente {} duplicato
+Benutzer {} existiert bereits	User {} already exists	L'utilisateur {} existe déjà	L'utente {} esiste già
+Benutzer {} existiert nicht mehr	User {} no longer exists	L'utilisateur {} n'existe plus	L'utente {} non esiste più
+Benutzer {}: Gruppe {} existiert nicht	User {}: group {} does not exist	Utilisateur {} : le groupe {} n'existe pas	Utente {}: il gruppo {} non esiste
+Benutzer existiert nicht	User does not exist	L'utilisateur n'existe pas	L'utente non esiste
+Benutzer nicht gefunden	User not found	Utilisateur introuvable	Utente non trovato
+Benutzername {} ungültig (erlaubt: Buchstaben, Ziffern, - _ . @)	Username {} invalid (allowed: letters, digits, - _ . @)	Nom d'utilisateur {} invalide (autorisés : lettres, chiffres, - _ . @)	Nome utente {} non valido (consentiti: lettere, cifre, - _ . @)
+Bitte ein Passwort vergeben (oder einen SSH-Schlüssel hinterlegen)	Please set a password (or add an SSH key)	Définis un mot de passe (ou ajoute une clé SSH)	Imposta una password (o aggiungi una chiave SSH)
+Bitte einen vollständigen Pfad auf dem Server wählen	Please choose a full path on the server	Choisis un chemin complet sur le serveur	Scegli un percorso completo sul server
+Browser-Zugang ist deaktiviert	Browser access is disabled	L'accès par navigateur est désactivé	L'accesso via browser è disattivato
+CSRF-Schutz: Header fehlt	CSRF protection: header missing	Protection CSRF : en-tête manquant	Protezione CSRF: intestazione mancante
+Das Passwort braucht mindestens 8 Zeichen	The password needs at least 8 characters	Le mot de passe doit comporter au moins 8 caractères	La password deve avere almeno 8 caratteri
+Das Passwort stimmt nicht	The password is wrong	Le mot de passe est incorrect	La password è errata
+Das aktuelle Passwort stimmt nicht	The current password is wrong	Le mot de passe actuel est incorrect	La password attuale è errata
+Das ist keine IP-Adresse.	That's not an IP address.	Ce n'est pas une adresse IP.	Non è un indirizzo IP.
+Das ist keine gültige SG9-Sicherung (keine ZIP-Datei)	That's not a valid SG9 backup (not a ZIP file)	Ce n'est pas une sauvegarde SG9 valide (pas un fichier ZIP)	Non è un backup SG9 valido (non è un file ZIP)
+Das neue Passwort braucht mindestens 8 Zeichen	The new password needs at least 8 characters	Le nouveau mot de passe doit comporter au moins 8 caractères	La nuova password deve avere almeno 8 caratteri
+Datei oder Ordner nicht gefunden	File or folder not found	Fichier ou dossier introuvable	File o cartella non trovati
+Dateimuster {} ungültig	File pattern {} invalid	Motif de fichier {} invalide	Modello di file {} non valido
+Dateiname fehlt	File name missing	Nom de fichier manquant	Nome file mancante
+Dateityp nicht erlaubt	File type not allowed	Type de fichier non autorisé	Tipo di file non consentito
+Datenbank {} nicht gefunden	Database {} not found	Base de données {} introuvable	Database {} non trovato
+Der Code stimmt nicht. Prüfe, ob die Uhrzeit auf dem Handy stimmt, und gib den aktuellen Code ein.	The code is wrong. Check that the time on your phone is correct and enter the current code.	Le code est incorrect. Vérifie que l'heure du téléphone est juste et saisis le code actuel.	Il codice è errato. Controlla che l'ora del telefono sia corretta e inserisci il codice attuale.
+Der freigegebene Inhalt existiert nicht mehr.	The shared content no longer exists.	Le contenu partagé n'existe plus.	Il contenuto condiviso non esiste più.
+Die Datei ist zu gross oder unvollständig	The file is too large or incomplete	Le fichier est trop volumineux ou incomplet	Il file è troppo grande o incompleto
+Die Einrichtung geht nur vom Server selbst oder aus dem eigenen Netz.	Setup only works from the server itself or from your own network.	La configuration n'est possible que depuis le serveur lui-même ou le réseau local.	La configurazione è possibile solo dal server stesso o dalla rete locale.
+Die Einrichtung ist abgelaufen. Bitte nochmals beginnen.	Setup has expired. Please start again.	La configuration a expiré. Recommence.	La configurazione è scaduta. Ricomincia.
+Die Gruppe wird noch von {} verwendet	The group is still used by {}	Le groupe est encore utilisé par {}	Il gruppo è ancora usato da {}
+Die Nachricht ist zu lang	The message is too long	Le message est trop long	Il messaggio è troppo lungo
+Die Sicherung passt nicht: {}	The backup doesn't fit: {}	La sauvegarde ne convient pas : {}	Il backup non è adatto: {}
+Dieser Briefkasten erlaubt keine Downloads.	This drop box doesn't allow downloads.	Cette boîte de dépôt n'autorise pas les téléchargements.	Questa cassetta di deposito non consente download.
+Dieser Briefkasten zeigt keinen Inhalt an.	This drop box doesn't show its content.	Cette boîte de dépôt n'affiche pas son contenu.	Questa cassetta di deposito non mostra il contenuto.
+Dieser Dateityp ist nicht erlaubt	This file type is not allowed	Ce type de fichier n'est pas autorisé	Questo tipo di file non è consentito
+Dieser Link erlaubt kein Hochladen.	This link doesn't allow uploads.	Ce lien n'autorise pas l'envoi.	Questo link non consente caricamenti.
+Dieser Link existiert nicht (mehr).	This link doesn't exist (anymore).	Ce lien n'existe pas (ou plus).	Questo link non esiste (più).
+Dieser Link ist abgelaufen.	This link has expired.	Ce lien a expiré.	Questo link è scaduto.
+Dieser Link ist aus deinem Land nicht erreichbar.	This link is not available from your country.	Ce lien n'est pas accessible depuis ton pays.	Questo link non è raggiungibile dal tuo paese.
+Dieser Link ist nicht mehr gültig.	This link is no longer valid.	Ce lien n'est plus valable.	Questo link non è più valido.
+Download-Guthaben (Ratio) aufgebraucht, bitte zuerst etwas hochladen	Download credit (ratio) used up, please upload something first	Crédit de téléchargement (ratio) épuisé, envoie d'abord quelque chose	Credito di download (rapporto) esaurito, carica prima qualcosa
+Ein Briefkasten braucht einen Ordner	A drop box needs a folder	Une boîte de dépôt nécessite un dossier	Una cassetta di deposito richiede una cartella
+Ein Briefkasten braucht einen Ordner, keine Datei	A drop box needs a folder, not a file	Une boîte de dépôt nécessite un dossier, pas un fichier	Una cassetta di deposito richiede una cartella, non un file
+Empfänger {} abgelehnt: {}	Recipient {} rejected: {}	Destinataire {} refusé : {}	Destinatario {} rifiutato: {}
+Ereignis: Aktion muss command oder webhook sein	Event: action must be command or webhook	Événement : l'action doit être command ou webhook	Evento: l'azione deve essere command o webhook
+Ereignis: Filter {} ungültig	Event: filter {} invalid	Événement : filtre {} invalide	Evento: filtro {} non valido
+Ereignis: Ziel (Befehl oder URL) fehlt	Event: target (command or URL) missing	Événement : cible (commande ou URL) manquante	Evento: destinazione (comando o URL) mancante
+Existiert bereits	Already exists	Existe déjà	Esiste già
+existiert bereits	already exists	existe déjà	esiste già
+FTP-Adresse fehlt	FTP address missing	Adresse FTP manquante	Indirizzo FTP mancante
+FTP-Port {} nicht verfügbar: {}	FTP port {} not available: {}	Port FTP {} indisponible : {}	Porta FTP {} non disponibile: {}
+Freigabe nicht gefunden	Share not found	Partage introuvable	Condivisione non trovata
+Freigabe-Links sind deaktiviert	Share links are disabled	Les liens de partage sont désactivés	I link di condivisione sono disattivati
+Freigabe-Links sind für dieses Konto nicht erlaubt	Share links are not allowed for this account	Les liens de partage ne sont pas autorisés pour ce compte	I link di condivisione non sono consentiti per questo account
+Freigaben sind deaktiviert	Sharing is disabled	Le partage est désactivé	La condivisione è disattivata
+Gruppe {} doppelt	Group {} appears twice	Groupe {} en double	Gruppo {} duplicato
+Gruppe {} existiert bereits	Group {} already exists	Le groupe {} existe déjà	Il gruppo {} esiste già
+Gruppe {} existiert nicht mehr	Group {} no longer exists	Le groupe {} n'existe plus	Il gruppo {} non esiste più
+Gruppe nicht gefunden	Group not found	Groupe introuvable	Gruppo non trovato
+Gruppenname {} ungültig (erlaubt: Buchstaben, Ziffern, - _ . @)	Group name {} invalid (allowed: letters, digits, - _ . @)	Nom de groupe {} invalide (autorisés : lettres, chiffres, - _ . @)	Nome gruppo {} non valido (consentiti: lettere, cifre, - _ . @)
+In der Sicherung fehlt sg9.json, es ist wohl keine SG9-Sicherung	sg9.json is missing from the backup, it's probably not an SG9 backup	sg9.json manque dans la sauvegarde, ce n'est sans doute pas une sauvegarde SG9	Nel backup manca sg9.json, probabilmente non è un backup SG9
+Kein Ordner	Not a folder	Pas un dossier	Non è una cartella
+Keine Berechtigung	No permission	Pas d'autorisation	Nessuna autorizzazione
+Keine Leserechte für diesen Pfad	No read permission for this path	Pas de droit de lecture pour ce chemin	Nessun permesso di lettura per questo percorso
+Keine Schreibrechte in diesem Ordner	No write permission in this folder	Pas de droit d'écriture dans ce dossier	Nessun permesso di scrittura in questa cartella
+Konto nicht mehr gültig	Account no longer valid	Compte plus valable	Account non più valido
+Let's Encrypt antwortet nicht rechtzeitig, bitte später nochmals versuchen	Let's Encrypt didn't answer in time, please try again later	Let's Encrypt ne répond pas à temps, réessaie plus tard	Let's Encrypt non risponde in tempo, riprova più tardi
+Let's Encrypt braucht einen Domainnamen wie dateien.example.ch (keine IP-Adresse)	Let's Encrypt needs a domain name like files.example.com (not an IP address)	Let's Encrypt nécessite un nom de domaine comme fichiers.example.ch (pas une adresse IP)	Let's Encrypt richiede un nome di dominio come file.example.ch (non un indirizzo IP)
+Let's Encrypt ist nicht eingeschaltet	Let's Encrypt is not turned on	Let's Encrypt n'est pas activé	Let's Encrypt non è attivo
+Maximale Anzahl Verbindungen erreicht.	Maximum number of connections reached.	Nombre maximal de connexions atteint.	Numero massimo di connessioni raggiunto.
+Maximale Anzahl Verbindungen für dieses Konto erreicht	Maximum number of connections for this account reached	Nombre maximal de connexions pour ce compte atteint	Numero massimo di connessioni per questo account raggiunto
+Nachricht fehlt	Message missing	Message manquant	Messaggio mancante
+Nicht gefunden	Not found	Introuvable	Non trovato
+Nicht möglich	Not possible	Impossible	Non possibile
+Nur Ordner mit Leserechten können als ZIP geladen werden	Only folders with read permission can be downloaded as ZIP	Seuls les dossiers avec droit de lecture peuvent être téléchargés en ZIP	Solo le cartelle con permesso di lettura possono essere scaricate come ZIP
+Ordner ist nicht leer	Folder is not empty	Le dossier n'est pas vide	La cartella non è vuota
+Ordner nicht gefunden	Folder not found	Dossier introuvable	Cartella non trovata
+Ordner nicht lesbar: {}	Folder not readable: {}	Dossier illisible : {}	Cartella non leggibile: {}
+Passiv-Portbereich ungültig (1024–65535, Min ≤ Max)	Passive port range invalid (1024–65535, min ≤ max)	Plage de ports passifs invalide (1024–65535, min ≤ max)	Intervallo di porte passive non valido (1024–65535, min ≤ max)
+Passwort erforderlich	Password required	Mot de passe requis	Password richiesta
+Passwort falsch	Wrong password	Mot de passe incorrect	Password errata
+Port {} ist doppelt vergeben: {} und {}	Port {} is used twice: {} and {}	Le port {} est attribué deux fois : {} et {}	La porta {} è assegnata due volte: {} e {}
+Port {} von {} liegt im FTP-Passivbereich {}–{}	Port {} of {} is inside the FTP passive range {}–{}	Le port {} de {} se trouve dans la plage passive FTP {}–{}	La porta {} di {} è nell'intervallo passivo FTP {}–{}
+Port {} ungültig (1–65535)	Port {} invalid (1–65535)	Port {} invalide (1–65535)	Porta {} non valida (1–65535)
+Port der Verwaltung {} nicht verfügbar: {}	Administration port {} not available: {}	Port de l'administration {} indisponible : {}	Porta dell'amministrazione {} non disponibile: {}
+Port für den Browser-Zugang fehlt	Port for browser access missing	Port de l'accès navigateur manquant	Porta per l'accesso via browser mancante
+SFTP-Adresse fehlt	SFTP address missing	Adresse SFTP manquante	Indirizzo SFTP mancante
+SFTP-Port {} nicht verfügbar: {}	SFTP port {} not available: {}	Port SFTP {} indisponible : {}	Porta SFTP {} non disponibile: {}
+SG9 darf {} nicht lesen. Läuft SG9 als Dienst, fehlen ihm die Rechte für diesen Ordner	SG9 may not read {}. If SG9 runs as a service, it lacks the permissions for this folder	SG9 ne peut pas lire {}. Si SG9 tourne comme service, il n'a pas les droits sur ce dossier	SG9 non può leggere {}. Se SG9 gira come servizio, non ha i permessi per questa cartella
+SG9 darf den Ordner {} nicht lesen. Läuft SG9 als Dienst, fehlen ihm die Rechte dafür	SG9 may not read the folder {}. If SG9 runs as a service, it lacks the permissions	SG9 ne peut pas lire le dossier {}. Si SG9 tourne comme service, il n'en a pas les droits	SG9 non può leggere la cartella {}. Se SG9 gira come servizio, non ne ha i permessi
+SG9 darf die Datei {} nicht lesen. Läuft SG9 als Dienst, fehlen ihm die Rechte dafür	SG9 may not read the file {}. If SG9 runs as a service, it lacks the permissions	SG9 ne peut pas lire le fichier {}. Si SG9 tourne comme service, il n'en a pas les droits	SG9 non può leggere il file {}. Se SG9 gira come servizio, non ne ha i permessi
+SG9 darf diesen Ordner nicht lesen. Läuft SG9 als Dienst (Benutzer sg9), fehlen ihm die Rechte dafür.	SG9 may not read this folder. If SG9 runs as a service (user sg9), it lacks the permissions.	SG9 ne peut pas lire ce dossier. Si SG9 tourne comme service (utilisateur sg9), il n'en a pas les droits.	SG9 non può leggere questa cartella. Se SG9 gira come servizio (utente sg9), non ne ha i permessi.
+SG9 darf in {} nicht schreiben, ein Briefkasten geht dort nicht	SG9 may not write to {}, a drop box won't work there	SG9 ne peut pas écrire dans {}, une boîte de dépôt n'y fonctionne pas	SG9 non può scrivere in {}, lì una cassetta di deposito non funziona
+SG9 ist schon eingerichtet. Bitte anmelden.	SG9 is already set up. Please sign in.	SG9 est déjà configuré. Connecte-toi.	SG9 è già configurato. Accedi.
+Schalte zuerst mindestens einen Weg ein	Turn on at least one channel first	Active d'abord au moins un canal	Attiva prima almeno un canale
+Schlüssel unbekannt	Unknown key	Clé inconnue	Chiave sconosciuta
+Server antwortete mit {}	Server responded with {}	Le serveur a répondu {}	Il server ha risposto {}
+Server ist offline.	Server is offline.	Le serveur est hors ligne.	Il server è offline.
+Server oder Empfänger fehlt	Server or recipient missing	Serveur ou destinataire manquant	Server o destinatario mancante
+Sitzung nicht gefunden	Session not found	Session introuvable	Sessione non trovata
+Sitzung wurde vom Administrator getrennt	Session was closed by the administrator	Session fermée par l'administrateur	Sessione chiusa dall'amministratore
+Speicherplatz-Kontingent überschritten	Storage quota exceeded	Quota de stockage dépassé	Quota di spazio superata
+TLS-Modus muss off, optional oder required sein	TLS mode must be off, optional or required	Le mode TLS doit être off, optional ou required	La modalità TLS deve essere off, optional o required
+Thema (Topic) fehlt	Topic missing	Sujet (topic) manquant	Argomento (topic) mancante
+Ungültige Anfrage	Invalid request	Requête invalide	Richiesta non valida
+Ungültige Anfrage: {}	Invalid request: {}	Requête invalide : {}	Richiesta non valida: {}
+Ungültiger Pfad	Invalid path	Chemin invalide	Percorso non valido
+ungültiger Pfad	invalid path	chemin invalide	percorso non valido
+Verbindung abgelehnt (läuft der Dienst, stimmt der Port?)	Connection refused (is the service running, is the port right?)	Connexion refusée (le service tourne-t-il, le port est-il correct ?)	Connessione rifiutata (il servizio è attivo, la porta è giusta?)
+Webhook-URL muss mit http:// oder https:// beginnen	Webhook URL must start with http:// or https://	L'URL du webhook doit commencer par http:// ou https://	L'URL del webhook deve iniziare con http:// o https://
+Zertifikat ungültig (bei selbst signierten Zertifikaten http:// verwenden)	Certificate invalid (use http:// with self-signed certificates)	Certificat invalide (utilise http:// avec des certificats auto-signés)	Certificato non valido (con certificati autofirmati usa http://)
+Ziel fehlt	Target missing	Cible manquante	Destinazione mancante
+Zu viele Fehlversuche, IP vorübergehend gesperrt.	Too many failed attempts, IP temporarily banned.	Trop de tentatives échouées, IP bloquée temporairement.	Troppi tentativi falliti, IP bloccato temporaneamente.
+Zu viele Fehlversuche.	Too many failed attempts.	Trop de tentatives échouées.	Troppi tentativi falliti.
+Zu viele Verbindungen von deiner IP.	Too many connections from your IP.	Trop de connexions depuis ton IP.	Troppe connessioni dal tuo IP.
+Zugriff aus diesem Land nicht erlaubt.	Access from this country is not allowed.	Accès depuis ce pays non autorisé.	Accesso da questo paese non consentito.
+Zugriff verweigert	Access denied	Accès refusé	Accesso negato
+Zugriff von dieser IP nicht erlaubt.	Access from this IP is not allowed.	Accès depuis cette IP non autorisé.	Accesso da questo IP non consentito.
+Zwei-Faktor-Anmeldung ist schon eingeschaltet	Two-factor sign-in is already on	La double authentification est déjà activée	L'accesso a due fattori è già attivo
+der Server bietet kein STARTTLS an (Verschlüsselung auf „keine“ oder „TLS“ stellen)	the server doesn't offer STARTTLS (set encryption to “none” or “TLS”)	le serveur ne propose pas STARTTLS (régler le chiffrement sur « aucun » ou « TLS »)	il server non offre STARTTLS (imposta la crittografia su «nessuna» o «TLS»)
+keine Antwort (Adresse oder Firewall prüfen)	no response (check address or firewall)	pas de réponse (vérifie l'adresse ou le pare-feu)	nessuna risposta (controlla indirizzo o firewall)
+keine Datenbank eingetragen	no database configured	aucune base de données configurée	nessun database configurato
+sg9.json in der Sicherung ist beschädigt: {}	sg9.json in the backup is damaged: {}	sg9.json dans la sauvegarde est endommagé : {}	sg9.json nel backup è danneggiato: {}
+virtueller Ordner {} doppelt	virtual folder {} appears twice	dossier virtuel {} en double	cartella virtuale {} duplicata
+virtueller Ordner {} hat keinen echten Pfad	virtual folder {} has no real path	le dossier virtuel {} n'a pas de chemin réel	la cartella virtuale {} non ha un percorso reale
+virtueller Ordner darf nicht / sein (dafür ist der Home-Ordner da)	virtual folder can't be / (that's what the home folder is for)	le dossier virtuel ne peut pas être / (c'est le rôle du dossier personnel)	la cartella virtuale non può essere / (per questo c'è la cartella home)
+Home-Ordner kann nicht angelegt werden: {}	Home folder can't be created: {}	Impossible de créer le dossier personnel : {}	Impossibile creare la cartella home: {}
+%s wird durch den Servernamen ersetzt.	%s is replaced by the server name.	%s est remplacé par le nom du serveur.	%s viene sostituito dal nome del server.
+%u wird durch den Benutzernamen ersetzt. Fehlende Ordner legt SG9 beim ersten Anmelden an.	%u is replaced by the username. SG9 creates missing folders on first sign-in.	%u est remplacé par le nom d'utilisateur. SG9 crée les dossiers manquants à la première connexion.	%u viene sostituito dal nome utente. SG9 crea le cartelle mancanti al primo accesso.
+, z. B. Aegis, Bitwarden, 2FAS oder Google Authenticator.	, e.g. Aegis, Bitwarden, 2FAS or Google Authenticator.	, p. ex. Aegis, Bitwarden, 2FAS ou Google Authenticator.	, ad es. Aegis, Bitwarden, 2FAS o Google Authenticator.
+. Nutzt du stattdessen einen Tunnel wie Tailscale Funnel, trägst du hier dessen Adresse ein.	. If you use a tunnel like Tailscale Funnel instead, enter its address here.	. Si tu utilises plutôt un tunnel comme Tailscale Funnel, saisis son adresse ici.	. Se usi invece un tunnel come Tailscale Funnel, inserisci qui il suo indirizzo.
+Adresse Freigabe-Links	Share links address	Adresse des liens de partage	Indirizzo dei link di condivisione
+Adresse von Home Assistant	Home Assistant address	Adresse de Home Assistant	Indirizzo di Home Assistant
+Alle auswählen	Select all	Tout sélectionner	Seleziona tutto
+Ausgewählt:	Selected:	Sélectionné :	Selezionato:
+Benutzer anlegen	Create user	Créer un utilisateur	Crea utente
+Benutzername der Verwaltung	Administration username	Nom d'utilisateur de l'administration	Nome utente dell'amministrazione
+{} ein	{} on	{} activé	{} attivo
+Dateien und Ordner	Files and folders	Fichiers et dossiers	File e cartelle
+E-Mail für Hinweise (optional)	Email for notices (optional)	E-mail pour les avis (facultatif)	E-mail per gli avvisi (facoltativa)
+E-Mail	Email	E-mail	E-mail
+Echter Pfad auf dem Server	Real path on the server	Chemin réel sur le serveur	Percorso reale sul server
+Echtes HTTPS-Zertifikat von Let's Encrypt (kostenlos)	Real HTTPS certificate from Let's Encrypt (free)	Vrai certificat HTTPS de Let's Encrypt (gratuit)	Vero certificato HTTPS da Let's Encrypt (gratuito)
+Einstellungen → Automationen → Neue Automation → ⋮ → „In YAML bearbeiten“, das hier einfügen. Statt	Settings → Automations → New automation → ⋮ → “Edit in YAML”, paste this. Instead of	Paramètres → Automatisations → Nouvelle automatisation → ⋮ → « Modifier en YAML », colle ceci. Au lieu de	Impostazioni → Automazioni → Nuova automazione → ⋮ → «Modifica in YAML», incolla questo. Invece di
+Empfänger	Recipient	Destinataire	Destinatario
+Filtern nach Benutzer, IP oder Text	Filter by user, IP or text	Filtrer par utilisateur, IP ou texte	Filtra per utente, IP o testo
+Freigabe-Link	Share link	Lien de partage	Link di condivisione
+Geheimnis zum Eintippen	Secret to type in	Secret à saisir	Segreto da digitare
+Gruppe anlegen	Create group	Créer un groupe	Crea gruppo
+Grösse in Bytes	Size in bytes	Taille en octets	Dimensione in byte
+HTTPS für Browser, WebDAV und Links	HTTPS for browser, WebDAV and links	HTTPS pour navigateur, WebDAV et liens	HTTPS per browser, WebDAV e link
+HTTPS für die Verwaltung	HTTPS for the administration	HTTPS pour l'administration	HTTPS per l'amministrazione
+Home-Ordner	Home folder	Dossier personnel	Cartella home
+Im Explorer oder Finder „Netzlaufwerk verbinden“ bzw. „Mit Server verbinden“ wählen und diese Adresse eingeben:	In Explorer choose “Map network drive”, in Finder “Connect to Server”, and enter this address:	Dans l'Explorateur, choisis « Connecter un lecteur réseau », dans le Finder « Se connecter au serveur », puis saisis cette adresse :	In Esplora risorse scegli «Connetti unità di rete», nel Finder «Connessione al server» e inserisci questo indirizzo:
+Inhalt von .message beim Ordnerwechsel anzeigen	Show the contents of .message when changing folders	Afficher le contenu de .message en changeant de dossier	Mostra il contenuto di .message al cambio di cartella
+Leer = wie Gruppe. %u = Benutzername	Empty = same as group. %u = username	Vide = comme le groupe. %u = nom d'utilisateur	Vuoto = come il gruppo. %u = nome utente
+Neue Gruppe	New group	Nouveau groupe	Nuovo gruppo
+Neuer Benutzer	New user	Nouvel utilisateur	Nuovo utente
+Offline: neue Verbindungen werden abgewiesen, bestehende bleiben	Offline: new connections are refused, existing ones stay	Hors ligne : les nouvelles connexions sont refusées, les existantes restent	Offline: le nuove connessioni vengono rifiutate, quelle esistenti restano
+Passiv von	Passive from	Passif de	Passivo da
+bis	to	à	a
+Pfad eingeben und Enter, z. B. /mnt/user/fotos	Type a path and press Enter, e.g. /mnt/user/photos	Saisis un chemin puis Entrée, p. ex. /mnt/user/photos	Inserisci un percorso e premi Invio, ad es. /mnt/user/foto
+Pfad, wie der Benutzer ihn sieht	Path as the user sees it	Chemin tel que l'utilisateur le voit	Percorso come lo vede l'utente
+Port Freigabe-Links	Share links port	Port des liens de partage	Porta dei link di condivisione
+Sperre für (s)	Ban for (s)	Bloquer pendant (s)	Blocca per (s)
+Symbolischen Links auch ausserhalb der Ordner folgen	Follow symbolic links outside the folders too	Suivre les liens symboliques même hors des dossiers	Segui i link simbolici anche fuori dalle cartelle
+Verwaltung auf diesem Rechner ohne Passwort öffnen	Open the administration on this computer without a password	Ouvrir l'administration sur cet ordinateur sans mot de passe	Apri l'amministrazione su questo computer senza password
+Zeit für die Anmeldung (s)	Time allowed for sign-in (s)	Délai de connexion (s)	Tempo per l'accesso (s)
+alle	all	tous	tutti
+automatisch https://deine-domain	automatically https://your-domain	automatiquement https://ton-domaine	automaticamente https://tuo-dominio
+du@example.ch, mehrere mit Komma	you@example.com, several separated by commas	toi@example.ch, plusieurs séparés par des virgules	tu@example.ch, più indirizzi separati da virgola
+innerhalb von (s)	within (s)	en (s)	entro (s)
+keine (nur im eigenen Netz)	none (own network only)	aucun (réseau local uniquement)	nessuno (solo rete locale)
+leer = alle	empty = all	vide = tous	vuoto = tutti
+nicht verbunden	not connected	non connecté	non connesso
+nur bei geschütztem Server	only for a protected server	uniquement pour un serveur protégé	solo per un server protetto
+und	and	et	e
+unverändert	unchanged	inchangé	invariato
+wie Gruppe	as group	comme le groupe	come il gruppo
+z. B. Fotos für Anna	e.g. Photos for Anna	p. ex. Photos pour Anna	ad es. Foto per Anna
+· einmal täglich, die letzten 7 bleiben	· once a day, the last 7 are kept	· une fois par jour, les 7 dernières sont conservées	· una volta al giorno, gli ultimi 7 vengono conservati
+Änderungen speichern	Save changes	Enregistrer les modifications	Salva modifiche
+Öffentliche Adresse für Links	Public address for links	Adresse publique pour les liens	Indirizzo pubblico per i link
+üblich: {}	usually: {}	habituel : {}	di solito: {}
+Dieser Link existiert nicht (mehr). {}	This link doesn't exist (anymore). {}	Ce lien n'existe pas (ou plus). {}	Questo link non esiste (più). {}
+{} verbunden	{} connected	{} connecté	{} connesso
+Freigabe	Share	Partage	Condivisione
+{}-Anmeldung abgelehnt: {}	{} sign-in refused: {}	Connexion {} refusée : {}	Accesso {} rifiutato: {}
+{}-Sitzung beendet (untätig)	{} session ended (idle)	Session {} terminée (inactive)	Sessione {} terminata (inattiva)
+Angemeldet	Signed in	Connecté	Accesso effettuato
+Anonym angemeldet ({})	Signed in anonymously ({})	Connecté anonymement ({})	Accesso anonimo ({})
+FTP verbunden	FTP connected	FTP connecté	FTP connesso
+Fremde Datenverbindung von {} abgewiesen	Foreign data connection from {} refused	Connexion de données étrangère depuis {} refusée	Connessione dati estranea da {} rifiutata
+Gelöscht: {}	Deleted: {}	Supprimé : {}	Eliminato: {}
+Getrennt (Dauer {})	Disconnected (duration {})	Déconnecté (durée {})	Disconnesso (durata {})
+Ordner angelegt: {}	Folder created: {}	Dossier créé : {}	Cartella creata: {}
+Ordner gelöscht: {}	Folder deleted: {}	Dossier supprimé : {}	Cartella eliminata: {}
+SFTP angemeldet ({})	SFTP signed in ({})	SFTP connecté ({})	SFTP accesso ({})
+SFTP getrennt (Dauer {})	SFTP disconnected (duration {})	SFTP déconnecté (durée {})	SFTP disconnesso (durata {})
+Steuerverbindung verschlüsselt ({})	Control connection encrypted ({})	Connexion de contrôle chiffrée ({})	Connessione di controllo crittografata ({})
+TLS-Handshake fehlgeschlagen: {}	TLS handshake failed: {}	Échec de la négociation TLS : {}	Handshake TLS non riuscito: {}
+Umbenannt: {} -> {}	Renamed: {} -> {}	Renommé : {} -> {}	Rinominato: {} -> {}
+Upload {}: Kontingent überschritten	Upload {}: quota exceeded	Envoi {} : quota dépassé	Caricamento {}: quota superata
+Vom Administrator getrennt	Disconnected by the administrator	Déconnecté par l'administrateur	Disconnesso dall'amministratore
+Web abgemeldet	Web signed out	Web déconnecté	Web disconnesso
+Zeitüberschreitung	Timeout	Délai dépassé	Timeout
+{}-Download {}, {}	{} download {}, {}	Téléchargement {} {}, {}	Download {} {}, {}
+{}-Upload {}, {}	{} upload {}, {}	Envoi {} {}, {}	Caricamento {} {}, {}
+{}-ZIP {}, {#} Dateien, {}	{} ZIP {}, {} files, {}	ZIP {} {}, {} fichiers, {}	ZIP {} {}, {} file, {}
+Download {}, {} in {} ({}/s)	Download {}, {} in {} ({}/s)	Téléchargement {}, {} en {} ({}/s)	Download {}, {} in {} ({}/s)
+Upload {}, {} in {} ({}/s)	Upload {}, {} in {} ({}/s)	Envoi {}, {} en {} ({}/s)	Caricamento {}, {} in {} ({}/s)
+Download {}: Ratio-Guthaben aufgebraucht	Download {}: ratio credit used up	Téléchargement {} : crédit de ratio épuisé	Download {}: credito del rapporto esaurito
+Download abgebrochen: {} ({})	Download aborted: {} ({})	Téléchargement interrompu : {} ({})	Download interrotto: {} ({})
+Download unterbrochen: {} ({})	Download interrupted: {} ({})	Téléchargement coupé : {} ({})	Download interrotto: {} ({})
+Upload abgebrochen: {} ({})	Upload aborted: {} ({})	Envoi interrompu : {} ({})	Caricamento interrotto: {} ({})
+Upload unterbrochen: {} ({})	Upload interrupted: {} ({})	Envoi coupé : {} ({})	Caricamento interrotto: {} ({})
+{} auf {}://{}	{} on {}://{}	{} sur {}://{}	{} su {}://{}
+Browser, WebDAV, Freigabe-Links	Browser, WebDAV, share links	Navigateur, WebDAV, liens de partage	Browser, WebDAV, link di condivisione
+Browser, WebDAV, Freigabe-Links auf {}://{}	Browser, WebDAV, share links on {}://{}	Navigateur, WebDAV, liens de partage sur {}://{}	Browser, WebDAV, link di condivisione su {}://{}
+Admin-Passwort geändert, andere Geräte wurden abgemeldet	Admin password changed, other devices were signed out	Mot de passe admin modifié, les autres appareils ont été déconnectés	Password admin modificata, gli altri dispositivi sono stati disconnessi
+Benutzer {} gelöscht (samt seinen Freigabe-Links)	User {} deleted (including their share links)	Utilisateur {} supprimé (avec ses liens de partage)	Utente {} eliminato (con i suoi link di condivisione)
+Benutzer {} gespeichert	User {} saved	Utilisateur {} enregistré	Utente {} salvato
+Ereignisse gespeichert ({})	Events saved ({})	Événements enregistrés ({})	Eventi salvati ({})
+FTP ist deaktiviert	FTP is disabled	FTP est désactivé	FTP è disattivato
+FTP lauscht auf {} (TLS: {})	FTP listening on {} (TLS: {})	FTP écoute sur {} (TLS : {})	FTP in ascolto su {} (TLS: {})
+Freigabe-Link {} ({}) für {}:{} angelegt	Share link {} ({}) created for {}:{}	Lien de partage {} ({}) créé pour {}:{}	Link di condivisione {} ({}) creato per {}:{}
+Freigabe-Link {} für Server-Pfad {} angelegt	Share link {} created for server path {}	Lien de partage {} créé pour le chemin serveur {}	Link di condivisione {} creato per il percorso server {}
+Freigabe-Link {} gelöscht	Share link {} deleted	Lien de partage {} supprimé	Link di condivisione {} eliminato
+Gruppe {} gespeichert	Group {} saved	Groupe {} enregistré	Gruppo {} salvato
+Implizites FTPS lauscht auf {}	Implicit FTPS listening on {}	FTPS implicite écoute sur {}	FTPS implicito in ascolto su {}
+Implizites FTPS auf {} nicht möglich: {}	Implicit FTPS on {} not possible: {}	FTPS implicite sur {} impossible : {}	FTPS implicito su {} non possibile: {}
+Let's Encrypt: Zertifikat für {} ist da	Let's Encrypt: certificate for {} received	Let's Encrypt : certificat pour {} obtenu	Let's Encrypt: certificato per {} ottenuto
+Neue Konfiguration angelegt: {}	New configuration created: {}	Nouvelle configuration créée : {}	Nuova configurazione creata: {}
+Neue Version {} verfügbar: {}	New version {} available: {}	Nouvelle version {} disponible : {}	Nuova versione {} disponibile: {}
+SFTP lauscht auf {} (Host-Schlüssel {})	SFTP listening on {} (host key {})	SFTP écoute sur {} (clé d'hôte {})	SFTP in ascolto su {} (chiave host {})
+SG9 {} startet, Datenordner: {}	SG9 {} starting, data folder: {}	SG9 {} démarre, dossier de données : {}	SG9 {} in avvio, cartella dati: {}
+SG9 wird beendet	SG9 is shutting down	SG9 s'arrête	SG9 si sta chiudendo
+Server ist jetzt online	Server is now online	Le serveur est maintenant en ligne	Il server è ora online
+Server ist jetzt offline: neue Verbindungen werden abgewiesen	Server is now offline: new connections are refused	Le serveur est maintenant hors ligne : les nouvelles connexions sont refusées	Il server è ora offline: le nuove connessioni vengono rifiutate
+Sicherung wiederhergestellt (der vorherige Stand liegt in {})	Backup restored (the previous state is in {})	Sauvegarde restaurée (l'état précédent se trouve dans {})	Backup ripristinato (lo stato precedente è in {})
+Sperre für {} aufgehoben	Ban for {} lifted	Blocage de {} levé	Blocco per {} rimosso
+Test-Ereignis ausgelöst: {} {}	Test event triggered: {} {}	Événement de test déclenché : {} {}	Evento di prova attivato: {} {}
+Verwaltung auf {}://{}	Administration on {}://{}	Administration sur {}://{}	Amministrazione su {}://{}
+Verwaltung eingerichtet von {}	Administration set up from {}	Administration configurée depuis {}	Amministrazione configurata da {}
+Verwaltung: angemeldet von {}	Administration: signed in from {}	Administration : connexion depuis {}	Amministrazione: accesso da {}
+Zwei-Faktor-Anmeldung für die Verwaltung eingeschaltet	Two-factor sign-in for the administration turned on	Double authentification de l'administration activée	Accesso a due fattori per l'amministrazione attivato
+Zwei-Faktor-Anmeldung für die Verwaltung ausgeschaltet	Two-factor sign-in for the administration turned off	Double authentification de l'administration désactivée	Accesso a due fattori per l'amministrazione disattivato
+Zähler von {} zurückgesetzt	Counters of {} reset	Compteurs de {} remis à zéro	Contatori di {} azzerati
+Anmeldung an der Verwaltung fehlgeschlagen von {}	Failed administration sign-in from {}	Échec de connexion à l'administration depuis {}	Accesso all'amministrazione non riuscito da {}
+Benachrichtigung über {} fehlgeschlagen: {}	Notification via {} failed: {}	Échec de la notification via {} : {}	Notifica tramite {} non riuscita: {}
+Falsches Passwort für Freigabe {} von {}	Wrong password for share {} from {}	Mot de passe erroné pour le partage {} depuis {}	Password errata per la condivisione {} da {}
+Freigabe {}: Zugriff aus {} ({}) durch Länderfilter abgelehnt	Share {}: access from {} ({}) refused by country filter	Partage {} : accès depuis {} ({}) refusé par le filtre par pays	Condivisione {}: accesso da {} ({}) rifiutato dal filtro paesi
+IP {} wegen zu vieler Fehlversuche gesperrt	IP {} banned after too many failed attempts	IP {} bloquée après trop de tentatives échouées	IP {} bloccato dopo troppi tentativi falliti
+Kein Dienst konnte starten. Ports im Web-Admin unter Einstellungen prüfen.	No service could start. Check the ports in the administration under Settings.	Aucun service n'a pu démarrer. Vérifie les ports dans l'administration sous Paramètres.	Nessun servizio si è avviato. Controlla le porte nell'amministrazione in Impostazioni.
+Verbindung von {} ({}) durch Länderfilter abgelehnt	Connection from {} ({}) refused by country filter	Connexion depuis {} ({}) refusée par le filtre par pays	Connessione da {} ({}) rifiutata dal filtro paesi
+Verbindung von {} durch IP-Filter abgelehnt	Connection from {} refused by IP filter	Connexion depuis {} refusée par le filtre IP	Connessione da {} rifiutata dal filtro IP
+Verwaltung: IP {} gesperrt	Administration: IP {} banned	Administration : IP {} bloquée	Amministrazione: IP {} bloccato
+Verwaltung: falscher Zwei-Faktor-Code von {}	Administration: wrong two-factor code from {}	Administration : code de double authentification erroné depuis {}	Amministrazione: codice a due fattori errato da {}
+Verwaltung: mit Wiederherstellungscode angemeldet, noch {} übrig	Administration: signed in with a recovery code, {} left	Administration : connexion avec un code de récupération, {} restants	Amministrazione: accesso con codice di recupero, {} rimasti
+Webhook {} antwortete {}	Webhook {} responded {}	Le webhook {} a répondu {}	Il webhook {} ha risposto {}
+Ereignis-Befehl ({}) fehlgeschlagen: {}	Event command ({}) failed: {}	Échec de la commande d'événement ({}) : {}	Comando evento ({}) non riuscito: {}
+Automatische Sicherung: {}	Automatic backup: {}	Sauvegarde automatique : {}	Backup automatico: {}
+Länderfilter: {}. Zugriffe werden nicht gefiltert.	Country filter: {}. Access is not being filtered.	Filtre par pays : {}. Les accès ne sont pas filtrés.	Filtro paesi: {}. Gli accessi non vengono filtrati.
+{} – die Verwaltung bleibt auf dem bisherigen Port	{} – the administration stays on the previous port	{} – l'administration reste sur le port précédent	{} – l'amministrazione resta sulla porta precedente
+GeoIP2-Country vom {}	GeoIP2-Country from {}	GeoIP2-Country du {}	GeoIP2-Country del {}
+Port {}	{} port	Port {}	Porta {}
+Adresse {}	{} address	Adresse {}	Indirizzo {}
+Port Verwaltung	Administration port	Port de l'administration	Porta dell'amministrazione
+Adresse Verwaltung	Administration address	Adresse de l'administration	Indirizzo dell'amministrazione
+Verwaltung ein	Administration on	Administration activée	Amministrazione attiva
+Passiv bis	Passive to	Passif à	Passivo a
+leer = Benutzername	empty = username	vide = nom d'utilisateur	vuoto = nome utente
+leer = lokale IP	empty = local IP	vide = IP locale	vuoto = IP locale
+leer = selbst signiert	empty = self-signed	vide = auto-signé	vuoto = autofirmato
+%u = Benutzername	%u = username	%u = nom d'utilisateur	%u = nome utente
+0 = frei	0 = free	0 = libre	0 = libero
+1 Mitglied	1 member	1 membre	1 membro
+{#} Mitglieder	{} members	{} membres	{} membri
+Absender	Sender	Expéditeur	Mittente
+Art des Ereignisses	Event type	Type d'événement	Tipo di evento
+Befehle bekommen diese Umgebungsvariablen, Webhooks dieselben Angaben als JSON:	Commands get these environment variables, webhooks the same data as JSON:	Les commandes reçoivent ces variables d'environnement, les webhooks les mêmes données en JSON :	I comandi ricevono queste variabili d'ambiente, i webhook gli stessi dati in JSON:
+Buchstaben, Ziffern, - _ . @	Letters, digits, - _ . @	Lettres, chiffres, - _ . @	Lettere, cifre, - _ . @
+Deine Domain	Your domain	Ton domaine	Il tuo dominio
+Die 6 Ziffern eingeben,	Enter the 6 digits	Saisis les 6 chiffres	Inserisci le 6 cifre
+Dienste	Services	Services	Servizi
+Download gesamt in KB/s	Total download in KB/s	Téléchargement total en Ko/s	Download totale in KB/s
+Upload gesamt in KB/s	Total upload in KB/s	Envoi total en Ko/s	Upload totale in KB/s
+Eigenes Zertifikat (PEM)	Own certificate (PEM)	Propre certificat (PEM)	Certificato proprio (PEM)
+Key dazu (PEM)	Matching key (PEM)	Clé correspondante (PEM)	Chiave corrispondente (PEM)
+Erzwungen	Required	Obligatoire	Obbligatorio
+Optional (AUTH TLS)	Optional (AUTH TLS)	Facultatif (AUTH TLS)	Facoltativo (AUTH TLS)
+ohne	none	aucun	nessuno
+aus	off	désactivé	disattivato
+FTP-Passivbereich	FTP passive range	Plage passive FTP	Intervallo passivo FTP
+FXP erlauben (Server zu Server)	Allow FXP (server to server)	Autoriser FXP (serveur à serveur)	Consenti FXP (server a server)
+HTTP, Pfad /dav	HTTP, path /dav	HTTP, chemin /dav	HTTP, percorso /dav
+IP-Adresse	IP address	Adresse IP	Indirizzo IP
+IPs nach wiederholten Fehlversuchen sperren	Ban IPs after repeated failed attempts	Bloquer les IP après des échecs répétés	Blocca gli IP dopo tentativi falliti ripetuti
+Logdatei	Log file	Fichier journal	File di registro
+SMTP-Server	SMTP server	Serveur SMTP	Server SMTP
+STARTTLS (meist Port 587)	STARTTLS (usually port 587)	STARTTLS (généralement port 587)	STARTTLS (di solito porta 587)
+TLS (meist Port 465)	TLS (usually port 465)	TLS (généralement port 465)	TLS (di solito porta 465)
+Servername	Server name	Nom du serveur	Nome del server
+Standard	Default	Standard	Predefinito
+Stufe	Level	Niveau	Livello
+Suchen	Search	Rechercher	Cerca
+Trennen nach Leerlauf (s)	Disconnect when idle (s)	Déconnecter après inactivité (s)	Disconnetti dopo inattività (s)
+Verbindungen gesamt	Total connections	Connexions au total	Connessioni totali
+Verbindungen pro IP	Connections per IP	Connexions par IP	Connessioni per IP
+Was teilen?	What to share?	Que partager ?	Cosa condividere?
+Webhook-ID	Webhook ID	ID du webhook	ID webhook
+Zugangstoken (optional)	Access token (optional)	Jeton d'accès (facultatif)	Token di accesso (facoltativo)
+Zusatz, z. B. alter Name beim Umbenennen	Extra, e.g. old name when renaming	Complément, p. ex. ancien nom lors d'un renommage	Extra, ad es. vecchio nome durante la rinomina
+verbunden	connected	connecté	connesso
+vor {}	{} ago	il y a {}	{} fa
+jetzt	now	maintenant	ora
+{#} T {#} h	{} d {} h	{} j {} h	{} g {} h
+wie Browser	same as browser	comme le navigateur	come il browser
+z. B. mail.infomaniak.com	e.g. mail.infomaniak.com	p. ex. mail.infomaniak.com	ad es. mail.infomaniak.com
+dateien.deinedomain.ch	files.yourdomain.com	fichiers.ton-domaine.ch	file.tuodominio.ch
+du@example.ch	you@example.com	toi@example.ch	tu@example.ch
+/pfad/zu/dbip-country-lite.mmdb	/path/to/dbip-country-lite.mmdb	/chemin/vers/dbip-country-lite.mmdb	/percorso/di/dbip-country-lite.mmdb
+Link: {}	Link: {}	Lien : {}	Link: {}
+Link:{}	Link:{}	Lien:{}	Link:{}
+Jemand	Someone	Quelqu'un	Qualcuno
+ in 	 in 	 dans 	 in 
+ von 	 from 	 de 	 da 
+Link wurde benutzt	Link was used	Lien utilisé	Link utilizzato
+Neue Datei	New file	Nouveau fichier	Nuovo file
+%s%s ist angekommen%s%s.	%s%s has arrived%s%s.	%s%s est arrivé%s%s.	%s%s è arrivato%s%s.
+%s%s wurde über einen Freigabe-Link heruntergeladen (IP %s).	%s%s was downloaded via a share link (IP %s).	%s%s a été téléchargé via un lien de partage (IP %s).	%s%s è stato scaricato tramite un link di condivisione (IP %s).
+%s hat %s%s hochgeladen (%s).	%s uploaded %s%s (%s).	%s a envoyé %s%s (%s).	%s ha caricato %s%s (%s).
+%s hat sich über %s angemeldet (IP %s).	%s signed in via %s (IP %s).	%s s'est connecté via %s (IP %s).	%s ha effettuato l'accesso via %s (IP %s).
+Fehlversuch als %q über %s von %s: %s.	Failed attempt as %q via %s from %s: %s.	Tentative échouée en tant que %q via %s depuis %s : %s.	Tentativo fallito come %q via %s da %s: %s.
+%s wurde nach zu vielen Fehlversuchen gesperrt (zuletzt als %q über %s).	%s was banned after too many failed attempts (last as %q via %s).	%s a été bloqué après trop de tentatives échouées (dernière en tant que %q via %s).	%s è stato bloccato dopo troppi tentativi falliti (l'ultimo come %q via %s).
+Wiederherstellungscode benutzt	Recovery code used	Code de récupération utilisé	Codice di recupero usato
+Jemand hat sich mit einem Wiederherstellungscode an der Verwaltung angemeldet. Noch %d Codes übrig.	Someone signed in to the administration with a recovery code. %d codes left.	Quelqu'un s'est connecté à l'administration avec un code de récupération. Encore %d codes.	Qualcuno ha effettuato l'accesso all'amministrazione con un codice di recupero. Rimangono %d codici.
+Diese Nachricht kommt von SG9. Benachrichtigungen funktionieren.	This message comes from SG9. Notifications are working.	Ce message vient de SG9. Les notifications fonctionnent.	Questo messaggio arriva da SG9. Le notifiche funzionano.
+Sprache der Nachrichten	Language of messages	Langue des messages	Lingua dei messaggi

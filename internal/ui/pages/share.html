@@ -8,6 +8,7 @@
 <link rel="icon" href="/assets/mark.svg">
 <link rel="stylesheet" href="/assets/sg9.css">
 <script src="/assets/theme.js"></script>
+<script src="/assets/i18n.js"></script>
 <style>
 body { min-height: 100vh; display: flex; flex-direction: column; }
 .shell { width: min(860px, 100%); margin: 0 auto; padding: 40px 24px 32px; flex: 1; }
@@ -54,11 +55,13 @@ footer.page { text-align: center; padding: 18px; font-size: var(--t-xs); color: 
 <input type="file" id="picker" multiple hidden>
 <script>
 "use strict";
+const LOC = window.SG9I18n ? SG9I18n.locale : "de-CH";
+const T = s => window.SG9I18n ? SG9I18n.t(s) : s;
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmtBytes = n => { n = Number(n) || 0; const u = ["B", "KB", "MB", "GB", "TB"]; let i = 0; while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; } return (i ? n.toFixed(n < 10 ? 1 : 0) : n) + " " + u[i]; };
-const fmtDate = t => new Date(t).toLocaleString("de-CH", { dateStyle: "medium", timeStyle: "short" });
+const fmtDate = t => new Date(t).toLocaleString(LOC, { dateStyle: "medium", timeStyle: "short" });
 const joinP = (a, b) => (a === "/" ? "" : a) + "/" + b;
 const id = location.pathname.split("/")[2];
 const base = "/s/" + encodeURIComponent(id);
@@ -129,7 +132,7 @@ async function load() {
   document.title = info.name + " – geteilt";
   const kind = info.upload ? "inbox" : info.dir ? "folder" : "file";
   const facts = info.upload || !info.owner ? [] : [`Geteilt von ${esc(info.owner)}`];
-  if (info.expiresAt) facts.push("Gültig bis " + new Date(info.expiresAt + "T00:00").toLocaleDateString("de-CH"));
+  if (info.expiresAt) facts.push("Gültig bis " + new Date(info.expiresAt + "T00:00").toLocaleDateString(LOC));
   if (info.downloadsLeft !== undefined) facts.push(info.downloadsLeft === 1 ? "Noch 1 Download" : `Noch ${info.downloadsLeft} Downloads`);
   $("#root").innerHTML = `<div class="label"><span class="led on"></span>${info.upload ? "Briefkasten zum Hochladen" : info.dir ? "Geteilter Ordner" : "Geteilte Datei"}</div>
     <div class="panel"><div class="head"><h1>${icon(kind, kind === "folder" || kind === "inbox" ? "dir" : "")}${esc(info.upload ? "Dateien an " + (info.owner || info.server) + " senden" : info.name)}</h1>

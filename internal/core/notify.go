@@ -25,6 +25,20 @@ type Notify struct {
 	HA    HASettings    `json:"ha"`
 	// On sind die Anlässe, bei denen benachrichtigt wird (siehe NotifyKinds).
 	On []string `json:"on"`
+	// Lang: Sprache der Nachrichten (de, en, fr, it), leer = Deutsch.
+	Lang string `json:"lang"`
+}
+
+// Translator übersetzt deutsche Texte (wird von main mit ui.Translate belegt).
+var Translator = func(lang, s string) string { return s }
+
+// T übersetzt einen Text in die Sprache der Benachrichtigungen.
+func (h *Hub) T(s string) string {
+	l := h.Store.Snapshot().Notify.Lang
+	if l == "" || l == "de" {
+		return s
+	}
+	return Translator(l, s)
 }
 
 // NtfySettings: Push-Nachrichten über ntfy.sh oder einen eigenen ntfy-Server.
@@ -116,7 +130,7 @@ func (h *Hub) enqueue(n notification) {
 func (h *Hub) notifyFromEvent(d EventData) {
 	who := d.User
 	if who == "" {
-		who = "Jemand"
+		who = h.T("Jemand")
 	}
 	size := ""
 	if d.Bytes > 0 {
@@ -131,27 +145,27 @@ func (h *Hub) notifyFromEvent(d EventData) {
 			if sh.Comment != "" {
 				place = " (" + sh.Comment + ")"
 			} else if sh.RealPath != "" {
-				place = " in " + sh.RealPath
+				place = h.T(" in ") + sh.RealPath
 			}
 		}
 		from := ""
 		if strings.Contains(d.Extra, "von ") {
-			from = " von " + strings.TrimSpace(d.Extra[strings.Index(d.Extra, "von ")+4:])
+			from = h.T(" von ") + strings.TrimSpace(d.Extra[strings.Index(d.Extra, "von ")+4:])
 		}
-		h.enqueue(notification{Kind: "dropbox", Data: d, Title: "Neue Datei im Briefkasten",
-			Body: fmt.Sprintf("%s%s ist angekommen%s%s.", path.Base(d.Path), size, place, from)})
+		h.enqueue(notification{Kind: "dropbox", Data: d, Title: h.T("Neue Datei im Briefkasten"),
+			Body: fmt.Sprintf(h.T("%s%s ist angekommen%s%s."), path.Base(d.Path), size, place, from)})
 	case d.Event == "share" && strings.HasPrefix(d.Extra, "download"):
-		h.enqueue(notification{Kind: "sharedl", Data: d, Title: "Link wurde benutzt",
-			Body: fmt.Sprintf("%s%s wurde über einen Freigabe-Link heruntergeladen (IP %s).", path.Base(d.Path), size, d.IP)})
+		h.enqueue(notification{Kind: "sharedl", Data: d, Title: h.T("Link wurde benutzt"),
+			Body: fmt.Sprintf(h.T("%s%s wurde über einen Freigabe-Link heruntergeladen (IP %s)."), path.Base(d.Path), size, d.IP)})
 	case d.Event == "upload":
-		h.enqueue(notification{Kind: "upload", Data: d, Title: "Neue Datei",
-			Body: fmt.Sprintf("%s hat %s%s hochgeladen (%s).", who, d.Path, size, strings.ToUpper(d.Protocol))})
+		h.enqueue(notification{Kind: "upload", Data: d, Title: h.T("Neue Datei"),
+			Body: fmt.Sprintf(h.T("%s hat %s%s hochgeladen (%s)."), who, d.Path, size, strings.ToUpper(d.Protocol))})
 	case d.Event == "login":
-		h.enqueue(notification{Kind: "login", Data: d, Title: "Anmeldung",
-			Body: fmt.Sprintf("%s hat sich über %s angemeldet (IP %s).", who, strings.ToUpper(d.Protocol), d.IP)})
+		h.enqueue(notification{Kind: "login", Data: d, Title: h.T("Anmeldung"),
+			Body: fmt.Sprintf(h.T("%s hat sich über %s angemeldet (IP %s)."), who, strings.ToUpper(d.Protocol), d.IP)})
 	case d.Event == "loginfail":
-		h.enqueue(notification{Kind: "loginfail", Data: d, Title: "Anmeldung fehlgeschlagen",
-			Body: fmt.Sprintf("Fehlversuch als %q über %s von %s: %s.", d.User, strings.ToUpper(d.Protocol), d.IP, d.Extra)})
+		h.enqueue(notification{Kind: "loginfail", Data: d, Title: h.T("Anmeldung fehlgeschlagen"),
+			Body: fmt.Sprintf(h.T("Fehlversuch als %q über %s von %s: %s."), d.User, strings.ToUpper(d.Protocol), d.IP, d.Extra)})
 	}
 }
 
@@ -222,7 +236,13 @@ func (n *notifier) send(ctx context.Context, server string, st Notify, msg notif
 // TestNotify verschickt sofort eine Testnachricht und meldet das Ergebnis pro Kanal.
 func (h *Hub) TestNotify(ctx context.Context, st Notify) map[string]string {
 	res := map[string]string{}
-	msg := notification{Kind: "test", Title: "Test", Body: "Diese Nachricht kommt von SG9. Benachrichtigungen funktionieren."}
+	tr := func(s string) string {
+		if st.Lang == "" || st.Lang == "de" {
+			return s
+		}
+		return Translator(st.Lang, s)
+	}
+	msg := notification{Kind: "test", Title: "Test", Body: tr("Diese Nachricht kommt von SG9. Benachrichtigungen funktionieren.")}
 	for name, err := range h.notifier.send(ctx, h.Store.Settings().ServerName, st, msg) {
 		if err != nil {
 			res[name] = err.Error()

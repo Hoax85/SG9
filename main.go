@@ -17,6 +17,7 @@ import (
 	"sg9/internal/core"
 	"sg9/internal/ftp"
 	"sg9/internal/sftpd"
+	"sg9/internal/ui"
 	"sg9/internal/web"
 )
 
@@ -53,6 +54,7 @@ func main() {
 	flag.Parse()
 	admin.Version = version
 	admin.UpdateRepo = updateRepo
+	core.Translator = ui.Translate
 
 	if *installSvc || *uninstallSvc {
 		abs, _ := filepath.Abs(*dataDir)

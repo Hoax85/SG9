@@ -129,7 +129,7 @@ func NewHub(store *Store, log *Logger, stats *Stats, bans *BanList) *Hub {
 		if strings.HasPrefix(e.Msg, "Benachrichtigung") {
 			return // keine Schleife, wenn das Senden selbst scheitert
 		}
-		h.NotifyEvent("error", "Fehler in SG9", e.Msg)
+		h.NotifyEvent("error", h.T("Fehler in SG9"), h.T(e.Msg))
 	})
 	return h
 }
@@ -276,7 +276,7 @@ func (h *Hub) Login(r LoginRequest) (Account, error) {
 		banned := h.Bans.Fail(ipStr, h.Store.Settings().AntiHammer)
 		if banned {
 			h.Log.Warn("IP %s wegen zu vieler Fehlversuche gesperrt", ipStr)
-			h.NotifyEvent("ban", "IP-Adresse gesperrt", fmt.Sprintf("%s wurde nach zu vielen Fehlversuchen gesperrt (zuletzt als %q über %s).", ipStr, r.Name, strings.ToUpper(r.Protocol)))
+			h.NotifyEvent("ban", h.T("IP-Adresse gesperrt"), fmt.Sprintf(h.T("%s wurde nach zu vielen Fehlversuchen gesperrt (zuletzt als %q über %s)."), ipStr, r.Name, strings.ToUpper(r.Protocol)))
 		}
 		return Account{}, &LoginError{Msg: shown, Failed: true, Banned: banned}
 	}

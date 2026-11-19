@@ -7,6 +7,7 @@
 <link rel="icon" href="/assets/mark.svg">
 <link rel="stylesheet" href="/assets/sg9.css">
 <script src="/assets/theme.js"></script>
+<script src="/assets/i18n.js"></script>
 <style>
 .top { display: flex; align-items: center; gap: 14px; padding: 14px 28px; border-bottom: 1px solid var(--line); background: var(--surface); flex-wrap: wrap; }
 .top .who { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: var(--t-s); color: var(--ink-2); }
@@ -40,11 +41,13 @@
 <input type="file" id="picker" multiple hidden>
 <script>
 "use strict";
+const LOC = window.SG9I18n ? SG9I18n.locale : "de-CH";
+const T = s => window.SG9I18n ? SG9I18n.t(s) : s;
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmtBytes = n => { n = Number(n) || 0; const u = ["B", "KB", "MB", "GB", "TB"]; let i = 0; while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; } return (i ? n.toFixed(n < 10 ? 1 : 0) : n) + " " + u[i]; };
-const fmtDate = t => new Date(t).toLocaleString("de-CH", { dateStyle: "medium", timeStyle: "short" });
+const fmtDate = t => new Date(t).toLocaleString(LOC, { dateStyle: "medium", timeStyle: "short" });
 const joinP = (a, b) => (a === "/" ? "" : a) + "/" + b;
 const IMG = /\.(png|jpe?g|gif|webp|bmp|avif)$/i;
 // Was der Browser direkt anzeigen darf (SVG/HTML nie: könnten Skripte enthalten)
@@ -283,7 +286,7 @@ async function viewLinks() {
   $("#view").innerHTML = `<div class="panel" style="overflow:auto"><table class="data"><thead><tr><th>Inhalt</th><th>Art</th><th>Downloads</th><th>Gültig bis</th><th></th></tr></thead><tbody>
     ${list.length ? list.map(s => `<tr><td><div class="mono">${esc(s.path)}</div>${s.comment ? `<div class="hint">${esc(s.comment)}</div>` : ""}</td>
       <td>${s.upload ? "Briefkasten" : "Download"} ${s.password ? '<span class="pill">Passwort</span>' : ""} ${s.expired ? '<span class="pill bad">abgelaufen</span>' : s.disabled ? '<span class="pill">pausiert</span>' : ""}</td>
-      <td>${s.upload ? "–" : s.downloads + (s.maxDownloads ? " von " + s.maxDownloads : "")}</td><td>${s.expiresAt ? new Date(s.expiresAt + "T00:00").toLocaleDateString("de-CH") : "unbegrenzt"}</td>
+      <td>${s.upload ? "–" : s.downloads + (s.maxDownloads ? " von " + s.maxDownloads : "")}</td><td>${s.expiresAt ? new Date(s.expiresAt + "T00:00").toLocaleDateString(LOC) : "unbegrenzt"}</td>
       <td style="text-align:right;white-space:nowrap"><button class="btn small" data-copy="${esc(s.url)}">Link kopieren</button> <button class="btn small" data-qr="${esc(s.url)}">QR</button> <button class="btn small danger" data-del="${s.id}">Löschen</button></td></tr>`).join("")
     : `<tr><td colspan="5"><div class="empty"><b>Noch keine Links</b>Bei einer Datei oder einem Ordner auf „Teilen“ klicken.</div></td></tr>`}</tbody></table></div>`;
   $$("[data-copy]").forEach(b => b.onclick = () => copy(b.dataset.copy));

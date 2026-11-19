@@ -417,7 +417,7 @@ func (a *Admin) checkSecondFactor(code string) bool {
 				return nil
 			})
 			a.Hub.Log.Warn("Verwaltung: mit Wiederherstellungscode angemeldet, noch %d übrig", len(st.RecoveryHashes)-1)
-			a.Hub.NotifyEvent("error", "Wiederherstellungscode benutzt", fmt.Sprintf("Jemand hat sich mit einem Wiederherstellungscode an der Verwaltung angemeldet. Noch %d Codes übrig.", len(st.RecoveryHashes)-1))
+			a.Hub.NotifyEvent("error", a.Hub.T("Wiederherstellungscode benutzt"), fmt.Sprintf(a.Hub.T("Jemand hat sich mit einem Wiederherstellungscode an der Verwaltung angemeldet. Noch %d Codes übrig."), len(st.RecoveryHashes)-1))
 			return true
 		}
 	}

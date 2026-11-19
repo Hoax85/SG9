@@ -155,6 +155,9 @@ func (a *Admin) routes() http.Handler {
 	mux.HandleFunc("GET /api/bans", a.auth(a.listBans))
 	mux.HandleFunc("DELETE /api/bans/{ip}", a.auth(a.unban))
 	mux.HandleFunc("GET /api/browse", a.auth(a.browse))
+	mux.HandleFunc("GET /api/notify", a.auth(a.getNotify))
+	mux.HandleFunc("PUT /api/notify", a.auth(a.putNotify))
+	mux.HandleFunc("POST /api/notify/test", a.auth(a.testNotify))
 	mux.HandleFunc("GET /api/cert", a.auth(a.certStatus))
 	mux.HandleFunc("POST /api/cert/request", a.auth(a.certRequest))
 	mux.HandleFunc("POST /api/admin/password", a.auth(a.changePassword))
@@ -836,6 +839,81 @@ func (a *Admin) unban(w http.ResponseWriter, r *http.Request) {
 	a.Hub.Bans.Unban(ip)
 	a.Hub.Log.Info("Sperre für %s aufgehoben", ip)
 	ok(w)
+}
+
+// ---------- Benachrichtigungen ----------
+
+type notifyOut struct {
+	core.Notify
+	HasEmailPassword bool     `json:"hasEmailPassword"`
+	HasNtfyToken     bool     `json:"hasNtfyToken"`
+	Kinds            []string `json:"kinds"`
+}
+
+func (a *Admin) getNotify(w http.ResponseWriter, r *http.Request) {
+	n := a.store().Snapshot().Notify
+	out := notifyOut{Notify: n, HasEmailPassword: n.Email.Password != "", HasNtfyToken: n.Ntfy.Token != "", Kinds: core.NotifyKinds}
+	out.Email.Password, out.Ntfy.Token = "", ""
+	if out.On == nil {
+		out.On = []string{}
+	}
+	writeJSON(w, 200, out)
+}
+
+// mergeSecrets übernimmt gespeicherte Passwörter, wenn das Feld leer gelassen wurde.
+func (a *Admin) mergeSecrets(in core.Notify) core.Notify {
+	old := a.store().Snapshot().Notify
+	if in.Email.Password == "" {
+		in.Email.Password = old.Email.Password
+	}
+	if in.Ntfy.Token == "" {
+		in.Ntfy.Token = old.Ntfy.Token
+	}
+	if in.On == nil {
+		in.On = []string{}
+	}
+	return in
+}
+
+func (a *Admin) putNotify(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		core.Notify
+		ClearEmailPassword bool `json:"clearEmailPassword"`
+		ClearNtfyToken     bool `json:"clearNtfyToken"`
+	}
+	if err := readJSON(r, &in); err != nil {
+		fail(w, 400, "Ungültige Anfrage")
+		return
+	}
+	n := a.mergeSecrets(in.Notify)
+	if in.ClearEmailPassword {
+		n.Email.Password = ""
+	}
+	if in.ClearNtfyToken {
+		n.Ntfy.Token = ""
+	}
+	if err := a.store().Update(func(c *core.Config) error { c.Notify = n; return nil }); err != nil {
+		fail(w, 400, err.Error())
+		return
+	}
+	a.Hub.Log.Info("Benachrichtigungen gespeichert")
+	ok(w)
+}
+
+func (a *Admin) testNotify(w http.ResponseWriter, r *http.Request) {
+	var in core.Notify
+	if err := readJSON(r, &in); err != nil {
+		fail(w, 400, "Ungültige Anfrage")
+		return
+	}
+	in = a.mergeSecrets(in)
+	if !in.Ntfy.Enabled && !in.Email.Enabled && !in.HA.Enabled {
+		fail(w, 400, "Schalte zuerst mindestens einen Weg ein")
+		return
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), 40*time.Second)
+	defer cancel()
+	writeJSON(w, 200, a.Hub.TestNotify(ctx, in))
 }
 
 // ---------- Let's Encrypt ----------

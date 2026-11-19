@@ -155,7 +155,11 @@ type Logger struct {
 	file  *os.File
 	path  string
 	quiet bool
+	onErr func(LogEntry)
 }
+
+// OnError ruft f bei jedem Fehler-Eintrag auf (für Benachrichtigungen).
+func (l *Logger) OnError(f func(LogEntry)) { l.mu.Lock(); l.onErr = f; l.mu.Unlock() }
 
 const logRing = 2000
 
@@ -205,7 +209,11 @@ func (l *Logger) Add(level string, sess int64, ip, user, format string, args ...
 	if l.file != nil {
 		_, _ = l.file.WriteString(line)
 	}
+	hook := l.onErr
 	l.mu.Unlock()
+	if hook != nil && level == "error" {
+		go hook(e)
+	}
 	if !l.quiet {
 		fmt.Print(line)
 	}

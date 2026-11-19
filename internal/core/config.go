@@ -243,6 +243,7 @@ type Config struct {
 	Groups   []Group  `json:"groups"`
 	Users    []User   `json:"users"`
 	Events   []Event  `json:"events"`
+	Notify   Notify   `json:"notify"`
 	Shares   []Share  `json:"shares"`
 }
 
@@ -299,6 +300,7 @@ func OpenStore(dataDir string) (*Store, bool, error) {
 	switch {
 	case errors.Is(err, os.ErrNotExist):
 		s.cfg = DefaultConfig(dataDir)
+		s.cfg.Notify.On = append([]string(nil), DefaultNotifyOn...)
 		// Im Container muss die Verwaltung von aussen erreichbar sein.
 		if a := strings.TrimSpace(os.Getenv("SG9_ADMIN_LISTEN")); a != "" {
 			s.cfg.Settings.Admin.ListenAddr = a
@@ -320,6 +322,9 @@ func OpenStore(dataDir string) (*Store, bool, error) {
 		}
 		if !strings.Contains(string(b), `"ftpEnabled"`) {
 			cfg.Settings.FTPEnabled = true
+		}
+		if cfg.Notify.On == nil {
+			cfg.Notify.On = append([]string(nil), DefaultNotifyOn...)
 		}
 		s.cfg = cfg
 	}

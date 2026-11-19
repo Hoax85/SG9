@@ -99,6 +99,8 @@ type Hub struct {
 	sessions map[int64]Session
 	nextID   int64
 
+	notifier *notifier
+
 	cmu      sync.Mutex
 	counters map[string]*UserCounters
 	dirty    bool
@@ -121,6 +123,13 @@ func NewHub(store *Store, log *Logger, stats *Stats, bans *BanList) *Hub {
 			h.SaveCounters()
 		}
 	}()
+	h.notifier = newNotifier(h)
+	log.OnError(func(e LogEntry) {
+		if strings.HasPrefix(e.Msg, "Benachrichtigung") {
+			return // keine Schleife, wenn das Senden selbst scheitert
+		}
+		h.NotifyEvent("error", "Fehler in SG9", e.Msg)
+	})
 	return h
 }
 
@@ -262,6 +271,7 @@ func (h *Hub) Login(r LoginRequest) (Account, error) {
 		banned := h.Bans.Fail(ipStr, h.Store.Settings().AntiHammer)
 		if banned {
 			h.Log.Warn("IP %s wegen zu vieler Fehlversuche gesperrt", ipStr)
+			h.NotifyEvent("ban", "IP-Adresse gesperrt", fmt.Sprintf("%s wurde nach zu vielen Fehlversuchen gesperrt (zuletzt als %q über %s).", ipStr, r.Name, strings.ToUpper(r.Protocol)))
 		}
 		return Account{}, &LoginError{Msg: shown, Failed: true, Banned: banned}
 	}
@@ -560,6 +570,7 @@ func (h *Hub) Fire(d EventData) {
 	if d.Time.IsZero() {
 		d.Time = time.Now()
 	}
+	h.notifyFromEvent(d)
 	cfg := h.Store.Snapshot()
 	for _, e := range cfg.Events {
 		if !e.Enabled || !containsFold(e.On, d.Event) {

@@ -122,6 +122,12 @@ main { min-width: 0; padding: 22px 32px 48px; }
 .picker .where { font: 12.5px var(--mono); color: var(--ink-2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .copyline { display: flex; gap: 6px; align-items: center; }
+.notify-kinds { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 10px 22px; }
+.nk { align-items: flex-start !important; white-space: normal !important; }
+.nk input { margin-top: 3px !important; }
+.nk > span { display: grid; gap: 1px; }
+.nk b { font-weight: 600; }
+pre.yaml { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px; font-size: 12px; overflow: auto; white-space: pre; }
 .acme-state { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border-radius: 9px; background: var(--surface); font-size: var(--t-s); }
 .acme-state > span:nth-child(2) { flex: 1; min-width: 200px; }
 .steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: var(--t-s); color: var(--ink-2); }
@@ -204,6 +210,7 @@ const I = {
   groups: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2 .7 3.2 2.5 3.6 5.2"/>',
   shares: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   events: '<path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/>',
+  notify: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
   settings: '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
   logs: '<path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 19h4"/>',
   bans: '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
@@ -271,7 +278,7 @@ function showLogin(st) {
 }
 
 // ---------- Rahmen ----------
-const NAV = [["status", "Übersicht"], ["sessions", "Sitzungen"], ["gap"], ["users", "Benutzer"], ["groups", "Gruppen"], ["shares", "Freigabe-Links"], ["gap"], ["events", "Ereignisse"], ["settings", "Einstellungen"], ["logs", "Protokoll"], ["bans", "Sperren"]];
+const NAV = [["status", "Übersicht"], ["sessions", "Sitzungen"], ["gap"], ["users", "Benutzer"], ["groups", "Gruppen"], ["shares", "Freigabe-Links"], ["gap"], ["notify", "Benachrichtigungen"], ["events", "Ereignisse"], ["settings", "Einstellungen"], ["logs", "Protokoll"], ["bans", "Sperren"]];
 function shell() {
   $("#root").innerHTML = `<div class="app">
     <aside><div class="top"><span class="mark"><img src="/assets/mark.svg" alt="" width="34" height="34"><span><b id="sname">SG9</b><small id="sver">Verwaltung</small></span></span></div>
@@ -330,7 +337,7 @@ async function tick() {
 }
 function render() {
   $$("nav a").forEach(a => a.classList.toggle("on", a.dataset.v === state.view));
-  const views = { status: viewStatus, sessions: viewSessions, users: () => viewAccounts("users"), groups: () => viewAccounts("groups"), shares: viewShares, events: viewEvents, settings: viewSettings, logs: viewLogs, bans: viewBans };
+  const views = { status: viewStatus, sessions: viewSessions, users: () => viewAccounts("users"), groups: () => viewAccounts("groups"), shares: viewShares, events: viewEvents, notify: viewNotify, settings: viewSettings, logs: viewLogs, bans: viewBans };
   (views[state.view] || viewStatus)();
   $("main").scrollTop = 0; window.scrollTo(0, 0);
 }
@@ -807,6 +814,92 @@ async function shareDialog() {
     catch (err) { toast(err.message, true); }
   };
   startServer();
+}
+
+// ---------- Benachrichtigungen ----------
+const NOTIFY_LABEL = {
+  dropbox: ["Neue Datei im Briefkasten", "wenn jemand über einen Briefkasten-Link etwas hochlädt"],
+  sharedl: ["Download über einen Link", "wenn jemand etwas über einen Freigabe-Link herunterlädt"],
+  upload: ["Jeder Upload", "wenn ein Benutzer eine Datei hochlädt, egal über welchen Dienst"],
+  login: ["Jede Anmeldung", "bei jeder erfolgreichen Anmeldung eines Benutzers"],
+  loginfail: ["Fehlgeschlagene Anmeldung", "bei falschem Passwort oder unbekanntem Benutzer"],
+  ban: ["IP-Adresse gesperrt", "wenn eine Adresse nach zu vielen Fehlversuchen gesperrt wird"],
+  error: ["Fehler in SG9", "z. B. ein Dienst startet nicht oder das Zertifikat lässt sich nicht holen"],
+};
+const randomId = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => "abcdefghijkmnpqrstuvwxyz23456789"[b % 32]).join("");
+async function viewNotify() {
+  setHead("Benachrichtigungen", "Eine Nachricht aufs Handy oder per E-Mail, wenn etwas Wichtiges passiert");
+  const n = await api("GET", "/api/notify").catch(e => { toast(e.message, true); return null; }); if (!n) return;
+  const sw = (name, on) => `<label class="switch"><input type="checkbox" name="${name}" ${on ? "checked" : ""}><span class="track"></span>${on ? "Ein" : "Aus"}</label>`;
+  const i = (name, label, val, type = "text", extra = "") => `<label class="field">${label}<input name="${name}" type="${type}" value="${esc(val ?? "")}" ${extra}></label>`;
+  const haYaml = id => `alias: SG9 Benachrichtigung
+trigger:
+  - platform: webhook
+    webhook_id: ${id || "DEINE-WEBHOOK-ID"}
+    local_only: true
+action:
+  - service: notify.notify
+    data:
+      title: "{{ trigger.json.title }}"
+      message: "{{ trigger.json.message }}"`;
+  $("#main").innerHTML = `<form id="nf" class="settings" autocomplete="off">
+    <div class="panel"><div class="panel-head"><h2>Wann</h2></div><div class="panel-body">
+      <div class="notify-kinds">${n.kinds.map(k => `<label class="check nk"><input type="checkbox" data-kind="${k}" ${n.on.includes(k) ? "checked" : ""}><span><b>${NOTIFY_LABEL[k][0]}</b><span class="hint">${NOTIFY_LABEL[k][1]}</span></span></label>`).join("")}</div>
+      <p class="hint" style="margin:0">Gleiche Fehlermeldungen kommen höchstens alle 10 Minuten, insgesamt höchstens 30 Nachrichten pro Stunde.</p></div></div>
+
+    <div class="panel"><div class="panel-head"><h2>ntfy (Push aufs Handy)</h2>${sw("ntfyOn", n.ntfy.enabled)}</div><div class="panel-body">
+      <p class="hint" style="margin:0">Die App <b>ntfy</b> installieren (F-Droid oder Play Store, läuft auch ohne Google-Dienste), dort das Thema unten abonnieren. Fertig. Mit eigenem ntfy-Server dessen Adresse eintragen.</p>
+      <div class="grid-form">${i("ntfyServer", "Server", n.ntfy.server, "url", 'placeholder="https://ntfy.sh"')}
+        <label class="field">Thema<div class="row"><input class="input grow mono" name="ntfyTopic" value="${esc(n.ntfy.topic)}" placeholder="sg9-…"><button type="button" class="btn small" id="rndtopic">Zufällig</button></div><span class="hint">Wer das Thema kennt, kann mitlesen. Ein zufälliger Name schützt.</span></label>
+        ${i("ntfyToken", "Zugangstoken (optional)", "", "password", `placeholder="${n.hasNtfyToken ? "gespeichert, leer lassen = behalten" : "nur bei geschütztem Server"}"`)}</div></div></div>
+
+    <div class="panel"><div class="panel-head"><h2>E-Mail</h2>${sw("mailOn", n.email.enabled)}</div><div class="panel-body">
+      <div class="grid-form">${i("mailHost", "SMTP-Server", n.email.host, "text", 'placeholder="z. B. mail.infomaniak.com"')}
+        ${i("mailPort", "Port", n.email.port || "", "number", 'placeholder="587"')}
+        <label class="field">Verschlüsselung<select name="mailSec">${[["starttls", "STARTTLS (meist Port 587)"], ["tls", "TLS (meist Port 465)"], ["none", "keine (nur im eigenen Netz)"]].map(([v, l]) => `<option value="${v}" ${(n.email.security || "starttls") === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+        ${i("mailUser", "Benutzername", n.email.username, "text", 'autocomplete="off"')}
+        ${i("mailPass", "Passwort", "", "password", `autocomplete="new-password" placeholder="${n.hasEmailPassword ? "gespeichert, leer lassen = behalten" : ""}"`)}
+        ${i("mailFrom", "Absender", n.email.from, "email", 'placeholder="leer = Benutzername"')}
+        ${i("mailTo", "Empfänger", n.email.to, "text", 'placeholder="du@example.ch, mehrere mit Komma"')}</div>
+      <p class="hint" style="margin:0">Bei Gmail und GMX braucht es ein App-Passwort, nicht das normale Passwort.</p></div></div>
+
+    <div class="panel"><div class="panel-head"><h2>Home Assistant</h2>${sw("haOn", n.ha.enabled)}</div><div class="panel-body">
+      <div class="grid-form">${i("haUrl", "Adresse von Home Assistant", n.ha.url, "url", 'placeholder="http://homeassistant.local:8123"')}
+        <label class="field">Webhook-ID<div class="row"><input class="input grow mono" name="haId" value="${esc(n.ha.webhookId)}"><button type="button" class="btn small" id="rndha">Zufällig</button></div></label></div>
+      <details><summary class="hint" style="cursor:pointer">So richtest du die Automation in Home Assistant ein</summary>
+        <p class="hint">Einstellungen → Automationen → Neue Automation → ⋮ → „In YAML bearbeiten“, das hier einfügen. Statt <span class="mono">notify.notify</span> kannst du z. B. deine Handy-App oder eine Lampe ansteuern. Die Nachricht enthält auch <span class="mono">kind</span>, <span class="mono">user</span>, <span class="mono">ip</span> und <span class="mono">path</span>.</p>
+        <pre class="yaml mono" id="hayaml"></pre><button type="button" class="btn small" id="copyyaml">Kopieren</button></details></div></div>
+
+    <div class="sticky-save"><span class="hint" id="testres" style="margin-right:auto"></span><button type="button" class="btn" id="test">Testnachricht senden</button><button class="btn primary">Speichern</button></div>
+  </form>`;
+  const f = $("#nf");
+  $$(".switch input", f).forEach(x => x.addEventListener("change", () => x.parentElement.lastChild.textContent = x.checked ? "Ein" : "Aus"));
+  $("#rndtopic").onclick = () => { f.ntfyTopic.value = "sg9-" + randomId(16); };
+  const yaml = () => { $("#hayaml").textContent = haYaml(f.haId.value.trim()); };
+  $("#rndha").onclick = () => { f.haId.value = "sg9-" + randomId(20); yaml(); };
+  f.haId.oninput = yaml; yaml();
+  $("#copyyaml").onclick = () => copy($("#hayaml").textContent);
+  const collect = () => ({
+    on: $$("[data-kind]", f).filter(x => x.checked).map(x => x.dataset.kind),
+    ntfy: { enabled: f.ntfyOn.checked, server: f.ntfyServer.value.trim(), topic: f.ntfyTopic.value.trim(), token: f.ntfyToken.value },
+    email: { enabled: f.mailOn.checked, host: f.mailHost.value.trim(), port: num(f.mailPort.value), security: f.mailSec.value, username: f.mailUser.value.trim(), password: f.mailPass.value, from: f.mailFrom.value.trim(), to: f.mailTo.value.trim() },
+    ha: { enabled: f.haOn.checked, url: f.haUrl.value.trim(), webhookId: f.haId.value.trim() },
+  });
+  $("#test").onclick = async e => {
+    const b = e.target; b.disabled = true; b.textContent = "Sende …"; $("#testres").textContent = "";
+    try {
+      const r = await api("POST", "/api/notify/test", collect());
+      const parts = Object.entries(r).map(([k, v]) => v ? `${k}: ${v}` : `${k}: angekommen`);
+      const bad = Object.values(r).some(v => v);
+      $("#testres").innerHTML = parts.map(p => `<span style="color:${p.endsWith("angekommen") ? "var(--petrol)" : "var(--red)"}">${esc(p)}</span>`).join(" · ");
+      toast(bad ? "Nicht alle Wege haben geklappt" : "Testnachricht verschickt", bad);
+    } catch (err) { toast(err.message, true); }
+    b.disabled = false; b.textContent = "Testnachricht senden";
+  };
+  f.onsubmit = async e => {
+    e.preventDefault();
+    try { await api("PUT", "/api/notify", collect()); toast("Benachrichtigungen gespeichert"); viewNotify(); } catch (err) { toast(err.message, true); }
+  };
 }
 
 // ---------- Ereignisse ----------

@@ -45,6 +45,7 @@ type Admin struct {
 	mu          sync.Mutex
 	tokens      map[string]time.Time // Hash der Anmeldung -> gültig bis
 	tokensDirty bool
+	pending     *pending2FA
 
 	smu     sync.Mutex
 	handler http.Handler
@@ -155,6 +156,10 @@ func (a *Admin) routes() http.Handler {
 	mux.HandleFunc("GET /api/bans", a.auth(a.listBans))
 	mux.HandleFunc("DELETE /api/bans/{ip}", a.auth(a.unban))
 	mux.HandleFunc("GET /api/browse", a.auth(a.browse))
+	mux.HandleFunc("GET /api/2fa", a.auth(a.twofaStatus))
+	mux.HandleFunc("POST /api/2fa/begin", a.auth(a.twofaBegin))
+	mux.HandleFunc("POST /api/2fa/enable", a.auth(a.twofaEnable))
+	mux.HandleFunc("POST /api/2fa/disable", a.auth(a.twofaDisable))
 	mux.HandleFunc("GET /api/notify", a.auth(a.getNotify))
 	mux.HandleFunc("PUT /api/notify", a.auth(a.putNotify))
 	mux.HandleFunc("POST /api/notify/test", a.auth(a.testNotify))
@@ -590,7 +595,7 @@ func (a *Admin) deleteGroup(w http.ResponseWriter, r *http.Request) {
 
 func (a *Admin) getSettings(w http.ResponseWriter, r *http.Request) {
 	st := a.store().Settings()
-	st.Admin.PasswordHash = ""
+	st.Admin.PasswordHash, st.Admin.TOTPSecret, st.Admin.RecoveryHashes = "", "", nil
 	writeJSON(w, 200, map[string]any{"settings": st, "sftpFingerprint": a.Svc.SFTP.Fingerprint()})
 }
 
@@ -615,6 +620,7 @@ func (a *Admin) putSettings(w http.ResponseWriter, r *http.Request) {
 	}
 	err := a.store().Update(func(c *core.Config) error {
 		in.Admin.PasswordHash = c.Settings.Admin.PasswordHash
+		in.Admin.TOTPSecret, in.Admin.TOTPLastUsed, in.Admin.RecoveryHashes = c.Settings.Admin.TOTPSecret, c.Settings.Admin.TOTPLastUsed, c.Settings.Admin.RecoveryHashes
 		if in.Admin.Username == "" {
 			in.Admin.Username = c.Settings.Admin.Username
 		}

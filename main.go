@@ -71,9 +71,12 @@ func main() {
 		return
 	}
 	if *resetAdmin {
-		must(store.Update(func(c *core.Config) error { c.Settings.Admin.PasswordHash = ""; return nil }))
+		must(store.Update(func(c *core.Config) error {
+			c.Settings.Admin.PasswordHash, c.Settings.Admin.TOTPSecret, c.Settings.Admin.RecoveryHashes = "", "", nil
+			return nil
+		}))
 		_ = os.Remove(filepath.Join(abs, "sg9-admin-sessions.json"))
-		fmt.Println("Admin-Passwort gelöscht. Beim nächsten Öffnen der Verwaltung legst du ein neues fest.")
+		fmt.Println("Admin-Passwort und Zwei-Faktor-Anmeldung gelöscht. Beim nächsten Öffnen der Verwaltung legst du ein neues Passwort fest.")
 		return
 	}
 	if *addUser != "" {

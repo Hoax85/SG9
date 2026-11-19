@@ -120,6 +120,10 @@ type AdminSettings struct {
 	PasswordHash string `json:"passwordHash,omitempty"`
 	UseTLS       bool   `json:"useTLS"`
 	LocalNoLogin bool   `json:"localNoLogin"` // auf dem eigenen Rechner ohne Passwort
+	// Zwei-Faktor-Anmeldung
+	TOTPSecret     string   `json:"totpSecret,omitempty"`
+	TOTPLastUsed   int64    `json:"totpLastUsed,omitempty"`
+	RecoveryHashes []string `json:"recoveryHashes,omitempty"`
 }
 
 // ACMESettings: echtes HTTPS-Zertifikat von Let's Encrypt.

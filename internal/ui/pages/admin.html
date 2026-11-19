@@ -122,6 +122,13 @@ main { min-width: 0; padding: 22px 32px 48px; }
 .picker .where { font: 12.5px var(--mono); color: var(--ink-2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .copyline { display: flex; gap: 6px; align-items: center; }
+.twofa-setup { display: grid; gap: 14px; justify-items: center; }
+.twofa-setup .steps, .twofa-setup .field { justify-self: stretch; }
+.qrbox { width: 210px; height: 210px; background: #fff; border-radius: 10px; padding: 6px; }
+.qrbox svg { width: 100%; height: 100%; display: block; }
+.secret { font-size: 13px; letter-spacing: .04em; color: var(--ink-2); user-select: all; text-align: center; }
+.codes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 14px; background: var(--surface); border-radius: 10px; font-size: 15px; }
+.codes span { text-align: center; }
 .notify-kinds { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 10px 22px; }
 .nk { align-items: flex-start !important; white-space: normal !important; }
 .nk input { margin-top: 3px !important; }
@@ -201,7 +208,7 @@ function toast(msg, bad) {
   t.innerHTML = (bad ? "" : '<span class="led on"></span>') + "<span></span>"; t.lastChild.textContent = msg;
   box.appendChild(t); setTimeout(() => t.remove(), bad ? 6000 : 2600);
 }
-async function copy(text) { try { await navigator.clipboard.writeText(text); toast("Link kopiert"); } catch { prompt("Link kopieren:", text); } }
+async function copy(text, label = "Link kopiert") { try { await navigator.clipboard.writeText(text); toast(label); } catch { prompt("Kopieren:", text); } }
 
 const I = {
   status: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="7.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><path d="M16 12h3"/>',
@@ -266,14 +273,25 @@ function showLogin(st) {
   $("#root").innerHTML = gate(`
       <label class="field">Benutzer<input name="u" value="${esc(st?.username || "admin")}" autocomplete="username" required></label>
       <label class="field">Passwort<input name="p" type="password" autocomplete="current-password" autofocus required></label>
+      <label class="field hidden" id="codef">Code aus der Authenticator-App<input name="c" inputmode="numeric" autocomplete="one-time-code" placeholder="123456"><span class="hint">Handy nicht da? Einen Wiederherstellungscode eingeben.</span></label>
       <div class="err" id="lerr" role="alert"></div>
       <button class="btn primary">Anmelden</button>
       <span class="hint">Du bleibst auf diesem Gerät 30 Tage angemeldet. Passwort vergessen? Auf dem Server <span class="mono" style="white-space:nowrap">sg9 -reset-admin</span> ausführen.</span>`);
   $$("[data-theme-switch]").forEach(SG9Theme.render);
   $("#lf").onsubmit = async e => {
     e.preventDefault();
-    try { await api("POST", "/api/login", { username: e.target.u.value, password: e.target.p.value }); boot(); }
-    catch (err) { $("#lerr").textContent = err.message; }
+    const f = e.target;
+    const r = await fetch("/api/login", { method: "POST", headers: { "X-SG9": "1", "Content-Type": "application/json" }, credentials: "same-origin",
+      body: JSON.stringify({ username: f.u.value, password: f.p.value, code: f.c.value }) });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok) return boot();
+    if (d.need2fa) {
+      const first = $("#codef").classList.contains("hidden");
+      $("#codef").classList.remove("hidden"); f.c.focus();
+      $("#lerr").textContent = first ? "" : d.error;
+      return;
+    }
+    $("#lerr").textContent = d.error || "Anmeldung fehlgeschlagen";
   };
 }
 
@@ -1030,6 +1048,7 @@ async function viewSettings() {
     <div class="panel"><div class="panel-head"><h2>Dateien</h2></div><div class="panel-body grid-form">
       <label class="field">Für alle ausgeblendet<textarea name="hideFiles" placeholder="Thumbs.db&#10;desktop.ini&#10;.DS_Store">${esc(lines(s.hideFiles))}</textarea></label>
       <label class="field">Für alle beim Upload gesperrt<textarea name="denyUpload" placeholder="*.exe">${esc(lines(s.denyUpload))}</textarea></label></div></div>
+    <div class="panel"><div class="panel-head"><h2>Zwei-Faktor-Anmeldung für die Verwaltung</h2></div><div class="panel-body" id="twofa"><span class="hint">Lade …</span></div></div>
     <div class="panel"><div class="panel-head"><h2>Sicherheit</h2></div><div class="panel-body">
       <div class="grid-form"><label class="field">Erlaubte IP-Adressen<textarea name="ipAllow" placeholder="leer = alle">${esc(lines(s.ipAllow))}</textarea></label>
         <label class="field">Gesperrte IP-Adressen<textarea name="ipDeny">${esc(lines(s.ipDeny))}</textarea></label></div>
@@ -1076,6 +1095,7 @@ async function viewSettings() {
     } catch (err) { toast(err.message, true); }
   };
   $("#pw").onclick = () => passwordDialog();
+  draw2FA();
   // Let's Encrypt
   const sharePort = () => { const x = get("share"); return x.port || get("web").port; };
   const acmeUI = () => {
@@ -1102,6 +1122,56 @@ async function viewSettings() {
     };
   };
   drawCert();
+}
+async function draw2FA() {
+  const box = $("#twofa"); if (!box) return;
+  const t = await api("GET", "/api/2fa").catch(() => null); if (!t) return;
+  box.innerHTML = t.enabled
+    ? `<div class="acme-state"><span class="led on"></span><span>Eingeschaltet. Beim Anmelden fragt SG9 zusätzlich nach dem Code aus deiner Authenticator-App. Noch <b>${t.recoveryLeft}</b> Wiederherstellungscodes übrig.</span><button type="button" class="btn small danger" id="off2fa">Ausschalten</button></div>
+       ${t.localNoLogin ? `<p class="hint" style="margin:0">Direkt am Rechner, auf dem SG9 läuft, gilt weiterhin „ohne Passwort“. Das schaltest du unter Allgemein ab.</p>` : ""}`
+    : `<div class="acme-state"><span class="led"></span><span>Aus. Mit Zwei-Faktor reicht ein gestohlenes Passwort nicht, um die Verwaltung zu öffnen. Empfohlen, sobald etwas von aussen erreichbar ist.</span><button type="button" class="btn small primary" id="on2fa">Einschalten</button></div>`;
+  if ($("#on2fa")) $("#on2fa").onclick = setup2FA;
+  if ($("#off2fa")) $("#off2fa").onclick = () => {
+    const m = modalBox(`<form><header>Zwei-Faktor ausschalten</header><div class="body"><label class="field">Zur Bestätigung dein Passwort<input name="p" type="password" autocomplete="current-password" required></label></div>
+      <footer><button type="button" class="btn" data-close>Abbrechen</button><button class="btn danger">Ausschalten</button></footer></form>`);
+    const f = $("form", m); f.p.focus();
+    f.onsubmit = async e => { e.preventDefault(); try { await api("POST", "/api/2fa/disable", { password: f.p.value }); m.remove(); toast("Zwei-Faktor ist aus"); draw2FA(); } catch (err) { toast(err.message, true); } };
+  };
+}
+function modalBox(html) {
+  const m = document.createElement("div"); m.className = "modal";
+  m.innerHTML = `<div class="box" role="dialog">${html}</div>`;
+  document.body.appendChild(m);
+  m.onclick = e => { if (e.target === m || e.target.closest("[data-close]")) m.remove(); };
+  m.onkeydown = e => { if (e.key === "Escape") m.remove(); };
+  return m;
+}
+async function setup2FA() {
+  let d; try { d = await api("POST", "/api/2fa/begin"); } catch (err) { toast(err.message, true); return; }
+  const m = modalBox(`<form><header>Zwei-Faktor einschalten</header><div class="body twofa-setup">
+      <ol class="steps">
+        <li><b>Authenticator-App öffnen</b>, z. B. Aegis, Bitwarden, 2FAS oder Google Authenticator.</li>
+        <li><b>Diesen Code scannen.</b> Geht das nicht, das Geheimnis darunter von Hand eintippen.</li>
+        <li><b>Die 6 Ziffern eingeben,</b> die die App jetzt anzeigt.</li></ol>
+      <div class="qrbox">${d.qr}</div>
+      <div class="mono secret" title="Geheimnis zum Eintippen">${esc(d.secret.replace(/(.{4})/g, "$1 ").trim())}</div>
+      <label class="field">Code aus der App<input name="c" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="123456" required></label>
+    </div><footer><button type="button" class="btn" data-close>Abbrechen</button><button class="btn primary">Bestätigen</button></footer></form>`);
+  const f = $("form", m); f.c.focus();
+  f.onsubmit = async e => {
+    e.preventDefault();
+    try {
+      const r = await api("POST", "/api/2fa/enable", { code: f.c.value });
+      const text = "SG9 – Wiederherstellungscodes\nJeder Code funktioniert genau einmal.\n\n" + r.recoveryCodes.join("\n") + "\n";
+      $(".box", m).innerHTML = `<header>Wiederherstellungscodes</header><div class="body" style="display:grid;gap:12px">
+        <p style="margin:0">Zwei-Faktor ist eingeschaltet. <b>Bewahre diese Codes gut auf.</b> Ist dein Handy weg, kommst du mit einem davon wieder in die Verwaltung. Jeder Code funktioniert einmal, und du siehst sie nur jetzt.</p>
+        <div class="codes mono">${r.recoveryCodes.map(c => `<span>${c}</span>`).join("")}</div></div>
+        <footer><button type="button" class="btn" id="dlc">Als Datei speichern</button><button type="button" class="btn" id="cpc">Kopieren</button><button type="button" class="btn primary" data-close>Gespeichert, fertig</button></footer>`;
+      $("#cpc", m).onclick = () => copy(text, "Codes kopiert");
+      $("#dlc", m).onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" })); a.download = "sg9-wiederherstellungscodes.txt"; a.click(); };
+      draw2FA();
+    } catch (err) { toast(err.message, true); f.c.select(); }
+  };
 }
 function passwordDialog() {
   const m = document.createElement("div"); m.className = "modal";

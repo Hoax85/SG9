@@ -16,6 +16,7 @@ replace (
 	golang.org/x/tools => github.com/golang/tools v0.33.0
 	golang.org/x/xerrors => github.com/golang/xerrors v0.0.0-20240903120638-7835f813f4da
 	gopkg.in/yaml.v3 => ./third_party/yamlstub
+	rsc.io/qr => github.com/rsc/qr v0.2.0
 )
 
 require (
@@ -28,4 +29,5 @@ require (
 	github.com/kr/fs v0.1.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
+	rsc.io/qr v0.2.0 // indirect
 )

@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -248,7 +249,7 @@ func (a *Admin) login(w http.ResponseWriter, r *http.Request) {
 		fail(w, http.StatusTooManyRequests, "Zu viele Fehlversuche, bitte in 10 Minuten erneut versuchen.")
 		return
 	}
-	var in struct{ Username, Password string }
+	var in struct{ Username, Password, Code string }
 	if err := readJSON(r, &in); err != nil {
 		fail(w, http.StatusBadRequest, "Ungültige Anfrage")
 		return
@@ -267,8 +268,150 @@ func (a *Admin) login(w http.ResponseWriter, r *http.Request) {
 		fail(w, http.StatusUnauthorized, "Benutzername oder Passwort falsch")
 		return
 	}
+	if st.Admin.TOTPSecret != "" {
+		if strings.TrimSpace(in.Code) == "" {
+			writeJSON(w, http.StatusUnauthorized, map[string]any{"error": "Bitte den Code aus deiner Authenticator-App eingeben", "need2fa": true})
+			return
+		}
+		if !a.checkSecondFactor(in.Code) {
+			time.Sleep(700 * time.Millisecond)
+			a.loginBans.Fail(ip, core.AntiHammer{Enabled: true, MaxAttempts: 8, WindowSec: 300, BanSec: 600})
+			a.Hub.Log.Warn("Verwaltung: falscher Zwei-Faktor-Code von %s", ip)
+			writeJSON(w, http.StatusUnauthorized, map[string]any{"error": "Der Code stimmt nicht. Achte darauf, dass die Uhrzeit auf Handy und Server stimmt.", "need2fa": true})
+			return
+		}
+	}
 	a.issueSession(w)
 	a.Hub.Log.Info("Verwaltung: angemeldet von %s", ip)
+	ok(w)
+}
+
+// checkSecondFactor prüft einen TOTP-Code oder einen Wiederherstellungscode (der dann verbraucht ist).
+func (a *Admin) checkSecondFactor(code string) bool {
+	st := a.store().Settings().Admin
+	if c, okc := core.CheckTOTP(st.TOTPSecret, code, time.Now(), st.TOTPLastUsed); okc {
+		_ = a.store().UpdateQuiet(func(cfg *core.Config) error {
+			if c > cfg.Settings.Admin.TOTPLastUsed {
+				cfg.Settings.Admin.TOTPLastUsed = c
+			}
+			return nil
+		})
+		return true
+	}
+	norm := strings.ToLower(strings.ReplaceAll(strings.TrimSpace(code), " ", ""))
+	if len(norm) == 10 {
+		norm = norm[:5] + "-" + norm[5:]
+	}
+	for i, h := range st.RecoveryHashes {
+		if core.CheckPassword(h, norm) {
+			_ = a.store().UpdateQuiet(func(cfg *core.Config) error {
+				hs := cfg.Settings.Admin.RecoveryHashes
+				if i < len(hs) && hs[i] == h {
+					cfg.Settings.Admin.RecoveryHashes = append(hs[:i:i], hs[i+1:]...)
+				}
+				return nil
+			})
+			a.Hub.Log.Warn("Verwaltung: mit Wiederherstellungscode angemeldet, noch %d übrig", len(st.RecoveryHashes)-1)
+			a.Hub.NotifyEvent("error", "Wiederherstellungscode benutzt", fmt.Sprintf("Jemand hat sich mit einem Wiederherstellungscode an der Verwaltung angemeldet. Noch %d Codes übrig.", len(st.RecoveryHashes)-1))
+			return true
+		}
+	}
+	return false
+}
+
+// ---------- Zwei-Faktor einrichten ----------
+
+type pending2FA struct {
+	secret string
+	exp    time.Time
+}
+
+func (a *Admin) twofaStatus(w http.ResponseWriter, r *http.Request) {
+	st := a.store().Settings().Admin
+	writeJSON(w, 200, map[string]any{"enabled": st.TOTPSecret != "", "recoveryLeft": len(st.RecoveryHashes), "localNoLogin": st.LocalNoLogin})
+}
+
+func (a *Admin) twofaBegin(w http.ResponseWriter, r *http.Request) {
+	st := a.store().Settings()
+	if st.Admin.TOTPSecret != "" {
+		fail(w, 409, "Zwei-Faktor-Anmeldung ist schon eingeschaltet")
+		return
+	}
+	secret := core.NewTOTPSecret()
+	a.mu.Lock()
+	a.pending = &pending2FA{secret: secret, exp: time.Now().Add(15 * time.Minute)}
+	a.mu.Unlock()
+	issuer := "SG9"
+	if st.ServerName != "" && st.ServerName != "SG9 Server" {
+		issuer = "SG9 " + st.ServerName
+	}
+	uri := core.TOTPURI(secret, st.Admin.Username, issuer)
+	svg, err := core.QRSVG(uri)
+	if err != nil {
+		fail(w, 500, err.Error())
+		return
+	}
+	writeJSON(w, 200, map[string]any{"secret": secret, "uri": uri, "qr": svg})
+}
+
+func (a *Admin) twofaEnable(w http.ResponseWriter, r *http.Request) {
+	var in struct{ Code string }
+	if readJSON(r, &in) != nil {
+		fail(w, 400, "Ungültige Anfrage")
+		return
+	}
+	a.mu.Lock()
+	p := a.pending
+	a.mu.Unlock()
+	if p == nil || time.Now().After(p.exp) {
+		fail(w, 400, "Die Einrichtung ist abgelaufen. Bitte nochmals beginnen.")
+		return
+	}
+	c, okc := core.CheckTOTP(p.secret, in.Code, time.Now(), 0)
+	if !okc {
+		fail(w, 400, "Der Code stimmt nicht. Prüfe, ob die Uhrzeit auf dem Handy stimmt, und gib den aktuellen Code ein.")
+		return
+	}
+	codes := core.NewRecoveryCodes(8)
+	hashes := make([]string, len(codes))
+	for i, c := range codes {
+		hashes[i] = core.HashPassword(c)
+	}
+	if err := a.store().Update(func(cfg *core.Config) error {
+		cfg.Settings.Admin.TOTPSecret, cfg.Settings.Admin.TOTPLastUsed, cfg.Settings.Admin.RecoveryHashes = p.secret, c, hashes
+		return nil
+	}); err != nil {
+		fail(w, 500, err.Error())
+		return
+	}
+	a.mu.Lock()
+	a.pending = nil
+	a.mu.Unlock()
+	a.logoutAll()
+	a.issueSession(w)
+	a.Hub.Log.Info("Zwei-Faktor-Anmeldung für die Verwaltung eingeschaltet")
+	writeJSON(w, 200, map[string]any{"recoveryCodes": codes})
+}
+
+func (a *Admin) twofaDisable(w http.ResponseWriter, r *http.Request) {
+	var in struct{ Password string }
+	if readJSON(r, &in) != nil {
+		fail(w, 400, "Ungültige Anfrage")
+		return
+	}
+	if !core.CheckPassword(a.store().Settings().Admin.PasswordHash, in.Password) {
+		time.Sleep(700 * time.Millisecond)
+		fail(w, 400, "Das Passwort stimmt nicht")
+		return
+	}
+	if err := a.store().Update(func(cfg *core.Config) error {
+		cfg.Settings.Admin.TOTPSecret, cfg.Settings.Admin.TOTPLastUsed, cfg.Settings.Admin.RecoveryHashes = "", 0, nil
+		return nil
+	}); err != nil {
+		fail(w, 500, err.Error())
+		return
+	}
+	a.Hub.Log.Warn("Zwei-Faktor-Anmeldung für die Verwaltung ausgeschaltet")
 	ok(w)
 }
 

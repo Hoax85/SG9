@@ -32,6 +32,11 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
+# rsc.io/qr v0.2.0 => github.com/rsc/qr v0.2.0
+## explicit
+rsc.io/qr
+rsc.io/qr/coding
+rsc.io/qr/gf256
 # golang.org/x/crypto => github.com/golang/crypto v0.39.0
 # golang.org/x/exp => github.com/golang/exp v0.0.0-20250506013437-ce4c2cf36ca6
 # golang.org/x/mod => github.com/golang/mod v0.25.0
@@ -45,3 +50,4 @@ golang.org/x/text/unicode/norm
 # golang.org/x/tools => github.com/golang/tools v0.33.0
 # golang.org/x/xerrors => github.com/golang/xerrors v0.0.0-20240903120638-7835f813f4da
 # gopkg.in/yaml.v3 => ./third_party/yamlstub
+# rsc.io/qr => github.com/rsc/qr v0.2.0

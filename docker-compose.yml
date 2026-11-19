@@ -1,0 +1,17 @@
+# SG9 mit Docker Compose.
+# Netzwerkmodus "host": FTP im Passivmodus funktioniert ohne zusätzliche Einstellungen,
+# und alle Ports, die du in der Verwaltung einstellst, sind sofort erreichbar.
+services:
+  sg9:
+    image: sg9:latest
+    build: .
+    container_name: sg9
+    network_mode: host
+    user: "1000:1000"            # dein Benutzer, damit SG9 deine Dateien lesen darf (id -u / id -g)
+    environment:
+      - TZ=Europe/Zurich
+      - SG9_ADMIN_LISTEN=:8021   # gilt nur beim allerersten Start
+    volumes:
+      - ./sg9-data:/data         # Einstellungen, Logs, Schlüssel
+      - /srv/dateien:/shares     # was du freigeben willst, beliebig viele Zeilen möglich
+    restart: unless-stopped

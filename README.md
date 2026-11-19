@@ -130,6 +130,28 @@ dem Benutzer `sg9` Leserechte geben, z. B. mit `sudo setfacl -R -m u:sg9:rX /pfa
 3. Für Freigabe-Links unter **Einstellungen → Freigabe-Links und WebDAV** die öffentliche Adresse eintragen, z. B. `https://dateien.example.ch`
 4. Verschlüsselung einschalten: FTP auf „Erzwungen“, Web-Zugang mit HTTPS. SFTP ist immer verschlüsselt.
 
+## Docker und Unraid
+
+Das Image ist sehr klein (rund 14 MB, ohne Betriebssystem darin) und läuft als Benutzer 99:100,
+wie unter Unraid üblich.
+
+```bash
+docker build -t sg9 .
+docker compose up -d        # mit der mitgelieferten docker-compose.yml
+```
+
+- **Netzwerkmodus host** ist empfohlen: Dann funktioniert FTP im Passivmodus ohne weitere Einstellungen,
+  und jeder Port, den du in SG9 einstellst, ist sofort erreichbar.
+- **`/data`** enthält Einstellungen, Benutzer, Links und Schlüssel, **`/shares`** die Ordner, die SG9 teilen darf.
+  Beim Erstellen eines Links beginnt die Auswahl direkt in `/shares`.
+- **`SG9_ADMIN_LISTEN`** (Standard `:8021`) macht die Verwaltung beim ersten Start von aussen erreichbar.
+  Danach gilt, was in SG9 eingestellt ist.
+- Der Container hat einen eingebauten Gesundheitscheck (`sg9 -healthcheck`).
+
+**Unraid:** `deploy/unraid/sg9.xml` nach `/boot/config/plugins/dockerMan/templates-user/my-SG9.xml`
+kopieren, dann unter Docker → „Container hinzufügen“ die Vorlage „SG9“ wählen. In der Vorlage
+`Repository` auf dein Image setzen, z. B. aus der Container-Registry deines Forgejo.
+
 ## Als Dienst einrichten
 
 Vorlagen im Ordner `deploy/`, die Schritte stehen jeweils oben in der Datei:

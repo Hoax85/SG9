@@ -299,6 +299,13 @@ func OpenStore(dataDir string) (*Store, bool, error) {
 	switch {
 	case errors.Is(err, os.ErrNotExist):
 		s.cfg = DefaultConfig(dataDir)
+		// Im Container muss die Verwaltung von aussen erreichbar sein.
+		if a := strings.TrimSpace(os.Getenv("SG9_ADMIN_LISTEN")); a != "" {
+			s.cfg.Settings.Admin.ListenAddr = a
+		}
+		if n := strings.TrimSpace(os.Getenv("SG9_SERVER_NAME")); n != "" {
+			s.cfg.Settings.ServerName = n
+		}
 		created = true
 		if err := s.saveLocked(); err != nil {
 			return nil, false, err

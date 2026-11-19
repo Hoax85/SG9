@@ -872,8 +872,12 @@ func (a *Admin) browse(w http.ResponseWriter, r *http.Request) {
 		Home   string    `json:"home"`
 	}
 	res := out{Dirs: []string{}, Files: []fileOut{}, Sep: string(filepath.Separator)}
-	if h, err := os.UserHomeDir(); err == nil {
+	if h, err := os.UserHomeDir(); err == nil && h != "/" {
 		res.Home = h
+	}
+	// Im Container liegen die freigegebenen Ordner unter /shares.
+	if fi, err := os.Stat("/shares"); err == nil && fi.IsDir() && os.Getenv("SG9_DATA") != "" {
+		res.Home = "/shares"
 	}
 	withFiles := r.URL.Query().Get("files") == "1"
 	if p == "" {

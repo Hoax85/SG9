@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>SG9</Name>
+  <!-- Nach dem Veröffentlichen auf Forgejo durch die Adresse deiner Container-Registry ersetzen,
+       z. B. forgejo.example.lan/peter/sg9:latest -->
+  <Repository>sg9:latest</Repository>
+  <Registry/>
+  <Network>host</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support/>
+  <Project/>
+  <Overview>SG9 – Datei-Server im Stil von G6: FTP/FTPS, SFTP, WebDAV, Dateien im Browser und Freigabe-Links mit Passwort, Ablaufdatum und Briefkasten. Verwaltung im Browser auf Port 8021, beim ersten Öffnen Passwort festlegen.</Overview>
+  <Category>Network:Other Tools:</Category>
+  <WebUI>http://[IP]:8021/</WebUI>
+  <TemplateURL/>
+  <Icon/>
+  <ExtraParams>--user 99:100</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires>Netzwerkmodus host: FTP-Passivmodus und alle in SG9 eingestellten Ports funktionieren ohne Portzuordnung.</Requires>
+  <Config Name="Daten" Target="/data" Default="/mnt/user/appdata/sg9" Mode="rw" Description="Einstellungen, Benutzer, Links, Logs und Schlüssel von SG9" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/sg9</Config>
+  <Config Name="Freigaben" Target="/shares" Default="/mnt/user" Mode="rw" Description="Ordner, die SG9 teilen darf. In SG9 unter /shares auswählbar. Nur lesen: Modus auf ro stellen." Type="Path" Display="always" Required="true" Mask="false">/mnt/user</Config>
+  <Config Name="Zeitzone" Target="TZ" Default="Europe/Zurich" Mode="" Description="Zeitzone für Protokoll und Ablaufdaten" Type="Variable" Display="advanced" Required="false" Mask="false">Europe/Zurich</Config>
+  <Config Name="Port der Verwaltung beim ersten Start" Target="SG9_ADMIN_LISTEN" Default=":8021" Mode="" Description="Nur beim allerersten Start. Später in SG9 unter Einstellungen änderbar." Type="Variable" Display="advanced" Required="false" Mask="false">:8021</Config>
+</Container>

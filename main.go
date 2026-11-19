@@ -2,12 +2,16 @@
 package main
 
 import (
+	"crypto/tls"
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
+	"time"
+	_ "time/tzdata" // Zeitzonen auch in schlanken Containern ohne Systemdateien
 
 	"sg9/internal/admin"
 	"sg9/internal/core"
@@ -19,6 +23,9 @@ import (
 var version = "2.3.1"
 
 func defaultDataDir() string {
+	if d := os.Getenv("SG9_DATA"); d != "" {
+		return d
+	}
 	exe, err := os.Executable()
 	if err != nil {
 		return "sg9-data"
@@ -36,6 +43,7 @@ func main() {
 	addUser := flag.String("add-user", "", "Benutzer anlegen: name:passwort (Gruppe Standard)")
 	quiet := flag.Bool("quiet", false, "keine Log-Ausgabe auf der Konsole")
 	showVersion := flag.Bool("version", false, "Version anzeigen")
+	healthcheck := flag.Bool("healthcheck", false, "prüfen, ob die Verwaltung antwortet (für Docker), Rückgabewert 0 = ok")
 	flag.Parse()
 	admin.Version = version
 
@@ -48,6 +56,9 @@ func main() {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Fehler:", err)
 		os.Exit(1)
+	}
+	if *healthcheck {
+		os.Exit(runHealthcheck(store.Settings()))
 	}
 
 	if *setPw != "" {
@@ -136,6 +147,30 @@ func main() {
 	sftpSrv.Stop()
 	webSrv.Stop()
 	hub.SaveCounters()
+}
+
+// runHealthcheck fragt die Verwaltung lokal ab (Docker HEALTHCHECK braucht kein curl).
+func runHealthcheck(st core.Settings) int {
+	_, port, err := core.SplitAddr(st.Admin.ListenAddr)
+	if err != nil {
+		return 1
+	}
+	scheme := "http"
+	client := &http.Client{Timeout: 3 * time.Second}
+	if st.Admin.UseTLS {
+		scheme = "https"
+		client.Transport = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}} // nur localhost
+	}
+	resp, err := client.Get(fmt.Sprintf("%s://127.0.0.1:%d/api/state", scheme, port))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "nicht erreichbar:", err)
+		return 1
+	}
+	resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return 1
+	}
+	return 0
 }
 
 func splitOnce(s string, sep byte) (string, string, bool) {

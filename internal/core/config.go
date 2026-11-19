@@ -174,6 +174,8 @@ func (w WebSettings) EffectiveShare() string {
 // Settings sind die globalen Servereinstellungen.
 type Settings struct {
 	ServerName         string        `json:"serverName"`
+	UpdateCheckOff     bool          `json:"updateCheckOff"` // nicht nach neuen Versionen fragen
+	UpdateRepo         string        `json:"updateRepo"`     // GitHub owner/name, leer = eingebaut
 	ListenAddr         string        `json:"listenAddr"`
 	FTPEnabled         bool          `json:"ftpEnabled"`
 	Online             bool          `json:"online"`

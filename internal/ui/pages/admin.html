@@ -384,7 +384,7 @@ function renderStatusLive() {
       ${sv.enabled ? `<div class="addr">${esc(addr || "–")}</div>` : ""}<div class="meta">${esc(meta)}</div>
       ${sv.enabled && listening && sv.sessions >= 0 ? `<div class="count"><b>${sv.sessions}</b> ${sv.sessions === 1 ? "Sitzung" : "Sitzungen"}</div>` : ""}</div>`;
   };
-  $("#plate").innerHTML = `<div class="ident"><div><b style="display:inline;margin-right:10px">${esc(s.serverName)}</b><span class="faint" style="font-size:var(--t-xs)">${esc(s.platform)} · Version ${esc(s.version)}</span></div>
+  $("#plate").innerHTML = `<div class="ident"><div><b style="display:inline;margin-right:10px">${esc(s.serverName)}</b><span class="faint" style="font-size:var(--t-xs)">${esc(s.platform)} · Version ${esc(s.version)}</span>${s.update?.available ? ` <a class="pill ok" href="${esc(s.update.url)}" target="_blank" rel="noopener" title="Neue Version herunterladen">Version ${esc(s.update.available)} verfügbar</a>` : ""}</div>
     <div class="state"><span class="led ${s.online ? "on" : "err"}"></span>${s.online ? "Online seit " + fmtDur(s.uptimeSec) : "Offline – neue Verbindungen werden abgewiesen"}</div></div>
     ${s.services.filter(x => x.enabled).map(port).join("")}
     ${(() => { const off = s.services.filter(x => !x.enabled && x.id !== "ftps"); return off.length ? `<div class="off-note">Ausgeschaltet: ${off.map(x => esc(x.name)).join(", ")} · <a href="#settings" onclick="go('settings');return false">einschalten</a></div>` : ""; })()}`;
@@ -1052,6 +1052,7 @@ async function viewSettings() {
     </div></div>
     <div class="panel"><div class="panel-head"><h2>Allgemein</h2></div><div class="panel-body grid-form">
       ${i("serverName", "Servername", s.serverName)}${i("logFile", "Logdatei", s.logFile)}${i("adminUser", "Benutzername der Verwaltung", s.admin.username)}
+      <div class="span">${c("updateCheck", "Einmal täglich nachschauen, ob es eine neue Version gibt", !s.updateCheckOff)}<div class="hint" style="margin-top:4px">Fragt nur bei GitHub nach der neusten Versionsnummer und zeigt auf der Übersicht einen Hinweis. Heruntergeladen oder installiert wird nichts.</div></div>
       <div class="span">${c("localNoLogin", "Verwaltung auf diesem Rechner ohne Passwort öffnen", s.admin.localNoLogin)}<div class="hint" style="margin-top:4px">Gilt nur direkt am Rechner, auf dem SG9 läuft. Von anderen Geräten braucht es immer das Passwort.</div></div></div></div>
     <div class="panel"><div class="panel-head"><h2>Verbindungen und Bandbreite</h2></div><div class="panel-body grid-form">
       ${i("maxConnections", "Verbindungen gesamt", s.maxConnections, "number")}${i("maxConnPerIP", "Verbindungen pro IP", s.maxConnPerIP, "number")}
@@ -1083,7 +1084,7 @@ async function viewSettings() {
       if (need && !/^\d{1,5}$/.test(x.port)) { toast(`${n}: bitte einen Port angeben`, true); return; }
     // WebDAV und Links ohne eigenen Port, aber mit eigener Adresse: Port des Browsers übernehmen
     const follow = x => x.port ? x.addr : (x.host ? joinAddr(x.host, w.port) : "");
-    const body = { ...s, serverName: f.serverName.value, banner: f.banner.value, logFile: f.logFile.value.trim(),
+    const body = { ...s, updateCheckOff: !f.updateCheck.checked, serverName: f.serverName.value, banner: f.banner.value, logFile: f.logFile.value.trim(),
       ftpEnabled: ftp.on, listenAddr: ftp.addr || s.listenAddr,
       passivePortMin: num(f.passivePortMin.value), passivePortMax: num(f.passivePortMax.value), publicIP: f.publicIP.value.trim(),
       maxConnections: num(f.maxConnections.value), maxConnPerIP: num(f.maxConnPerIP.value), idleTimeoutSec: num(f.idleTimeoutSec.value), loginTimeoutSec: num(f.loginTimeoutSec.value) || 60,

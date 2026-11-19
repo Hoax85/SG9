@@ -22,6 +22,10 @@ import (
 
 var version = "2.3.1"
 
+// updateRepo: GitHub-Projekt für den Update-Hinweis (owner/name).
+// Release-Builds setzen es mit -ldflags "-X main.updateRepo=…".
+var updateRepo = ""
+
 func defaultDataDir() string {
 	if d := os.Getenv("SG9_DATA"); d != "" {
 		return d
@@ -44,8 +48,20 @@ func main() {
 	quiet := flag.Bool("quiet", false, "keine Log-Ausgabe auf der Konsole")
 	showVersion := flag.Bool("version", false, "Version anzeigen")
 	healthcheck := flag.Bool("healthcheck", false, "prüfen, ob die Verwaltung antwortet (für Docker), Rückgabewert 0 = ok")
+	installSvc := flag.Bool("install-service", false, "als Windows-Dienst einrichten (startet mit Windows, auch ohne Anmeldung)")
+	uninstallSvc := flag.Bool("uninstall-service", false, "Windows-Dienst entfernen")
 	flag.Parse()
 	admin.Version = version
+	admin.UpdateRepo = updateRepo
+
+	if *installSvc || *uninstallSvc {
+		abs, _ := filepath.Abs(*dataDir)
+		if err := manageService(*installSvc, abs); err != nil {
+			fmt.Fprintln(os.Stderr, "Fehler:", err)
+			os.Exit(1)
+		}
+		return
+	}
 
 	if *showVersion {
 		fmt.Println("SG9 Server", version)
@@ -100,8 +116,24 @@ func main() {
 		return
 	}
 
+	if isService() {
+		runService(func(stop <-chan struct{}) { serve(store, abs, created, true, stop) })
+		return
+	}
+	stop := make(chan struct{})
+	go func() {
+		sig := make(chan os.Signal, 1)
+		signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
+		<-sig
+		close(stop)
+	}()
+	serve(store, abs, created, *quiet, stop)
+}
+
+// serve startet alle Dienste und läuft, bis stop geschlossen wird.
+func serve(store *core.Store, abs string, created, quiet bool, stop <-chan struct{}) {
 	st := store.Settings()
-	log := core.NewLogger(st.LogFile, *quiet)
+	log := core.NewLogger(st.LogFile, quiet)
 	log.Info("SG9 %s startet, Datenordner: %s", version, abs)
 	if created {
 		log.Info("Neue Konfiguration angelegt: %s", filepath.Join(abs, "sg9.json"))
@@ -135,7 +167,8 @@ func main() {
 		log.Error("%v", err)
 		os.Exit(1)
 	}
-	if store.Settings().Admin.PasswordHash == "" {
+	adm.StartUpdateCheck()
+	if store.Settings().Admin.PasswordHash == "" && !quiet {
 		_, port, _ := core.SplitAddr(store.Settings().Admin.ListenAddr)
 		fmt.Printf("\n  SG9 einrichten: http://localhost:%d im Browser öffnen und ein Passwort festlegen.\n\n", port)
 	}
@@ -143,9 +176,7 @@ func main() {
 		log.Warn("Kein Dienst konnte starten. Ports im Web-Admin unter Einstellungen prüfen.")
 	}
 
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
-	<-sig
+	<-stop
 	log.Info("SG9 wird beendet")
 	ftpSrv.Stop()
 	sftpSrv.Stop()

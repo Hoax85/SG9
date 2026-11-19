@@ -315,6 +315,7 @@ func (a *Admin) status(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]any{
 		"serverName":   st.ServerName,
 		"version":      Version,
+		"update":       a.updateInfo(),
 		"platform":     runtime.GOOS + "/" + runtime.GOARCH,
 		"online":       st.Online,
 		"services":     services,
